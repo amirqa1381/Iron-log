@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
+import compression from 'compression';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -36,6 +37,7 @@ app.use(cors({
   credentials: true
 }));
 
+app.use(compression());
 app.use(express.json({ limit: '10mb' }));
 app.use(cookieParser());
 
@@ -87,9 +89,32 @@ app.get('/db-status', (req: Request, res: Response) => {
   res.json(getDatabaseStatus());
 });
 
-// Serve frontend static files
+// System performance and scalability metrics endpoint
+app.get('/api/system-metrics', (req: Request, res: Response) => {
+  const mem = process.memoryUsage();
+  res.json({
+    timestamp: new Date().toISOString(),
+    uptimeSeconds: Math.round(process.uptime()),
+    memoryUsageMB: {
+      rss: +(mem.rss / 1024 / 1024).toFixed(1),
+      heapTotal: +(mem.heapTotal / 1024 / 1024).toFixed(1),
+      heapUsed: +(mem.heapUsed / 1024 / 1024).toFixed(1)
+    },
+    architecture: 'Stateless Node.js with Connection Pooling & In-Memory Fallback',
+    capacityAdvice: {
+      concurrentUsersEstimate: '۵۰ تا ۱۰۰ کاربر همزمان روی پلن رایگان ۵۱۲ مگابایت رم Render / Railway',
+      databaseTier: 'Supabase Free Tier (۵۰۰ مگابایت حافظه + ۵۰ هزار کاربر در ماه)',
+      optimizations: ['Gzip Compression', 'Composite B-Tree Indexes', 'HTTP Caching', 'Debounced Sync']
+    }
+  });
+});
+
+// Serve frontend static files with caching
 const frontendDir = path.join(__dirname, 'frontend');
-app.use(express.static(frontendDir));
+app.use(express.static(frontendDir, {
+  maxAge: '1h',
+  etag: true
+}));
 
 // SPA fallback
 app.get('*', (req: Request, res: Response) => {

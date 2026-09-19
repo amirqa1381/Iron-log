@@ -25,17 +25,37 @@ export const updateSettings = async (req, res) => {
   try {
     const parsed = settingsSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ errors: parsed.error.flatten().fieldErrors });
+      return res.status(400).json({ 
+        message: 'اطلاعات وارد شده نامعتبر است',
+        errors: parsed.error.flatten().fieldErrors 
+      });
     }
 
     const { activeMode, startWeight, targetWeight } = parsed.data;
 
-    const currentResult = await pool.query(`SELECT active_mode, start_weight, target_weight FROM user_settings WHERE user_id = $1`, [req.userId]);
-    const current = currentResult.rows[0] || { active_mode: 'dumbbell', start_weight: 78, target_weight: 85 };
+    const currentResult = await pool.query(
+      `SELECT active_mode, start_weight, target_weight FROM user_settings WHERE user_id = $1`, 
+      [req.userId]
+    );
+    const current = currentResult.rows[0] || {};
 
-    const newActiveMode = activeMode || current.active_mode || 'dumbbell';
-    const newStartWeight = startWeight !== undefined ? startWeight : (Number(current.start_weight) || 78);
-    const newTargetWeight = targetWeight !== undefined ? targetWeight : (Number(current.target_weight) || 85);
+    const newActiveMode = activeMode || current.active_mode || current.activeMode || 'dumbbell';
+    
+    let newStartWeight = null;
+    if (startWeight !== undefined && startWeight !== null && !isNaN(startWeight)) {
+      newStartWeight = Number(startWeight);
+    } else if (startWeight === undefined) {
+      const existingSw = current.start_weight !== undefined ? current.start_weight : current.startWeight;
+      newStartWeight = existingSw !== undefined && existingSw !== null ? Number(existingSw) : null;
+    }
+
+    let newTargetWeight = null;
+    if (targetWeight !== undefined && targetWeight !== null && !isNaN(targetWeight)) {
+      newTargetWeight = Number(targetWeight);
+    } else if (targetWeight === undefined) {
+      const existingTw = current.target_weight !== undefined ? current.target_weight : current.targetWeight;
+      newTargetWeight = existingTw !== undefined && existingTw !== null ? Number(existingTw) : null;
+    }
 
     await pool.query(
       `INSERT INTO user_settings (user_id, active_mode, start_weight, target_weight, updated_at)
@@ -55,6 +75,6 @@ export const updateSettings = async (req, res) => {
     });
   } catch (err) {
     console.error('updateSettings error:', err);
-    return res.status(500).json({ message: 'خطا در ذخیره تنظیمات' });
+    return res.status(500).json({ message: 'خطا در ذخیره تنظیمات: ' + (err.message || 'خطای سرور') });
   }
 };

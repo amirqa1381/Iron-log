@@ -409,11 +409,16 @@ function executeInMemoryQuery(text, params = []) {
       start_weight: null,
       target_weight: null
     };
+    const sw = setting.start_weight !== undefined && setting.start_weight !== null ? Number(setting.start_weight) : null;
+    const tw = setting.target_weight !== undefined && setting.target_weight !== null ? Number(setting.target_weight) : null;
     return {
       rows: [{
-        activeMode: setting.active_mode,
-        startWeight: setting.start_weight !== undefined && setting.start_weight !== null ? setting.start_weight : null,
-        targetWeight: setting.target_weight !== undefined && setting.target_weight !== null ? setting.target_weight : null
+        active_mode: setting.active_mode || 'dumbbell',
+        activeMode: setting.active_mode || 'dumbbell',
+        start_weight: sw,
+        startWeight: sw,
+        target_weight: tw,
+        targetWeight: tw
       }],
       rowCount: 1
     };
@@ -626,9 +631,16 @@ export async function initPostgresTables() {
           mistake TEXT DEFAULT '',
           created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
         );
+
+        -- Performance & Scalability Indexes
+        CREATE INDEX IF NOT EXISTS idx_workout_logs_user_date ON workout_logs(user_id, log_date DESC);
+        CREATE INDEX IF NOT EXISTS idx_workout_logs_user_exercise ON workout_logs(user_id, exercise_name);
+        CREATE INDEX IF NOT EXISTS idx_bodyweight_logs_user_date ON bodyweight_logs(user_id, log_date DESC);
+        CREATE INDEX IF NOT EXISTS idx_custom_exercises_user_mode ON custom_exercises(user_id, program_mode);
+        CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user ON refresh_tokens(user_id);
       `);
       isPostgresAvailable = true;
-      console.log('✅ Supabase PostgreSQL connected and tables verified successfully');
+      console.log('✅ Supabase PostgreSQL connected and indexes verified successfully');
     } finally {
       client.release();
     }

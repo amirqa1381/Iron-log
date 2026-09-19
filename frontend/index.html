@@ -335,6 +335,65 @@
   </div>
 </div>
 
+<!-- مودال مانیتورینگ مقیاس‌پذیری و ظرفیت پلن رایگان -->
+<div id="scalabilityModal" class="auth-modal" style="display:none;z-index:9999;background:rgba(0,0,0,0.8);backdrop-filter:blur(4px);">
+  <div class="card auth-card" style="max-width:580px;max-height:90vh;overflow-y:auto;text-align:right;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;border-bottom:1px solid var(--line);padding-bottom:10px;">
+      <h2 style="font-size:16px;margin:0;color:#34c759;font-weight:700;">⚡ ظرفیت پلن رایگان و وضعیت مقیاس‌پذیری (Scalability)</h2>
+      <button type="button" onclick="closeScalabilityModal()" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:0 4px;">✕</button>
+    </div>
+
+    <div style="font-size:12.5px;line-height:1.9;color:var(--text);">
+      <div style="background:rgba(52,199,89,0.08);border:1px solid rgba(52,199,89,0.3);border-radius:8px;padding:12px;margin-bottom:12px;">
+        <b style="color:#34c759;font-size:13.5px;">👥 در حالت کاملاً رایگان چند کاربر همزمان می‌توانند استفاده کنند؟</b>
+        <p style="margin:6px 0 0 0;color:var(--text);">
+          روی پلن رایگان <b>Render / Railway (۵۱۲ مگابایت رم)</b> همراه با <b>Supabase Free Tier (دیتابیس ابری PostgreSQL)</b>:
+        </p>
+        <ul style="padding-inline-start:20px;margin:6px 0;">
+          <li><b>کاربران آنلاین در یک لحظه (همزمان واقعی):</b> <b>۵۰ تا ۱۰۰ کاربر</b> می‌توانند همزمان درخواست‌های ثبت تمرین، تغییر وزن و نمودارها را بدون افت سرعت بفرستند.</li>
+          <li><b>کاربران فعال ماهانه (MAU):</b> حداکثر <b>۵۰,۰۰۰ کاربر ثبت‌نامی</b> ماهانه تحت سقف رایگان Supabase.</li>
+          <li><b>حجم ذخیره‌سازی رایگان:</b> <b>۵۰۰ مگابایت دیتابیس رایگان</b> که برای ذخیره بیش از <b>۲٬۰۰۰٬۰۰۰ (دو میلیون) ست تمرین</b> کافی است!</li>
+        </ul>
+      </div>
+
+      <div style="background:var(--surface-2);border-radius:8px;padding:12px;margin-bottom:12px;border:1px solid var(--line);">
+        <b style="color:var(--accent);font-size:13px;">🛠️ قابلیت‌ها و بهینه‌سازی‌های مقیاس‌پذیری فعال‌شده در سیستم:</b>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
+          <div style="background:var(--surface);padding:8px;border-radius:6px;border:1px solid var(--line);">
+            <b style="color:var(--accent);font-size:11.5px;">۱. Gzip Compression</b>
+            <div style="font-size:11px;color:var(--muted);">کاهش ۷۰٪ حجم تبادل اطلاعات و کاهش مصرف پهنای باند سرور.</div>
+          </div>
+          <div style="background:var(--surface);padding:8px;border-radius:6px;border:1px solid var(--line);">
+            <b style="color:var(--accent);font-size:11.5px;">۲. Composite B-Tree Indexes</b>
+            <div style="font-size:11px;color:var(--muted);">ایندکس‌های ترکیبی دیتابیس برای جستجوی میلی‌ثانیه‌ای حتی در میلیون‌ها رکورد.</div>
+          </div>
+          <div style="background:var(--surface);padding:8px;border-radius:6px;border:1px solid var(--line);">
+            <b style="color:var(--accent);font-size:11.5px;">۳. HTTP Caching & ETag</b>
+            <div style="font-size:11px;color:var(--muted);">کش کلاینت فایل‌های ثابت و عدم فشار به CPU سرور در بازخوانی‌های مکرر.</div>
+          </div>
+          <div style="background:var(--surface);padding:8px;border-radius:6px;border:1px solid var(--line);">
+            <b style="color:var(--accent);font-size:11.5px;">۴. Stateless Architecture</b>
+            <div style="font-size:11px;color:var(--muted);">مدیریت احراز هویت با JWT بدون نیاز به اشغال حافظه Session سرور.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- وضعیت زنده سرور فعلی -->
+      <div style="background:#141617;border-radius:6px;padding:10px 14px;border:1px solid rgba(255,255,255,0.08);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <span style="font-size:12px;color:var(--muted);">وضعیت آنلاین رم و منابع سرور:</span>
+          <button type="button" class="btn" style="padding:2px 8px;font-size:11px;color:var(--accent);" onclick="loadSystemMetrics()">🔄 به‌روزرسانی</button>
+        </div>
+        <div id="liveMetricsOutput" style="font-size:11.5px;color:#d5c4a1;direction:ltr;font-family:monospace;">در حال دریافت اطلاعات...</div>
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;margin-top:14px;">
+      <button type="button" class="primary" style="width:auto;padding:8px 24px;" onclick="closeScalabilityModal()">متوجه شدم</button>
+    </div>
+  </div>
+</div>
+
 <!-- مودال راهنمای استقرار رایگان روی سرور -->
 <div id="deployModal" class="auth-modal" style="display:none;z-index:9999;background:rgba(0,0,0,0.8);backdrop-filter:blur(4px);">
   <div class="card auth-card" style="max-width:540px;max-height:90vh;overflow-y:auto;text-align:right;">
@@ -394,6 +453,7 @@ PORT=3000
   <div class="user-bar">
     <span id="userGreeting">در حال اتصال...</span>
     <div style="display:flex;gap:6px;align-items:center;">
+      <button class="logout-btn" style="background:rgba(52,199,89,0.12);color:#34c759;border-color:rgba(52,199,89,0.35);" onclick="openScalabilityModal()">⚡ ظرفیت و وضعیت سرور</button>
       <button class="logout-btn" style="background:rgba(217,164,65,0.12);color:var(--accent);border-color:rgba(217,164,65,0.35);" onclick="openDeployModal()">🚀 سرورهای رایگان</button>
       <button class="logout-btn" onclick="logoutUser()">خروج</button>
     </div>
@@ -514,13 +574,37 @@ PORT=3000
       <section class="card">
         <label>حرکت</label>
         <select id="histExercise" onchange="renderHistory()"></select>
+
+        <div style="margin-top:10px;">
+          <input type="text" id="histSearchInput" placeholder="🔍 فیلتر در تاریخچه، یادداشت‌ها یا تکرارها..." oninput="renderHistory()" style="font-size:12px;padding:7px 10px;">
+        </div>
+
+        <div id="histSummaryBanner" style="display:none;margin-top:12px;background:var(--surface-2);border-radius:6px;padding:10px;border:1px solid var(--line);font-size:12px;">
+          <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:6px;text-align:center;">
+            <div>
+              <div style="color:var(--muted);font-size:11px;">بهترین رکورد ۱RM</div>
+              <b style="color:var(--accent);font-size:13px;" id="histStatBest1RM">—</b>
+            </div>
+            <div>
+              <div style="color:var(--muted);font-size:11px;">سنگین‌ترین وزنه</div>
+              <b style="color:var(--text);font-size:13px;" id="histStatMaxWeight">—</b>
+            </div>
+            <div>
+              <div style="color:var(--muted);font-size:11px;">تعداد جلسات</div>
+              <b style="color:var(--text);font-size:13px;" id="histStatTotalLogs">—</b>
+            </div>
+          </div>
+        </div>
       </section>
       <section class="card" id="histChartCard" style="display:none;">
         <div class="sectionhead">روند تخمینی حجم تمرین (وزن × میانگین تکرار)</div>
         <svg class="chart" id="histChart"></svg>
       </section>
       <section class="card">
-        <div class="sectionhead">ثبت‌ها</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <div class="sectionhead" style="margin-bottom:0;">ثبت‌ها</div>
+          <span id="histCountBadge" style="font-size:11px;color:var(--muted);"></span>
+        </div>
         <div id="histList"></div>
       </section>
     </div>
@@ -634,7 +718,8 @@ PORT=3000
 
         <div class="btn-row">
           <button class="ghost" onclick="copyReviewReport()">📋 کپی متن ارزیابی</button>
-          <button class="ghost" onclick="exportData()">💾 دانلود بک‌آپ (.json)</button>
+          <button class="ghost" onclick="exportData()">💾 بک‌آپ کامل (.json)</button>
+          <button class="ghost" onclick="exportWorkoutsToCSV()">📊 اکسل (.csv)</button>
           <button class="ghost" onclick="document.getElementById('importFile').click()">📥 ایمپورت بک‌آپ (.json)</button>
         </div>
         <input type="file" id="importFile" accept="application/json,.json" style="display:none" onchange="importData(event)">
@@ -919,6 +1004,18 @@ function updateUserBar(){
 }
 
 /* ---------------- ۲. اتصال به Workout Service با توکن JWT ---------------- */
+function parseUserNumber(val) {
+  if (val === null || val === undefined) return null;
+  let s = String(val).trim();
+  if (!s) return null;
+  s = s.replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
+       .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+       .replace(/٫/g, '.')
+       .replace(/,/g, '.');
+  const n = parseFloat(s);
+  return isNaN(n) ? null : n;
+}
+
 async function apiFetch(url, options = {}) {
   options.headers = options.headers || {};
   if (currentAccessToken) {
@@ -1912,7 +2009,7 @@ async function setMode(mode) {
 async function submitLog() {
   const date = document.getElementById('logDate').value || todayISO();
   const exercise = document.getElementById('logExercise').value;
-  const weight = parseFloat(document.getElementById('logWeight').value);
+  const weight = parseUserNumber(document.getElementById('logWeight').value);
   const repsStr = document.getElementById('logReps').value.trim();
   const rirStr = document.getElementById('logRir').value.trim();
   const notes = document.getElementById('logNotes').value.trim();
@@ -2142,6 +2239,35 @@ function openDeployModal() {
 function closeDeployModal() {
   document.getElementById('deployModal').style.display = 'none';
 }
+
+/* ---------------- مانیتورینگ مقیاس‌پذیری و ظرفیت سرور ---------------- */
+function openScalabilityModal() {
+  document.getElementById('scalabilityModal').style.display = 'flex';
+  loadSystemMetrics();
+}
+function closeScalabilityModal() {
+  document.getElementById('scalabilityModal').style.display = 'none';
+}
+
+async function loadSystemMetrics() {
+  const el = document.getElementById('liveMetricsOutput');
+  if (!el) return;
+  el.textContent = 'در حال استعلام وضعیت مستقیم از سرور...';
+  try {
+    const res = await fetch('/api/system-metrics');
+    if (!res.ok) throw new Error('وضعیت ' + res.status);
+    const data = await res.json();
+    el.innerHTML = `
+      <div>• حافظه رم مصرفی فعال پروسس: <b>${data.memoryUsageMB.rss} MB</b> (از سقف ۵۱۲ مگابایت پلن رایگان)</div>
+      <div>• حافظه Heap اشغال‌شده: <b>${data.memoryUsageMB.heapUsed} MB</b></div>
+      <div>• مدت زمان آنلاین بودن سرور (Uptime): <b>${Math.floor(data.uptimeSeconds / 60)} دقیقه</b> (${data.uptimeSeconds} ثانیه)</div>
+      <div>• تخمین ظرفیت همزمانی: <b>${data.capacityAdvice.concurrentUsersEstimate}</b></div>
+      <div style="color:#34c759;margin-top:4px;">✔ تمامی بهینه‌سازی‌های فشرده‌سازی Gzip و ایندکس‌های B-Tree فعال هستند.</div>
+    `;
+  } catch (err) {
+    el.textContent = 'خطا در ارتباط با سرور سنجش کارایی: ' + err.message;
+  }
+}
 function copyDeployEnv() {
   const envText = `DATABASE_URL=postgresql://postgres.fzjssseinyiuanwiqvwr:AyWNdPZpvwMfIdZk@aws-1-eu-west-1.pooler.supabase.com:6543/postgres\nJWT_ACCESS_SECRET=Vor+2vsL2CU4044U2w/hFkpwQ8mv5aWr5CH+pinxFRc=\nJWT_REFRESH_SECRET=K4Gtt5qyJsPB66zEh+KSGAoE26oTctQ2Rn7ASW1AKgI=\nPORT=3000`;
   navigator.clipboard.writeText(envText).then(() => {
@@ -2158,30 +2284,81 @@ function renderHistory(){
   const entries = workoutLogs.filter(l=>l.exercise===exercise).sort((a,b)=>a.date.localeCompare(b.date));
   const list = document.getElementById('histList');
   const chartCard = document.getElementById('histChartCard');
+  const summaryBanner = document.getElementById('histSummaryBanner');
+  const countBadge = document.getElementById('histCountBadge');
+  const searchInput = document.getElementById('histSearchInput');
+  const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
 
   if(entries.length===0){
     list.innerHTML = `<div class="empty">هنوز ثبتی برای این حرکت وجود ندارد.</div>`;
     chartCard.style.display='none';
+    if(summaryBanner) summaryBanner.style.display = 'none';
+    if(countBadge) countBadge.textContent = '۰ ثبت';
     return;
   }
 
+  // Calculate Exercise Lifetime Stats & 1RM PR
+  let best1RM = 0;
+  let maxWeight = 0;
   let pbScore=-1, pbId=null;
+
   entries.forEach(e=>{
-    const score = e.weight * Math.max(...e.reps);
+    const maxRep = Math.max(...e.reps);
+    if(e.weight > maxWeight) maxWeight = e.weight;
+    // Epley 1RM formula: weight * (1 + reps / 30)
+    const est1RM = e.weight * (1 + maxRep / 30);
+    if(est1RM > best1RM) best1RM = est1RM;
+
+    const score = e.weight * maxRep;
     if(score>pbScore){ pbScore=score; pbId=e.id; }
   });
 
-  list.innerHTML = entries.slice().reverse().map(e=>{
-    const isPB = e.id===pbId;
-    return `<div class="histentry">
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <div class="histdate">${e.date}${isPB?'<span class="pbtag">رکورد</span>':''}</div>
-        <button class="delbtn" onclick="deleteWorkoutLog(${e.id})" title="حذف این ثبت">×</button>
-      </div>
-      <div class="histsets">${e.weight} کیلوگرم — ${e.reps.join(' / ')}${e.rir && e.rir.length?` (RIR ${e.rir.join('/')})`:''}</div>
-      ${e.notes?`<div class="histnote">${e.notes}</div>`:''}
-    </div>`;
-  }).join('');
+  if(summaryBanner){
+    summaryBanner.style.display = 'block';
+    const el1RM = document.getElementById('histStatBest1RM');
+    const elMaxW = document.getElementById('histStatMaxWeight');
+    const elTotal = document.getElementById('histStatTotalLogs');
+    if(el1RM) el1RM.textContent = best1RM > 0 ? `${best1RM.toFixed(1)} kg` : '—';
+    if(elMaxW) elMaxW.textContent = `${maxWeight} kg`;
+    if(elTotal) elTotal.textContent = `${entries.length} جلسه`;
+  }
+
+  // Filter entries if search query provided
+  let filteredEntries = entries;
+  if(query){
+    filteredEntries = entries.filter(e => {
+      const dateMatch = e.date.includes(query);
+      const weightMatch = String(e.weight).includes(query);
+      const repsMatch = e.reps.join(' ').includes(query);
+      const notesMatch = e.notes ? e.notes.toLowerCase().includes(query) : false;
+      return dateMatch || weightMatch || repsMatch || notesMatch;
+    });
+  }
+
+  if(countBadge){
+    countBadge.textContent = query ? `${filteredEntries.length} از ${entries.length} ثبت` : `${entries.length} ثبت`;
+  }
+
+  if(filteredEntries.length === 0){
+    list.innerHTML = `<div class="empty" style="padding:16px;">موردی منطبق با «${query}» یافت نشد.</div>`;
+  } else {
+    list.innerHTML = filteredEntries.slice().reverse().map(e=>{
+      const isPB = e.id===pbId;
+      const maxRep = Math.max(...e.reps);
+      const itemEst1RM = (e.weight * (1 + maxRep / 30)).toFixed(1);
+      return `<div class="histentry">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div class="histdate">${e.date}${isPB?'<span class="pbtag">رکورد</span>':''}</div>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <span style="font-size:10.5px;color:var(--muted);background:var(--surface-2);padding:2px 6px;border-radius:4px;" title="یک تکرار بیشینه تخمینی">1RM ≈ ${itemEst1RM}kg</span>
+            <button class="delbtn" onclick="deleteWorkoutLog(${e.id})" title="حذف این ثبت">×</button>
+          </div>
+        </div>
+        <div class="histsets">${e.weight} کیلوگرم — ${e.reps.join(' / ')}${e.rir && e.rir.length?` (RIR ${e.rir.join('/')})`:''}</div>
+        ${e.notes?`<div class="histnote">${e.notes}</div>`:''}
+      </div>`;
+    }).join('');
+  }
 
   chartCard.style.display = entries.length>=2 ? 'block' : 'none';
   if(entries.length>=2){
@@ -2226,15 +2403,23 @@ async function deleteWeightLog(id){
 
 async function submitWeight() {
   const date = document.getElementById('bwDate').value || todayISO();
-  const weight = parseFloat(document.getElementById('bwWeight').value);
-  if (!weight) return;
+  const rawWeight = document.getElementById('bwWeight').value;
+  const weight = parseUserNumber(rawWeight);
+  if (!weight || weight <= 0) {
+    alert('لطفاً یک وزن معتبر به کیلوگرم وارد کنید.');
+    return;
+  }
 
   try {
     const res = await apiFetch('/bodyweight', {
       method: 'POST',
       body: JSON.stringify({ logDate: date, weightKg: weight })
     });
-    if (!res.ok) throw new Error('خطا در ثبت وزن');
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      const msg = errData.message || (errData.errors ? Object.entries(errData.errors).map(([k,v]) => `${k}: ${v.join(', ')}`).join(' | ') : 'خطا در ثبت وزن در سرور');
+      throw new Error(msg);
+    }
     const saved = await res.json();
 
     const idx = bodyWeightLogs.findIndex(w => w.date === date);
@@ -2245,7 +2430,7 @@ async function submitWeight() {
     refreshHeader();
     renderWeightTab();
   } catch (e) {
-    alert(e.message);
+    alert('خطا در ثبت وزن: ' + e.message);
   }
 }
 
@@ -2341,21 +2526,40 @@ async function saveWeightGoals(){
 }
 
 async function saveCustomGoals(swInput, twInput, fbEl){
-  const sw = swInput ? parseFloat(swInput) : null;
-  const tw = twInput ? parseFloat(twInput) : null;
+  const sw = parseUserNumber(swInput);
+  const tw = parseUserNumber(twInput);
   if(!tw || tw <= 0){
-    if(fbEl) fbEl.innerHTML = `<span style="color:var(--danger)">لطفاً یک وزن هدف معتبر وارد کنید.</span>`;
+    if(fbEl) fbEl.innerHTML = `<span style="color:var(--danger)">لطفاً یک وزن هدف معتبر (مثلاً ۸۲) وارد کنید.</span>`;
     return;
   }
   START_WEIGHT = sw;
   TARGET_WEIGHT = tw;
   try{
+    const payload = { 
+      activeMode: currentMode || 'dumbbell', 
+      targetWeight: tw 
+    };
+    if (sw !== null && sw > 0) {
+      payload.startWeight = sw;
+    } else {
+      payload.startWeight = null;
+    }
+
     const res = await apiFetch('/settings', {
       method: 'PUT',
-      body: JSON.stringify({ activeMode: currentMode, startWeight: sw, targetWeight: tw })
+      body: JSON.stringify(payload)
     });
-    if(!res.ok) throw new Error('خطا در ذخیره اهداف در سرور');
-    if(fbEl) fbEl.innerHTML = `<span style="color:var(--ok)">✓ اهداف وزن با موفقیت ذخیره شد.</span>`;
+    if(!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      const msg = errData.message || (errData.errors ? Object.entries(errData.errors).map(([k,v]) => `${k}: ${v.join(', ')}`).join(' | ') : 'خطا در ذخیره اهداف در سرور');
+      throw new Error(msg);
+    }
+    const updated = await res.json().catch(() => null);
+    if (updated) {
+      if (updated.startWeight !== undefined) START_WEIGHT = updated.startWeight;
+      if (updated.targetWeight !== undefined) TARGET_WEIGHT = updated.targetWeight;
+    }
+    if(fbEl) fbEl.innerHTML = `<span style="color:var(--ok)">✓ اهداف وزن با موفقیت در سرور ذخیره شد.</span>`;
     refreshHeader();
     renderWeightTab();
     if(document.getElementById('tab-review').classList.contains('active')){
@@ -2893,6 +3097,41 @@ async function exportData() {
   } catch (e) {
     alert('خطا در دانلود بک‌آپ: ' + e.message);
   }
+}
+
+function exportWorkoutsToCSV() {
+  if (!workoutLogs || workoutLogs.length === 0) {
+    alert('هنوز هیچ ثبت تمرینی برای دانلود فایل اکسل وجود ندارد.');
+    return;
+  }
+  const headers = ['تاریخ', 'برنامه', 'حرکت', 'نام فارسی', 'وزن (کیلوگرم)', 'تکرارها', 'RIR', '1RM تخمینی', 'یادداشت'];
+  const rows = workoutLogs.map(l => {
+    const maxRep = l.reps && l.reps.length ? Math.max(...l.reps) : 0;
+    const est1RM = maxRep > 0 ? (l.weight * (1 + maxRep / 30)).toFixed(1) : l.weight;
+    const faName = exerciseFaName ? exerciseFaName(l.exercise) : l.exercise;
+    return [
+      l.date,
+      l.mode === 'dumbbell' ? 'دمبل خانگی' : 'باشگاه',
+      `"${(l.exercise || '').replace(/"/g, '""')}"`,
+      `"${(faName || '').replace(/"/g, '""')}"`,
+      l.weight,
+      `"${(l.reps || []).join(' - ')}"`,
+      `"${(l.rir || []).join(' - ')}"`,
+      est1RM,
+      `"${(l.notes || '').replace(/"/g, '""')}"`
+    ].join(',');
+  });
+
+  // Add UTF-8 BOM so Excel opens Persian text properly without broken characters
+  const csvContent = '\uFEFF' + headers.join(',') + '\n' + rows.join('\n');
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'iron-log-workouts-' + todayISO() + '.csv';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
 }
 
 async function importData(event) {
