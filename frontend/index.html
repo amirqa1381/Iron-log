@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>دفتر تمرین آهنین | Iron Log</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#1c1e1f;
+    --surface:#25282a;
+    --surface-2:#2e3234;
+    --line: rgba(237,234,227,0.09);
+    --text:#edeae3;
+    --muted:#9aa0a6;
+    --accent:#d9a441;
+    --accent-dim: rgba(217,164,65,0.15);
+    --steel:#7a8b99;
+    --success:#6fbf73;
+    --warn:#e0793c;
+    --danger:#d96c6c;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Vazirmatn',system-ui,sans-serif;-webkit-font-smoothing:antialiased;}
+  h1,h2,h3,.display{font-family:'Vazirmatn',sans-serif;}
+  .brandmark{font-family:'Space Grotesk',sans-serif;}
+  #app{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;position:relative;}
+
+  /* Header & Navigation */
+  header{padding:18px 16px 14px;border-bottom:1px solid var(--line);}
+  .brand{display:flex;align-items:baseline;justify-content:space-between;}
+  .brand h1{font-size:19px;margin:0;font-weight:700;letter-spacing:0.2px;}
+  .brand h1 span{color:var(--accent);}
+  .brand .datebadge{font-size:12px;color:var(--muted);}
+  .subtitle{font-size:11.5px;color:var(--muted);margin-top:2px;}
+  .modeToggle{display:flex;gap:8px;margin-top:12px;background:var(--surface-2);border-radius:8px;padding:4px;}
+  .modebtn{flex:1;background:none;border:none;color:var(--muted);font-family:inherit;font-size:12.5px;padding:8px 4px;border-radius:6px;cursor:pointer;font-weight:600;}
+  .modebtn.active{background:var(--accent);color:#1c1e1f;}
+  .statrow{display:flex;gap:10px;margin-top:12px;}
+  .statchip{flex:1;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:8px 10px;}
+  .statchip .k{font-size:10.5px;color:var(--muted);}
+  .statchip .v{font-size:16px;font-weight:600;margin-top:2px;font-family:'Vazirmatn',sans-serif;}
+
+  .user-bar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:8px 16px;background:var(--surface-2);border-bottom:1px solid var(--line);
+    font-size:12px;color:var(--muted);
+  }
+  .logout-btn{background:none;border:none;color:var(--danger);cursor:pointer;font-size:12px;font-family:inherit;font-weight:600;}
+
+  main{flex:1;padding:16px;padding-bottom:88px;overflow-y:auto;}
+  .tab{display:none;}
+  .tab.active{display:block;animation:fade .15s ease;}
+  @keyframes fade{from{opacity:0;}to{opacity:1;}}
+
+  section.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 14px;margin-bottom:14px;}
+  .daytitle{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+  .daytitle h2{font-size:15px;margin:0;font-weight:600;}
+  .daytag{font-size:10.5px;color:var(--accent);border:1px solid var(--accent-dim);background:var(--accent-dim);padding:2px 8px;border-radius:20px;}
+
+  .exercise{border-top:1px solid var(--line);padding:12px 0;}
+  .exercise:first-child{border-top:none;padding-top:0;}
+  .exname{font-size:14.5px;font-weight:600;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+  .exname a{color:var(--text);text-decoration:none;border-bottom:1px dashed var(--muted);direction:ltr;unicode-bidi:embed;}
+  .exname a:hover{border-color:var(--accent);color:var(--accent);}
+  .exnamefa{font-size:12.5px;color:var(--muted);margin-top:2px;}
+  .dbcount{font-size:10.5px;color:var(--muted);white-space:nowrap;padding-top:2px;}
+  .exmeta{display:flex;gap:14px;flex-wrap:wrap;margin-top:6px;font-size:12px;color:var(--muted);}
+  .exmeta b{color:var(--text);font-weight:600;}
+  .extech{margin-top:8px;font-size:12.5px;color:var(--text);opacity:0.9;line-height:1.8;}
+  .extech .lbl{color:var(--accent);font-weight:600;}
+  .exmistake{font-size:12px;color:var(--warn);margin-top:4px;line-height:1.7;}
+  .exmistake .lbl{font-weight:600;}
+
+  .sectionhead{font-size:11.5px;color:var(--muted);margin:4px 0 10px;}
+
+  label{display:block;font-size:12px;color:var(--muted);margin:12px 0 5px;}
+  label:first-child{margin-top:0;}
+  input, select, textarea{
+    width:100%;background:var(--surface-2);border:1px solid var(--line);color:var(--text);
+    border-radius:6px;padding:9px 10px;font-size:14px;font-family:inherit;
+  }
+  input:focus, select:focus, textarea:focus{outline:none;border-color:var(--accent);}
+  .row2{display:flex;gap:10px;}
+  .row2 > div{flex:1;}
+  button.primary{
+    margin-top:16px;width:100%;background:var(--accent);color:#1c1e1f;border:none;border-radius:6px;
+    padding:12px;font-size:14px;font-weight:700;font-family:'Vazirmatn',sans-serif;letter-spacing:0.2px;cursor:pointer;
+  }
+  button.primary:active{transform:scale(0.99);}
+  button.ghost{
+    margin-top:8px;width:100%;background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:6px;
+    padding:9px;font-size:12.5px;cursor:pointer;font-family:inherit;
+  }
+  .feedback{margin-top:14px;padding:12px;border-radius:6px;border:1px solid var(--line);font-size:13px;line-height:1.8;}
+  .feedback.up{border-color:rgba(111,191,115,0.4);background:rgba(111,191,115,0.08);}
+  .feedback.hold{border-color:rgba(217,164,65,0.4);background:var(--accent-dim);}
+  .feedback.down{border-color:rgba(217,108,108,0.4);background:rgba(217,108,108,0.08);}
+
+  .histentry{border-top:1px solid var(--line);padding:10px 0;font-size:13px;}
+  .histentry:first-child{border-top:none;}
+  .histdate{color:var(--muted);font-size:11px;direction:ltr;text-align:right;}
+  .histsets{margin-top:3px;font-weight:600;font-size:14px;}
+  .histnote{color:var(--muted);font-size:12px;margin-top:3px;font-style:italic;}
+  .pbtag{display:inline-block;font-size:9.5px;color:#1c1e1f;background:var(--accent);border-radius:10px;padding:1px 7px;margin-inline-start:6px;font-weight:700;vertical-align:middle;}
+  .empty{color:var(--muted);font-size:13px;text-align:center;padding:30px 10px;line-height:1.8;}
+
+  svg.chart{width:100%;height:120px;display:block;}
+
+  .wlist{max-height:260px;overflow-y:auto;}
+  .wrow{display:flex;justify-content:space-between;border-top:1px solid var(--line);padding:8px 0;font-size:13px;}
+  .wrow:first-child{border-top:none;}
+  .wrow .d{color:var(--muted);direction:ltr;}
+  .wrow .v{font-weight:600;}
+
+  .scoregrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+  .scorebox{background:var(--surface-2);border-radius:6px;padding:10px;}
+  .scorebox .k{font-size:11px;color:var(--muted);}
+  .scorebox .v{font-size:20px;font-weight:700;margin-top:2px;}
+  .scorebox .v small{font-size:12px;color:var(--muted);font-weight:500;}
+  .note{font-size:13px;line-height:1.8;padding:4px 0;}
+  .note b{color:var(--accent);}
+
+  nav{position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:0 auto;background:rgba(28,30,31,0.97);backdrop-filter:blur(6px);
+      border-top:1px solid var(--line);display:flex;padding:6px 4px calc(6px + env(safe-area-inset-bottom));}
+  nav button{flex:1;background:none;border:none;color:var(--muted);font-family:inherit;font-size:10.5px;padding:6px 2px;cursor:pointer;
+      display:flex;flex-direction:column;align-items:center;gap:4px;}
+  nav button svg{width:19px;height:19px;}
+  nav button.active{color:var(--accent);}
+  nav button.active svg{filter:drop-shadow(0 0 6px rgba(217,164,65,0.4));}
+
+  /* Overlay Modal for Login / Register */
+  #authOverlay {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  .auth-box {
+    width: 100%;
+    max-width: 380px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+  }
+  .auth-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 4px;
+    text-align: center;
+    font-family: 'Space Grotesk', 'Vazirmatn', sans-serif;
+  }
+  .auth-sub {
+    font-size: 13px;
+    color: var(--muted);
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .auth-nav {
+    display: flex;
+    margin-bottom: 18px;
+    background: var(--surface-2);
+    border-radius: 6px;
+    padding: 4px;
+    gap: 4px;
+  }
+  .auth-nav button {
+    flex: 1;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-family: inherit;
+    font-size: 13px;
+    padding: 8px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+  .auth-nav button.active {
+    background: var(--accent);
+    color: #1c1e1f;
+  }
+</style>
+</head>
+<body>
+
+<!-- فرم ورود / ثبت نام -->
+<div id="authOverlay">
+  <div class="auth-box">
+    <div class="auth-title">IRON LOG</div>
+    <div class="auth-sub">دفتر هوشمند تمرین و رکوردها</div>
+
+    <div class="auth-nav">
+      <button id="btnTabLogin" class="active" onclick="switchAuthTab('login')">ورود</button>
+      <button id="btnTabRegister" onclick="switchAuthTab('register')">ثبت‌نام</button>
+    </div>
+
+    <div id="authError" class="feedback down" style="display:none;margin-bottom:12px;padding:8px 12px;"></div>
+
+    <form id="authForm" onsubmit="handleAuthSubmit(event)">
+      <div id="displayNameField" style="display:none;">
+        <label>نام یا نام مستعار</label>
+        <input type="text" id="authName" placeholder="مثلاً: علی">
+      </div>
+
+      <label>ایمیل</label>
+      <input type="email" id="authEmail" required placeholder="user@example.com" dir="ltr">
+
+      <label>رمز عبور</label>
+      <input type="password" id="authPassword" required placeholder="حداقل ۶ کاراکتر" dir="ltr">
+
+      <button type="submit" class="primary" id="authSubmitBtn" style="margin-top:20px;">ورود به حساب</button>
+    </form>
+  </div>
+</div>
+
+<div id="app">
+
+  <!-- نوار مشخصات کاربر -->
+  <div class="user-bar">
+    <span id="userGreeting">در حال اتصال...</span>
+    <button class="logout-btn" onclick="logoutUser()">خروج از حساب</button>
+  </div>
+
+  <header>
+    <div class="brand">
+      <div>
+        <h1 class="brandmark">IRON <span>LOG</span></h1>
+        <div class="subtitle">دفتر تمرین و پیگیری پیشرفت شما</div>
+      </div>
+      <div class="datebadge" id="todayLabel"></div>
+    </div>
+    <div class="statrow">
+      <div class="statchip"><div class="k">وزن بدن</div><div class="v" id="statWeight">۷۸.۰ کیلوگرم</div></div>
+      <div class="statchip"><div class="k">تا هدف</div><div class="v" id="statToGo">+۷.۰ کیلوگرم</div></div>
+      <div class="statchip"><div class="k">جلسات ثبت‌شده</div><div class="v" id="statSessions">۰</div></div>
+    </div>
+    <div class="modeToggle" id="modeToggle">
+      <button class="modebtn active" data-mode="dumbbell" onclick="setMode('dumbbell')">دمبل خانگی</button>
+      <button class="modebtn" data-mode="gym" onclick="setMode('gym')">باشگاه</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="tab active" id="tab-program"></div>
+
+    <div class="tab" id="tab-log">
+      <section class="card">
+        <div class="sectionhead">ثبت یک ست تمرین</div>
+        <label>تاریخ</label>
+        <input type="date" id="logDate">
+        <label>حرکت</label>
+        <select id="logExercise"></select>
+        <label>وزن استفاده‌شده (کیلوگرم، برای هر دست در صورت دو دمبل)</label>
+        <input type="number" id="logWeight" step="0.5" placeholder="مثلا 10">
+        <label>تعداد تکرار هر ست (با کاما جدا کن، مثلا 10,9,8)</label>
+        <input type="text" id="logReps" placeholder="10,9,8">
+        <label>RIR هر ست (با کاما جدا کن، مثلا 2,1,1)</label>
+        <input type="text" id="logRir" placeholder="2,1,1">
+        <label>یادداشت (اختیاری)</label>
+        <textarea id="logNotes" rows="2" placeholder="حس تمرین چطور بود؟"></textarea>
+        <button class="primary" onclick="submitLog()">ذخیره ثبت تمرین</button>
+        <div id="logFeedback"></div>
+      </section>
+    </div>
+
+    <div class="tab" id="tab-history">
+      <section class="card">
+        <label>حرکت</label>
+        <select id="histExercise" onchange="renderHistory()"></select>
+      </section>
+      <section class="card" id="histChartCard" style="display:none;">
+        <div class="sectionhead">روند تخمینی حجم تمرین (وزن × میانگین تکرار)</div>
+        <svg class="chart" id="histChart"></svg>
+      </section>
+      <section class="card">
+        <div class="sectionhead">ثبت‌ها</div>
+        <div id="histList"></div>
+      </section>
+    </div>
+
+    <div class="tab" id="tab-weight">
+      <section class="card">
+        <div class="sectionhead">ثبت وزن بدن</div>
+        <div class="row2">
+          <div><label>تاریخ</label><input type="date" id="bwDate"></div>
+          <div><label>وزن (کیلوگرم)</label><input type="number" id="bwWeight" step="0.1" placeholder="78.4"></div>
+        </div>
+        <button class="primary" onclick="submitWeight()">ذخیره وزن</button>
+      </section>
+      <section class="card" id="bwChartCard" style="display:none;">
+        <div class="sectionhead">روند وزن (۷۸ ← ۸۵ کیلوگرم)</div>
+        <svg class="chart" id="bwChart"></svg>
+        <div class="note" id="bwTrendNote"></div>
+      </section>
+      <section class="card">
+        <div class="sectionhead">تاریخچه</div>
+        <div class="wlist" id="bwList"></div>
+      </section>
+    </div>
+
+    <div class="tab" id="tab-review">
+      <section class="card">
+        <div class="sectionhead">ارزیابی پیشرفت</div>
+        <p style="font-size:13px;color:var(--muted);line-height:1.8;margin-top:0;">
+          این ارزیابی بر اساس همه‌چیزی که تا الان ثبت کردی محاسبه می‌شه. هر ۲ تا ۴ هفته یک‌بار ارزیابی کن — نه بیشتر.
+        </p>
+        <button class="primary" onclick="renderReview()">تهیه ارزیابی</button>
+        <button class="ghost" onclick="exportData()">دانلود بک‌آپ (.json)</button>
+        <button class="ghost" onclick="document.getElementById('importFile').click()">ایمپورت بک‌آپ (.json)</button>
+        <input type="file" id="importFile" accept="application/json,.json" style="display:none" onchange="importData(event)">
+        <div id="importFeedback"></div>
+      </section>
+      <div id="reviewOutput"></div>
+    </div>
+  </main>
+
+  <nav>
+    <button class="navbtn active" data-tab="program" onclick="switchTab('program')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.5 6.5l11 11M4 9l3-3 3 3M17 15l3 3-3 3M2 12h4M18 12h4M6 6l-2-2M18 18l2 2"/></svg>
+      برنامه
+    </button>
+    <button class="navbtn" data-tab="log" onclick="switchTab('log')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+      ثبت
+    </button>
+    <button class="navbtn" data-tab="history" onclick="switchTab('history')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18M7 15l4-5 3 3 5-7"/></svg>
+      تاریخچه
+    </button>
+    <button class="navbtn" data-tab="weight" onclick="switchTab('weight')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      وزن
+    </button>
+    <button class="navbtn" data-tab="review" onclick="switchTab('review')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4M5 3h14a2 2 0 012 2v16l-4-3-4 3-4-3-4 3V5a2 2 0 012-2z"/></svg>
+      ارزیابی
+    </button>
+  </nav>
+
+</div>
+
+<!-- شروع بخش اسکریپت‌ها (Scripts Part) -->
+<script>
+/* ---------------- ۱. اتصال به Auth Service و مدیریت توکن‌ها ---------------- */
+const AUTH_API_URL = window.location.port === '8080' ? '' : 'http://localhost:4001';
+let currentAccessToken = null;
+let currentAuthMode = 'login';
+let currentUser = null;
+
+function switchAuthTab(mode){
+  currentAuthMode = mode;
+  document.getElementById('btnTabLogin').classList.toggle('active', mode==='login');
+  document.getElementById('btnTabRegister').classList.toggle('active', mode==='register');
+  document.getElementById('displayNameField').style.display = mode==='register' ? 'block' : 'none';
+  document.getElementById('authSubmitBtn').textContent = mode==='register' ? 'ایجاد حساب کاربری' : 'ورود به حساب';
+  document.getElementById('authError').style.display = 'none';
+}
+
+async function handleAuthSubmit(e){
+  e.preventDefault();
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const displayName = document.getElementById('authName').value.trim();
+  const errBox = document.getElementById('authError');
+  errBox.style.display = 'none';
+
+  try {
+    if (currentAuthMode === 'register') {
+      const regRes = await fetch(`${AUTH_API_URL}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, displayName: displayName || undefined })
+      });
+      const regData = await regRes.json();
+      if (!regRes.ok) throw new Error(regData.message || 'خطا در ثبت‌نام');
+      currentAuthMode = 'login';
+    }
+
+    const logRes = await fetch(`${AUTH_API_URL}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ email, password })
+    });
+    const logData = await logRes.json();
+    if (!logRes.ok) throw new Error(logData.message || 'ایمیل یا رمز عبور اشتباه است');
+
+    currentAccessToken = logData.accessToken;
+    currentUser = logData.user;
+    updateUserBar();
+    document.getElementById('authOverlay').style.display = 'none';
+    await loadAll();
+  } catch(err) {
+    errBox.textContent = err.message;
+    errBox.style.display = 'block';
+  }
+}
+
+async function tryRefreshToken(){
+  try {
+    const res = await fetch(`${AUTH_API_URL}/auth/refresh`, {
+      method: 'POST',
+      credentials: 'include'
+    });
+    if (res.ok) {
+      const data = await res.json();
+      currentAccessToken = data.accessToken;
+      const meRes = await fetch(`${AUTH_API_URL}/auth/me`, {
+        headers: { 'Authorization': `Bearer ${currentAccessToken}` }
+      });
+      if (meRes.ok) {
+        currentUser = await meRes.json();
+        updateUserBar();
+        document.getElementById('authOverlay').style.display = 'none';
+        return true;
+      }
+    }
+  } catch(e) {
+    console.warn('نیاز به ورود به حساب کاربری.');
+  }
+  return false;
+}
+
+async function logoutUser(){
+  try {
+    await fetch(`${AUTH_API_URL}/auth/logout`, { method: 'POST', credentials: 'include' });
+  } finally {
+    currentAccessToken = null;
+    currentUser = null;
+    document.getElementById('authOverlay').style.display = 'flex';
+  }
+}
+
+function updateUserBar(){
+  if (currentUser) {
+    document.getElementById('userGreeting').textContent = `${currentUser.displayName || currentUser.email} خوش آمدید`;
+  }
+}
+
+/* ---------------- ۲. اتصال به Workout Service با توکن JWT ---------------- */
+async function apiFetch(url, options = {}) {
+  options.headers = options.headers || {};
+  if (currentAccessToken) {
+    options.headers['Authorization'] = `Bearer ${currentAccessToken}`;
+  }
+  options.headers['Content-Type'] = 'application/json';
+
+  let res = await fetch(url, options);
+
+  if ((res.status === 401 || res.status === 403) && url !== '/auth/refresh') {
+    const refreshed = await tryRefreshToken();
+    if (refreshed) {
+      options.headers['Authorization'] = `Bearer ${currentAccessToken}`;
+      res = await fetch(url, options);
+    } else {
+      logoutUser();
+      throw new Error('جلسه شما منقضی شده است، لطفاً دوباره وارد شوید.');
+    }
+  }
+  return res;
+}
+
+/* ---------------- ۳. داده‌های کامل برنامه دمبل خانگی ---------------- */
+const PROGRAM = [
+  { day:"روز ۱ — بالاتنه (تمرکز فشاری)", tag:"بالاتنه A", exercises:[
+    {name:"Dumbbell Bench Press", nameFa:"پرس سینه با دمبل (تخت)", dbs:"دو دمبل", weight:"۱۲.۵ تا ۱۵ کیلوگرم (هر دست)", sets:3, reps:"۸ تا ۱۲", rest:"۹۰ ثانیه", rir:2,
+     tech:"روی نیمکت دراز بکش، تا جایی پایین ببر که بازوها تقریباً هم‌سطح نیمکت باشن، آرنج‌ها حدود ۴۵ درجه از بدن فاصله داشته باشن، بعد مستقیم بالا فشار بده.",
+     mistake:"باز کردن بیش‌ازحد آرنج‌ها تا ۹۰ درجه — این فشار زیادی روی شونه می‌ذاره."},
+    {name:"Dumbbell Incline Press", nameFa:"پرس بالاسینه با دمبل (شیب‌دار)", dbs:"دو دمبل", weight:"۱۰ تا ۱۲.۵ کیلوگرم (هر دست)", sets:3, reps:"۸ تا ۱۲", rest:"۹۰ ثانیه", rir:2,
+     tech:"نیمکت رو روی شیب کم (حدود ۳۰ درجه) تنظیم کن. این بهترین ابزاری هست که برای رشد بالاسینه داری و پرس تخت به‌تنهایی نمی‌تونه اون رو بسازه.",
+     mistake:"زیاد کردن شیب نیمکت — بالای ۴۵ درجه عملاً تبدیل به پرس سرشانه می‌شه و فشار از سینه برداشته می‌شه."},
+    {name:"Dumbbell Shoulder Press", nameFa:"پرس سرشانه با دمبل", dbs:"دو دمبل", weight:"۷.۵ تا ۱۰ کیلوگرم (هر دست)", sets:3, reps:"۸ تا ۱۲", rest:"۹۰ ثانیه", rir:2,
+     tech:"مستقیم بالا فشار بده نه جلو. دنده‌ها رو پایین نگه دار و از قوس بیش‌ازحد کمر خودداری کن.",
+     mistake:"استفاده از فشار پا برای بالا بردن وزنه — حرکت باید نشسته یا ایستاده و کاملاً کنترل‌شده باشه."},
+    {name:"Dumbbell One Arm Row", nameFa:"رو با دمبل تک‌دست", dbs:"یک دمبل", weight:"۱۵ کیلوگرم", sets:3, reps:"۸ تا ۱۲ هر طرف", rest:"۹۰ ثانیه", rir:2,
+     tech:"دست آزاد رو روی نیمکت تکیه بده، خم شو، آرنج رو به‌سمت باسن بکش نه مستقیم بالا.",
+     mistake:"استفاده از تکان بدن به‌جای کشیدن با عضلات پشت."},
+    {name:"Dumbbell Lateral Raise", nameFa:"نشر جانب با دمبل", dbs:"دو دمبل", weight:"۵ کیلوگرم (هر دست)", sets:3, reps:"۱۲ تا ۱۵", rest:"۶۰ ثانیه", rir:1,
+     tech:"آرنج‌ها رو پیشرو حرکت بده، تا ارتفاع شونه بالا ببر، کمی به جلو خم باش. حرکتی سبک اما اغلب مورد غفلته.",
+     mistake:"تاب دادن وزنه با تکان بدن به‌جای استفاده از عضله کناری شونه."},
+    {name:"Dumbbell Bicep Curl", nameFa:"جلو بازو با دمبل", dbs:"دو دمبل", weight:"۱۰ کیلوگرم (هر دست)", sets:2, reps:"۱۰ تا ۱۵", rest:"۶۰ ثانیه", rir:1,
+     tech:"آرنج‌ها رو در طول کل حرکت کنار بدن ثابت نگه دار.",
+     mistake:"تاب دادن تنه برای پرتاب وزنه به بالا."},
+    {name:"Dumbbell Flat Bench Fly", nameFa:"فلای سینه با دمبل (تخت)", dbs:"دو دمبل", weight:"۷.۵ کیلوگرم (هر دست)", sets:3, reps:"۱۰ تا ۱۵", rest:"۹۰ ثانیه", rir:2,
+     tech:"روی نیمکت دراز بکش، آرنج‌ها کمی خم، دمبل‌ها رو مثل بغل کردن یه درخت باز و بسته کن.",
+     mistake:"صاف نگه داشتن کامل آرنج‌ها که فشار زیادی روی مفصل آرنج و شونه می‌ذاره."},
+    {name:"Dumbbell Front Raise", nameFa:"نشر جلو با دمبل", dbs:"دو دمبل", weight:"۵ کیلوگرم (هر دست)", sets:2, reps:"۱۲ تا ۱۵", rest:"۶۰ ثانیه", rir:1,
+     tech:"دمبل‌ها رو تا ارتفاع شونه جلو بیار، بدون تاب دادن کمر.",
+     mistake:"استفاده از تاب کمر و شونه برای بالا بردن وزنه."},
+    {name:"Dumbbell Skull Crusher", nameFa:"اسکال کراشر با دمبل (پرس سه‌سر خوابیده)", dbs:"دو دمبل", weight:"۷.۵ کیلوگرم (هر دست)", sets:3, reps:"۱۰ تا ۱۲", rest:"۹۰ ثانیه", rir:2,
+     tech:"روی نیمکت دراز بکش، فقط از آرنج خم و باز کن، دمبل‌ها رو نزدیک پیشانی پایین بیار.",
+     mistake:"حرکت دادن شونه‌ها در طول ست — فقط آرنج باید حرکت کنه."},
+    {name:"Dumbbell Concentration Curl", nameFa:"جلو بازو تمرکزی با دمبل", dbs:"یک دمبل", weight:"۷.۵ کیلوگرم", sets:2, reps:"۱۰ تا ۱۵ هر دست", rest:"۶۰ ثانیه", rir:1,
+     tech:"بشین، آرنج رو به داخل ران تکیه بده، تمام تمرکز رو روی انقباض بالای حرکت بذار.",
+     mistake:"سریع پایین انداختن وزنه به‌جای کنترل فاز پایین‌رونده."}
+  ]},
+  { day:"روز ۲ — پایین‌تنه (تمرکز چهارسر ران)", tag:"پایین‌تنه A", exercises:[
+    {name:"Dumbbell Goblet Squat", nameFa:"اسکوات گابلت با دمبل", dbs:"یک دمبل", weight:"۱۵ کیلوگرم", sets:4, reps:"۸ تا ۱۲", rest:"۲ دقیقه", rir:2,
+     tech:"دمبل رو عمودی جلوی سینه نگه دار. بین زانوها بشین، سینه بالا، پاشنه‌ها کاملاً روی زمین.",
+     mistake:"افتادن زانوها به داخل — فعالانه اون‌ها رو روی خط انگشتان پا نگه دار."},
+    {name:"Dumbbell Romanian Deadlift", nameFa:"ددلیفت رومانیایی با دمبل", dbs:"دو دمبل", weight:"۱۵ کیلوگرم (هر دست)", sets:3, reps:"۸ تا ۱۲", rest:"۲ دقیقه", rir:2,
+     tech:"باسن رو به عقب هل بده، ستون فقرات صاف بمونه، دمبل‌ها نزدیک پاها حرکت کنن.",
+     mistake:"گرد کردن کمر برای گرفتن دامنه حرکتی بیشتر."},
+    {name:"Dumbbell Walking Lunge", nameFa:"لانج پیاده‌روی با دمبل", dbs:"دو دمبل", weight:"۱۰ کیلوگرم (هر دست)", sets:3, reps:"۱۰ تا ۱۲ هر پا", rest:"۹۰ ثانیه", rir:2,
+     tech:"قدم رو به‌اندازه‌ای بردار که زانوی جلو تقریباً بالای مچ پا بمونه.",
+     mistake:"قدم‌های کوتاه و بریده که حرکت رو شبیه اسکوات می‌کنه نه لانج."},
+    {name:"Dumbbell Standing Calf Raise", nameFa:"ساق پا ایستاده با دمبل", dbs:"دو دمبل", weight:"۱۵ کیلوگرم (هر دست)", sets:3, reps:"۱۲ تا ۱۵", rest:"۶۰ ثانیه", rir:1,
+     tech:"بالای حرکت مکث و منقبض کن، پایین بیار تا کشش کامل.",
+     mistake:"تند تند و با دامنه کوچیک فقط بالای حرکت زدن."},
+    {name:"Dumbbell Glute Bridge", nameFa:"پل باسن با دمبل", dbs:"یک دمبل", weight:"۱۵ کیلوگرم", sets:3, reps:"۱۰ تا ۱۵", rest:"۶۰ ثانیه", rir:1,
+     tech:"دمبل رو روی لگن بذار. با پاشنه فشار بده و بالای حرکت باسن رو محکم منقبض کن.",
+     mistake:"قوس دادن کمر به‌جای منقبض کردن باسن برای تکمیل حرکت."},
+    {name:"Dumbbell Russian Twist", nameFa:"چرخش روسی با دمبل", dbs:"یک دمبل", weight:"۵ تا ۱۰ کیلوگرم", sets:3, reps:"۱۲ تا ۱۶ هر طرف", rest:"۴۵ ثانیه", rir:1,
+     tech:"به عقب حدود ۴۵ درجه تکیه بده، از تنه بچرخ، دمبل رو هر طرف روی زمین بزن.",
+     mistake:"چرخش سریع و کم‌دامنه به‌جای چرخش کامل و کنترل‌شده."},
+    {name:"Dumbbell Bulgarian Split Squat", nameFa:"اسکوات بلغاری با دمبل", dbs:"دو دمبل", weight:"۷.۵ تا ۱۰ کیلوگرم (هر دست)", sets:3, reps:"۸ تا ۱۰ هر پا", rest:"۲ دقیقه", rir:2,
+     tech:"روی پشت پا نیمکت رو بذار، پای جلو تنها نیرو رو تحمل کنه، پایین برو تا زانوی عقب نزدیک زمین بشه.",
+     mistake:"وزن زیادی روی پای عقب انداختن به‌جای کار اصلی روی پای جلو."},
+    {name:"Dumbbell Reverse Lunge", nameFa:"لانج معکوس با دمبل", dbs:"دو دمبل", weight:"۱۰ کیلوگرم (هر دست)", sets:3, reps:"۱۰ تا ۱۲ هر پا", rest:"۹۰ ثانیه", rir:2,
+     tech:"یه قدم به عقب بردار، زانوی عقب رو نزدیک زمین ببر، از پاشنه‌ی پای جلو برگرد بالا.",
+     mistake:"افتادن تنه به جلو به‌جای عمودی نگه داشتنش."},
+    {name:"Dumbbell Seated Calf Raise", nameFa:"ساق پا نشسته با دمبل", dbs:"یک دمبل", weight:"۱۰ کیلوگرم", sets:3, reps:"۱۵ تا ۲۰", rest:"۶۰ ثانیه", rir:1,
+     tech:"روی لبه‌ی نیمکت بشین، دمبل رو عمودی روی زانو نگه دار، پاشنه رو کامل بالا و پایین ببر.",
+     mistake:"دامنه‌ی حرکتی کوچیک که کشش کامل ساق پا رو از بین می‌بره."},
+    {name:"Dumbbell Weighted Sit Up", nameFa:"دراز و نشست وزنه‌دار با دمبل", dbs:"یک دمبل", weight:"۵ تا ۷.۵ کیلوگرم", sets:3, reps:"۱۲ تا ۱۵", rest:"۴۵ ثانیه", rir:1,
+     tech:"دمبل رو روی سینه نگه دار، از شکم بلند شو نه با کشیدن گردن.",
+     mistake:"قلاب کردن پاها زیر مبل و کشیدن با گردن به‌جای شکم."}
+  ]},
+  { day:"روز ۳ — بالاتنه (تمرکز کششی)", tag:"بالاتنه B", exercises:[
+    {name:"Dumbbell Bent Over Row", nameFa:"رو خم با دمبل", dbs:"دو دمبل", weight:"۱۲.۵ تا ۱۵ کیلوگرم (هر دست)", sets:4, reps:"۸ تا ۱۲", rest:"۹۰ ثانیه", rir:2,
+     tech:"از باسن حدود ۴۵ درجه خم شو، آرنج‌ها رو به عقب و بالا بکش، بالای حرکت کتف‌ها رو به هم فشار بده.",
+     mistake:"خیلی صاف ایستادن که حرکت رو تبدیل به شراگ می‌کنه."},
+    {name:"Dumbbell Arnold Press", nameFa:"پرس آرنولد با دمبل", dbs:"دو دمبل", weight:"۷.۵ تا ۱۰ کیلوگرم (هر دست)", sets:3, reps:"۸ تا ۱۲", rest:"۹۰ ثانیه", rir:2,
+     tech:"کف دست‌ها رو موقع فشار دادن از حالت رو به خودت به رو به جلو بچرخون.",
+     mistake:"سریع رد شدن از چرخش به‌جای کنترل کردنش در کل حرکت."},
+    {name:"Dumbbell Rear Delt Fly", nameFa:"فلای پشت‌شانه با دمبل", dbs:"دو دمبل", weight:"۵ کیلوگرم (هر دست)", sets:3, reps:"۱۲ تا ۱۵", rest:"۶۰ ثانیه", rir:1,
+     tech:"از جلو خم شو، آرنج کمی خم، دمبل‌ها رو مثل باز کردن کتاب به طرفین باز کن.",
+     mistake:"استفاده از تکان کمر برای پرتاب وزنه به بالا."},
+    {name:"Dumbbell Hammer Curl", nameFa:"جلو بازو چکشی با دمبل", dbs:"دو دمبل", weight:"۱۰ کیلوگرم (هر دست)", sets:2, reps:"۱۰ تا ۱۵", rest:"۶۰ ثانیه", rir:1,
+     tech:"کف دست‌ها رو به سمت هم نگه دار در کل حرکت.",
+     mistake:"جلو رفتن آرنج‌ها به‌جای ثابت ماندن کنار بدن."},
+    {name:"Dumbbell Close Grip Bench Press", nameFa:"پرس سینه دست‌جمع با دمبل", dbs:"دو دمبل", weight:"۱۰ کیلوگرم (هر دست)", sets:3, reps:"۸ تا ۱۲", rest:"۹۰ ثانیه", rir:2,
+     tech:"دمبل‌ها رو نزدیک هم نگه دار و آرنج‌ها رو نزدیک دنده‌ها جمع کن تا فشار روی سه‌سر باشه.",
+     mistake:"باز شدن آرنج‌ها که حرکت رو دوباره به پرس سینه تبدیل می‌کنه."},
+    {name:"Dumbbell Side Plank", nameFa:"پلانک پهلو", dbs:"وزن بدن", weight:"وزن بدن", sets:3, reps:"۲۰ تا ۳۰ ثانیه هر طرف", rest:"۴۵ ثانیه", rir:1,
+     tech:"باسن و شونه‌ها رو در یک خط صاف نگه دار، عضلات پهلو رو محکم منقبض کن.",
+     mistake:"افتادن باسن به سمت زمین."},
+    {name:"Dumbbell Chest Supported Row", nameFa:"رو با تکیه‌ی سینه روی نیمکت", dbs:"دو دمبل", weight:"۱۰ تا ۱۲.۵ کیلوگرم (هر دست)", sets:3, reps:"۱۰ تا ۱۲", rest:"۹۰ ثانیه", rir:2,
+     tech:"روی نیمکت با شیب کم رو به پایین دراز بکش، آرنج‌ها رو به عقب بکش.",
+     mistake:"بلند کردن سر برای دیدن آینه که فشار رو از کتف‌ها برمی‌داره."},
+    {name:"Dumbbell Pullover", nameFa:"پول‌اوور با دمبل", dbs:"یک دمبل", weight:"۱۰ کیلوگرم", sets:3, reps:"۱۰ تا ۱۵", rest:"۹۰ ثانیه", rir:2,
+     tech:"روی نیمکت دراز بکش، دمبل رو با هر دو دست بالای سینه بگیر، با آرنج کمی خم به پشت سر پایین ببر.",
+     mistake:"خم کردن بیش‌ازحد آرنج که حرکت رو به پرس سه‌سر تبدیل می‌کنه."},
+    {name:"Dumbbell Preacher Curl", nameFa:"جلو بازو روی نیمکت (پریچر) با دمبل", dbs:"یک دمبل", weight:"۷.۵ کیلوگرم", sets:2, reps:"۱۰ تا ۱۵ هر دست", rest:"۶۰ ثانیه", rir:1,
+     tech:"پشت بازو رو روی پشتی نیمکت یا زانو تکیه بده تا امکان تقلب با شونه از بین بره.",
+     mistake:"بلند کردن شونه در بالای حرکت برای کمک به بالا بردن وزنه."},
+    {name:"Dumbbell Tricep Kickback", nameFa:"پشت بازو دمبل (کیک‌بک)", dbs:"دو دمبل", weight:"۵ کیلوگرم (هر دست)", sets:2, reps:"۱۲ تا ۱۵", rest:"۶۰ ثانیه", rir:1,
+     tech:"از باسن خم شو، آرنج رو ثابت و بالا نگه دار، فقط ساعد رو به عقب صاف کن.",
+     mistake:"پایین انداختن آرنج در طول حرکت که کار رو از سه‌سر می‌گیره."}
+  ]},
+  { day:"روز ۴ — پایین‌تنه (تمرکز همسترینگ و باسن)", tag:"پایین‌تنه B", exercises:[
+    {name:"Dumbbell Sumo Squat", nameFa:"اسکوات سومو با دمبل", dbs:"یک دمبل", weight:"۱۵ کیلوگرم", sets:4, reps:"۱۰ تا ۱۲", rest:"۲ دقیقه", rir:2,
+     tech:"پاها باز، نوک پاها رو به بیرون، دمبل رو بین پاها نگه دار.",
+     mistake:"فقط خم کردن زانوها بدون هل دادن باسن به عقب."},
+    {name:"Dumbbell Single Leg Romanian Deadlift", nameFa:"ددلیفت رومانیایی تک‌پا با دمبل", dbs:"دو دمبل", weight:"۷.۵ تا ۱۰ کیلوگرم (هر دست)", sets:3, reps:"۸ تا ۱۰ هر پا", rest:"۹۰ ثانیه", rir:2,
+     tech:"از باسن روی پای تکیه‌گاه خم شو، پای عقب رو صاف و کشیده نگه دار.",
+     mistake:"چرخاندن لگن به‌جای صاف نگه داشتنش رو به زمین."},
+    {name:"Dumbbell Step Up", nameFa:"استپ‌آپ با دمبل", dbs:"دو دمبل", weight:"۱۰ کیلوگرم (هر دست)", sets:3, reps:"۱۰ هر پا", rest:"۹۰ ثانیه", rir:2,
+     tech:"از نیمکت در ارتفاع هم‌سطح زانو استفاده کن. با کل کف پا فشار بده.",
+     mistake:"هل دادن با پای پایینی برای کمک — پای روی نیمکت باید کار اصلی رو انجام بده."},
+    {name:"Dumbbell Single Leg Calf Raise", nameFa:"ساق پا تک‌پا با دمبل", dbs:"یک دمبل", weight:"۱۰ کیلوگرم", sets:3, reps:"۱۲ تا ۱۵ هر پا", rest:"۶۰ ثانیه", rir:1,
+     tech:"برای تعادل به دیوار تکیه بده، پایین کامل کشش بگیر، بالای حرکت مکث کن.",
+     mistake:"سریع رد شدن از تکرارها و از دست دادن کشش پایین حرکت."},
+    {name:"Dumbbell Hip Thrust", nameFa:"هیپ تراست با دمبل", dbs:"یک دمبل", weight:"۱۵ کیلوگرم", sets:3, reps:"۱۰ تا ۱۵", rest:"۹۰ ثانیه", rir:1,
+     tech:"پشت بالاتنه رو به نیمکت تکیه بده، دمبل روی لگن، با پاشنه فشار بده.",
+     mistake:"بیش‌ازحد قوس دادن کمر به‌جای توقف در نقطه‌ی کامل باز شدن لگن."},
+    {name:"Dumbbell Weighted Dead Bug", nameFa:"دد باگ وزنه‌دار", dbs:"یک دمبل", weight:"۵ کیلوگرم", sets:3, reps:"۱۰ هر طرف", rest:"۴۵ ثانیه", rir:1,
+     tech:"دمبل رو مستقیم بالای سینه نگه دار، کمر رو در کل حرکت به زمین فشار بده.",
+     mistake:"قوس گرفتن کمر از زمین موقع باز کردن پا."},
+    {name:"Dumbbell Curtsy Lunge", nameFa:"لانج کرتسی با دمبل", dbs:"دو دمبل", weight:"۷.۵ تا ۱۰ کیلوگرم (هر دست)", sets:3, reps:"۱۰ تا ۱۲ هر پا", rest:"۹۰ ثانیه", rir:2,
+     tech:"پای عقب رو به‌صورت مورب پشت پای دیگه ببر تا کشش خوبی در باسن حس کنی.",
+     mistake:"چرخوندن زانوی جلو به‌جای حرکت کنترل‌شده‌ی مورب."},
+    {name:"Dumbbell Frog Pump", nameFa:"فراگ پامپ با دمبل", dbs:"یک دمبل", weight:"۱۰ کیلوگرم", sets:3, reps:"۱۵ تا ۲۰", rest:"۶۰ ثانیه", rir:1,
+     tech:"دراز بکش، کف پاها رو به هم بچسبون و زانوها رو باز کن، دمبل روی لگن، باسن رو بالا و پایین ببر.",
+     mistake:"استفاده از دامنه‌ی حرکتی خیلی کوچیک به‌جای انقباض کامل بالای حرکت."},
+    {name:"Dumbbell Donkey Calf Raise", nameFa:"ساق پا خم (دانکی) با دمبل", dbs:"یک دمبل", weight:"۱۰ کیلوگرم", sets:3, reps:"۱۵ تا ۲۰", rest:"۶۰ ثانیه", rir:1,
+     tech:"از باسن خم شو و به نیمکت تکیه بده، دمبل رو پشت زانو نگه دار، پاشنه رو کامل بالا و پایین ببر.",
+     mistake:"صاف نگه داشتن بیش‌ازحد کمر."},
+    {name:"Dumbbell Weighted Bicycle Crunch", nameFa:"کرانچ دوچرخه وزنه‌دار", dbs:"یک دمبل", weight:"۵ کیلوگرم", sets:3, reps:"۱۲ تا ۱۵ هر طرف", rest:"۴۵ ثانیه", rir:1,
+     tech:"دمبل رو با هر دو دست بگیر، آرنج رو به سمت زانوی مخالف بچرخون و کنترل‌شده برگرد.",
+     mistake:"کشیدن گردن با دست‌ها به‌جای چرخش واقعی از شکم."}
+  ]}
+];
+
+const RESTDAY_NOTE = "روزهای ۵ تا ۷: استراحت یا پیاده‌روی سبک. ریکاوری همون جاییه که عضله‌ای که تمرین دادی واقعاً رشد می‌کنه — برای اضافه کردن تمرین بیشتر ازش نگذر.";
+
+/* ---------------- ۴. داده‌های کامل برنامه باشگاه ---------------- */
+const GYM_PROGRAM = [
+  { day:"روز ۱ — سینه + جلو بازو", tag:"سینه + جلو بازو", slots:[
+    {number:1, type:'single', items:[
+      {name:"Barbell Bench Press", nameFa:"پرس سینه هالتر", equip:"هالتر", sets:3, reps:"۶ تا ۸", rest:"۲ تا ۳ دقیقه", rir:1,
+       tech:"کتف‌ها رو جمع و ثابت روی نیمکت نگه دار، میله رو تا نزدیک وسط سینه پایین بیار.",
+       mistake:"بلند شدن باسن از نیمکت برای گرفتن قدرت بیشتر."}
+    ]},
+    {number:2, type:'superset', items:[
+      {name:"Incline Dumbbell Press", nameFa:"پرس بالاسینه دمبل", equip:"دمبل", sets:3, reps:"۸ تا ۱۰", rest:"—", rir:2,
+       tech:"شیب نیمکت حدود ۳۰ درجه، دمبل‌ها رو تا کشش کامل پایین ببر.",
+       mistake:"شیب خیلی زیاد نیمکت که فشار رو از سینه به شونه منتقل می‌کنه."},
+      {name:"Cable Crossover", nameFa:"کراس‌اور سیم‌کش", equip:"سیم‌کش", sets:3, reps:"۱۰ تا ۱۲", rest:"۹۰ ثانیه بعد از دور کامل", rir:1,
+       tech:"کمی جلو خم شو، دست‌ها رو با مسیر منحنی جلوی سینه به هم برسون و منقبض کن.",
+       mistake:"استفاده بیش‌ازحد از شونه به‌جای انقباض سینه برای بستن دست‌ها."}
+    ]},
+    {number:3, type:'single', items:[
+      {name:"Decline Dumbbell Press", nameFa:"پرس زیرسینه دمبل", equip:"دمبل", sets:3, reps:"۸ تا ۱۲", rest:"۹۰ ثانیه", rir:2,
+       tech:"نیمکت رو با شیب منفی تنظیم کن، مسیر فشار کمی به سمت پایین‌تر از خط عمود باشه.",
+       mistake:"دامنه‌ی حرکتی ناقص به‌خاطر ترس از افتادن دمبل."}
+    ]},
+    {number:4, type:'superset', items:[
+      {name:"Machine Chest Fly", nameFa:"فلای دستگاه", equip:"دستگاه", sets:3, reps:"۱۰ تا ۱۲", rest:"—", rir:2,
+       tech:"بالای حرکت مکث کوتاه و منقبض کن، برگشت رو کنترل‌شده انجام بده.",
+       mistake:"استفاده از وزنه‌ی سنگین که باعث می‌شه دامنه‌ی حرکتی کوتاه بشه."},
+      {name:"Low-to-High Cable Crossover", nameFa:"کراس‌اور سیم‌کش از پایین", equip:"سیم‌کش", sets:3, reps:"۱۰ تا ۱۵", rest:"۹۰ ثانیه بعد از دور کامل", rir:1,
+       tech:"قرقره‌ها رو پایین ببند، مسیر حرکت رو به بالا و داخل باشه تا بالاسینه درگیر بشه.",
+       mistake:"خم کردن بیش‌ازحد آرنج که حرکت رو شبیه پرس می‌کنه به‌جای فلای."}
+    ]},
+    {number:5, type:'single', items:[
+      {name:"Standing Barbell Curl", nameFa:"جلو بازو هالتر ایستاده", equip:"هالتر", sets:3, reps:"۶ تا ۸", rest:"۹۰ ثانیه", rir:1,
+       tech:"آرنج‌ها کنار بدن ثابت بمونن، فقط ساعد حرکت کنه.",
+       mistake:"تاب دادن کمر و شونه برای بالا بردن وزنه‌ی سنگین‌تر."}
+    ]},
+    {number:6, type:'single', note:"⚠️ این حرکت تک‌دسته و عمداً با حرکت تک‌دست دیگه سوپرست نشده تا اتلاف زمان به حداقل برسه.", items:[
+      {name:"Single-Arm Cable Curl", nameFa:"جلو بازو سیم‌کش تک‌دست", equip:"سیم‌کش", sets:3, reps:"۱۰ تا ۱۲ هر دست", rest:"۶۰ ثانیه", rir:1,
+       tech:"آرنج رو کنار بدن ثابت نگه دار، در بالای حرکت کمی بچرخون تا انقباض کامل بشه.",
+       mistake:"جلو آوردن شونه در بالای حرکت."}
+    ]},
+    {number:7, type:'superset', items:[
+      {name:"Machine Preacher Curl", nameFa:"جلو بازو لاری دستگاه", equip:"دستگاه", sets:3, reps:"۱۰ تا ۱۲", rest:"—", rir:2,
+       tech:"پشت بازو رو کامل روی پد بذار، پایین حرکت رو کنترل‌شده انجام بده.",
+       mistake:"نیمه‌رها کردن وزنه در فاز پایین‌رونده."},
+      {name:"Incline Dumbbell Curl", nameFa:"جلو بازو دمبل روی میز شیب‌دار", equip:"دمبل", sets:3, reps:"۸ تا ۱۰", rest:"۹۰ ثانیه بعد از دور کامل", rir:2,
+       tech:"دراز بکش روی نیمکت شیب‌دار، بازو کاملاً آویزون بمونه تا کشش کامل گرفته بشه.",
+       mistake:"جلو آوردن شونه از پشتی نیمکت برای کمک به بالا بردن وزنه."}
+    ]},
+    {number:8, type:'single', items:[
+      {name:"Dumbbell Hammer Curl", nameFa:"جلو بازو چکشی دمبل", equip:"دمبل", sets:3, reps:"۸ تا ۱۰", rest:"۶۰ ثانیه", rir:1,
+       tech:"کف دست‌ها رو به سمت هم نگه دار در کل حرکت.",
+       mistake:"جلو رفتن آرنج‌ها که فشار رو از ساعد و براکیالیس می‌گیره."}
+    ]}
+  ], accessory:[
+      {name:"Cable Crunch", nameFa:"کرانچ سیم‌کش", sets:3, reps:"۱۲ تا ۱۵"},
+      {name:"Neck Flexion/Extension", nameFa:"تمرین گردن (خم و راست)", sets:2, reps:"۱۵ تا ۲۰"}
+  ], cardio:"۲۰ دقیقه پیاده‌روی + ۱۰ دقیقه دویدن"},
+
+  { day:"روز ۲ — پشت + پشت بازو", tag:"پشت + پشت بازو", slots:[
+    {number:1, type:'single', items:[
+      {name:"Weighted Pull-Up", nameFa:"بارفیکس وزنه‌دار", equip:"وزنه‌ی کمری/بدن", sets:3, reps:"۶ تا ۸", rest:"۲ تا ۳ دقیقه", rir:1,
+       tech:"از بالا کامل کشش بگیر و بالا تا نزدیک چونه بکش، بدون تاب دادن پاها.",
+       mistake:"دامنه‌ی حرکتی ناقص به‌خاطر وزنه‌ی اضافه‌ی زیاد."}
+    ]},
+    {number:2, type:'superset', items:[
+      {name:"Barbell Bent-Over Row", nameFa:"زیربغل هالتر خم", equip:"هالتر", sets:3, reps:"۶ تا ۸", rest:"—", rir:1,
+       tech:"از باسن حدود ۴۵ درجه خم شو، میله رو نزدیک شکم بکش.",
+       mistake:"صاف شدن تدریجی کمر در طول ست که فشار رو به کمر منتقل می‌کنه."},
+      {name:"Cable Pullover", nameFa:"پول‌اور سیم‌کش", equip:"سیم‌کش", sets:3, reps:"۱۰ تا ۱۲", rest:"۹۰ ثانیه بعد از دور کامل", rir:2,
+       tech:"از بالای سر با آرنج نسبتاً صاف، میله رو تا کنار ران پایین بکش و لت رو منقبض کن.",
+       mistake:"خم کردن زیاد آرنج که حرکت رو به پشت‌بازو تبدیل می‌کنه."}
+    ]},
+    {number:3, type:'single', items:[
+      {name:"Chest-Supported Machine Row", nameFa:"قایقی دستگاه با تکیه‌گاه سینه", equip:"دستگاه", sets:3, reps:"۸ تا ۱۲", rest:"۹۰ ثانیه", rir:2,
+       tech:"سینه رو کامل به تکیه‌گاه بچسبون تا تقلب با تکان کمر حذف بشه.",
+       mistake:"جدا شدن سینه از تکیه‌گاه در انتهای کشش وزنه."}
+    ]},
+    {number:4, type:'single', items:[
+      {name:"Neutral-Grip Lat Pulldown", nameFa:"لت سیم‌کش دست خنثی", equip:"سیم‌کش", sets:3, reps:"۸ تا ۱۲", rest:"۹۰ ثانیه", rir:2,
+       tech:"میله رو تا بالای سینه بکش، آرنج‌ها رو به‌سمت پایین و کمی عقب هدایت کن.",
+       mistake:"تاب دادن تنه به عقب برای کمک به پایین کشیدن میله."}
+    ]},
+    {number:5, type:'single', items:[
+      {name:"Straight-Bar Cable Pushdown", nameFa:"پشت بازو سیم‌کش با میله صاف", equip:"سیم‌کش", sets:3, reps:"۸ تا ۱۲", rest:"۹۰ ثانیه", rir:2,
+       tech:"آرنج‌ها رو کنار بدن ثابت نگه دار، میله رو تا قفل کامل پایین ببر.",
+       mistake:"جلو آوردن آرنج‌ها از بدن که فشار رو از سه‌سر می‌گیره."}
+    ]},
+    {number:6, type:'superset', items:[
+      {name:"Rope Pushdown", nameFa:"پشت بازو سیم‌کش طنابی", equip:"سیم‌کش", sets:3, reps:"۸ تا ۱۲", rest:"—", rir:1,
+       tech:"در پایین حرکت طناب رو به دو طرف باز کن تا انقباض کامل سه‌سر بگیری.",
+       mistake:"باز کردن زودهنگام آرنج از بدن."},
+      {name:"Overhead Rope Extension", nameFa:"پشت بازو بالای سر با طناب", equip:"سیم‌کش", sets:3, reps:"۱۰ تا ۱۲", rest:"۹۰ ثانیه بعد از دور کامل", rir:1,
+       tech:"آرنج‌ها رو نزدیک سر ثابت نگه دار، طناب رو کامل بالای سر باز کن تا کشش کامل بگیری.",
+       mistake:"باز شدن آرنج‌ها به طرفین که کشش رو از سه‌سر می‌گیره."}
+    ]},
+    {number:7, type:'single', items:[
+      {name:"EZ-Bar Skull Crusher", nameFa:"پشت بازو خوابیده با هالتر EZ", equip:"هالتر EZ", sets:3, reps:"۸ تا ۱۰", rest:"۹۰ ثانیه", rir:2,
+       tech:"روی نیمکت دراز بکش، فقط از آرنج خم و باز کن، میله رو نزدیک پیشانی پایین بیار.",
+       mistake:"حرکت دادن شونه‌ها به‌جای ثابت نگه داشتنشون."}
+    ]},
+    {number:8, type:'single', items:[
+      {name:"Machine Dip", nameFa:"دیپ دستگاه", equip:"دستگاه", sets:3, reps:"۱۰ تا ۱۲", rest:"۹۰ ثانیه", rir:1,
+       tech:"تنه رو نسبتاً عمودی نگه دار تا فشار بیشتر روی سه‌سر بمونه تا سینه.",
+       mistake:"خم شدن زیاد به جلو که فشار رو به سینه منتقل می‌کنه."}
+    ]}
+  ], accessory:[
+      {name:"Barbell Wrist Curl", nameFa:"مچ خم هالتر", sets:2, reps:"۱۲ تا ۱۵"},
+      {name:"Barbell Reverse Wrist Curl", nameFa:"مچ باز هالتر", sets:2, reps:"۱۵ تا ۲۰"}
+  ], cardio:"۲۰ دقیقه پیاده‌روی + ۱۰ دقیقه دویدن"},
+
+  { day:"روز ۳ — پا + سرشانه", tag:"پا + سرشانه", slots:[
+    {number:1, type:'single', items:[
+      {name:"Barbell Back Squat", nameFa:"اسکوات هالتر از پشت", equip:"هالتر", sets:4, reps:"۶ تا ۸", rest:"۲ تا ۳ دقیقه", rir:1,
+       tech:"سینه بالا، پایین برو تا حداقل موازی زمین، پاشنه‌ها ثابت روی زمین.",
+       mistake:"افتادن زانوها به داخل موقع بلند شدن."}
+    ]},
+    {number:2, type:'single', items:[
+      {name:"Leg Press", nameFa:"پرس پا", equip:"دستگاه", sets:3, reps:"۸ تا ۱۲", rest:"۲ دقیقه", rir:2,
+       tech:"پایین برو تا زانو حدود ۹۰ درجه، پاها رو کامل از زیر سُر نده.",
+       mistake:"قفل کردن کامل زانو در بالای حرکت با ضربه."}
+    ]},
+    {number:3, type:'superset', items:[
+      {name:"Lying Leg Curl", nameFa:"پشت پا خوابیده", equip:"دستگاه", sets:3, reps:"۱۰ تا ۱۲", rest:"—", rir:2,
+       tech:"لگن رو کامل روی دستگاه فشار بده، بالای حرکت مکث کوتاه کن.",
+       mistake:"بلند کردن لگن از دستگاه برای گرفتن دامنه‌ی بیشتر."},
+      {name:"Leg Extension", nameFa:"جلو پا دستگاه", equip:"دستگاه", sets:3, reps:"۱۰ تا ۱۵", rest:"۹۰ ثانیه بعد از دور کامل", rir:1,
+       tech:"بالای حرکت یک ثانیه مکث و منقبض کن.",
+       mistake:"پرتاب سریع وزنه بدون کنترل فاز پایین‌رونده."}
+    ]},
+    {number:4, type:'single', items:[
+      {name:"Dumbbell Bulgarian Split Squat", nameFa:"بلغاری دمبل", equip:"دمبل", sets:3, reps:"۸ تا ۱۰ هر پا", rest:"۹۰ ثانیه", rir:2,
+       tech:"پای عقب رو روی نیمکت بذار، وزن اصلی روی پاشنه‌ی پای جلو بمونه.",
+       mistake:"تکیه‌ی زیاد وزن روی پای عقب."}
+    ]},
+    {number:5, type:'single', items:[
+      {name:"Seated Dumbbell Shoulder Press", nameFa:"پرس سرشانه دمبل نشسته", equip:"دمبل", sets:3, reps:"۶ تا ۸", rest:"۹۰ ثانیه", rir:1,
+       tech:"پشت رو به پشتی نیمکت تکیه بده، مستقیم بالا فشار بده.",
+       mistake:"قوس زیاد کمر برای هل دادن وزنه‌ی سنگین."}
+    ]},
+    {number:6, type:'superset', items:[
+      {name:"Dumbbell Lateral Raise", nameFa:"نشر جانب دمبل", equip:"دمبل", sets:3, reps:"۱۰ تا ۱۵", rest:"—", rir:1,
+       tech:"آرنج‌ها رو کمی خم و پیشرو نگه دار، تا ارتفاع شونه بالا ببر.",
+       mistake:"تاب دادن بدن برای بالا بردن وزنه‌ی سنگین‌تر."},
+      {name:"Single-Arm Cable Lateral Raise", nameFa:"نشر جانب سیم‌کش تک‌دست", equip:"سیم‌کش", sets:3, reps:"۱۲ تا ۱۵", rest:"۹۰ ثانیه بعد از دور کامل", rir:1,
+       tech:"قرقره رو پایین ببند، دست رو از جلوی بدن به‌طرف بیرون بکش.",
+       mistake:"چرخوندن تنه به‌جای ثابت نگه داشتنش."}
+    ]},
+    {number:7, type:'superset', items:[
+      {name:"Reverse Pec Deck", nameFa:"فلای معکوس دستگاه", equip:"دستگاه", sets:3, reps:"۱۰ تا ۱۵", rest:"—", rir:1,
+       tech:"دسته‌ها رو با آرنج کمی خم به عقب باز کن، روی پشت‌شانه تمرکز کن.",
+       mistake:"استفاده از تکان کمر برای باز کردن دسته‌ها."},
+      {name:"Bent-Over Dumbbell Reverse Fly", nameFa:"فلای دمبل خم", equip:"دمبل", sets:3, reps:"۱۰ تا ۱۵", rest:"۹۰ ثانیه بعد از دور کامل", rir:1,
+       tech:"از باسن خم شو، دمبل‌ها رو مثل بازکردن کتاب به طرفین بالا ببر.",
+       mistake:"صاف شدن کمر در طول ست."}
+    ]},
+    {number:8, type:'single', items:[
+      {name:"Cable Upright Row", nameFa:"آپ‌رایت رو سیم‌کش", equip:"سیم‌کش", sets:3, reps:"۸ تا ۱۲", rest:"۹۰ ثانیه", rir:2,
+       tech:"میله رو نزدیک بدن تا ارتفاع سینه بالا بکش، آرنج‌ها بالاتر از مچ بمونن.",
+       mistake:"بالا بردن بیش‌ازحد میله که فشار رو به مفصل شونه منتقل می‌کنه."}
+    ]}
+  ], accessory:[
+      {name:"45° Back Extension", nameFa:"بک اکستنشن ۴۵ درجه", sets:2, reps:"۱۲ تا ۱۵"},
+      {name:"Hanging Leg Raise", nameFa:"بالا آوردن پا آویزون", sets:3, reps:"۱۰ تا ۱۵"}
+  ], cardio:"۲۰ دقیقه پیاده‌روی + ۱۰ دقیقه دویدن"},
+
+  { day:"روز ۴ — سینه + پشت", tag:"سینه + پشت", slots:[
+    {number:1, type:'single', items:[
+      {name:"Incline Smith Machine Press", nameFa:"پرس بالاسینه اسمیت", equip:"اسمیت", sets:3, reps:"۶ تا ۸", rest:"۲ دقیقه", rir:1,
+       tech:"نیمکت رو با شیب حدود ۳۰ درجه زیر دستگاه اسمیت تنظیم کن.",
+       mistake:"شیب بیش‌ازحد که فشار رو به شونه منتقل می‌کنه."}
+    ]},
+    {number:2, type:'single', items:[
+      {name:"Flat Dumbbell Press", nameFa:"پرس سینه دمبل تخت", equip:"دمبل", sets:3, reps:"۸ تا ۱۰", rest:"۹۰ ثانیه", rir:2,
+       tech:"دمبل‌ها رو تا کشش کامل پایین ببر، آرنج حدود ۴۵ درجه از بدن فاصله داشته باشه.",
+       mistake:"باز کردن بیش‌ازحد آرنج‌ها تا ۹۰ درجه."}
+    ]},
+    {number:3, type:'superset', items:[
+      {name:"Incline Smith Machine Press", nameFa:"پرس بالاسینه اسمیت", equip:"اسمیت", sets:3, reps:"۸ تا ۱۰", rest:"—", rir:2,
+       tech:"همون تنظیم شیب حرکت شماره ۱، این‌بار با وزنه‌ی سبک‌تر و تمرکز روی کیفیت اجرا.",
+       mistake:"استفاده از همون وزنه‌ی سنگین حرکت اول که کیفیت اجرا رو خراب می‌کنه."},
+      {name:"High-to-Low Cable Crossover", nameFa:"کراس‌اور سیم‌کش از بالا به پایین", equip:"سیم‌کش", sets:3, reps:"۱۰ تا ۱۵", rest:"۹۰ ثانیه بعد از دور کامل", rir:1,
+       tech:"قرقره‌ها رو بالا ببند، دست‌ها رو با مسیر منحنی به پایین و داخل بیار.",
+       mistake:"خم کردن زیاد آرنج که فشار رو از زیرسینه می‌گیره."}
+    ]},
+    {number:4, type:'single', items:[
+      {name:"Converging Chest Press", nameFa:"پرس سینه دستگاه همگرا", equip:"دستگاه", sets:3, reps:"۸ تا ۱۲", rest:"۹۰ ثانیه", rir:2,
+       tech:"بالای حرکت دست‌ها رو کامل به هم نزدیک کن تا انقباض کامل بگیری.",
+       mistake:"دامنه‌ی حرکتی ناقص با وزنه‌ی خیلی سنگین."}
+    ]},
+    {number:5, type:'single', items:[
+      {name:"T-Bar Row", nameFa:"تی‌بار رو", equip:"هالتر/دستگاه تی‌بار", sets:3, reps:"۶ تا ۱۰", rest:"۲ دقیقه", rir:1,
+       tech:"سینه رو ثابت و رو به پایین نگه دار، میله رو نزدیک شکم بکش.",
+       mistake:"صاف شدن کمر در طول ست به‌خاطر وزنه‌ی سنگین."}
+    ]},
+    {number:6, type:'superset', items:[
+      {name:"Neutral-Grip Machine Row", nameFa:"زیربغل دستگاه دست خنثی (قایقی)", equip:"دستگاه", sets:3, reps:"۸ تا ۱۲", rest:"—", rir:2,
+       tech:"آرنج‌ها رو نزدیک بدن نگه دار، بالای حرکت کتف‌ها رو فشار بده.",
+       mistake:"تاب دادن تنه به عقب برای کمک به کشیدن وزنه."},
+      {name:"Straight-Arm Pulldown", nameFa:"پول‌داون دست صاف", equip:"سیم‌کش", sets:3, reps:"۱۰ تا ۱۲", rest:"۹۰ ثانیه بعد از دور کامل", rir:2,
+       tech:"آرنج‌ها تقریباً صاف بمونن، میله رو تا کنار ران پایین بکش با تمرکز روی لت.",
+       mistake:"خم کردن آرنج که حرکت رو به پشت‌بازو نزدیک می‌کنه."}
+    ]},
+    {number:7, type:'single', items:[
+      {name:"One-Arm Dumbbell Row", nameFa:"زیربغل دمبل تک‌دست", equip:"دمبل", sets:3, reps:"۸ تا ۱۲ هر دست", rest:"۹۰ ثانیه", rir:2,
+       tech:"دست آزاد رو روی نیمکت تکیه بده، آرنج رو به‌سمت باسن بکش.",
+       mistake:"چرخوندن تنه برای کمک به بالا کشیدن وزنه."}
+    ]},
+    {number:8, type:'single', items:[
+      {name:"Cable High Row", nameFa:"های‌رو کابل", equip:"سیم‌کش", sets:3, reps:"۱۰ تا ۱۲", rest:"۹۰ ثانیه", rir:2,
+       tech:"قرقره رو در ارتفاع بالا ببند، آرنج‌ها رو به‌سمت پایین و عقب بکش تا پشت میانی درگیر بشه.",
+       mistake:"کشیدن با ارتفاع پایین‌تر که حرکت رو شبیه رو معمولی می‌کنه."}
+    ]}
+  ], accessory:[
+      {name:"Cable Woodchop", nameFa:"وودچاپ سیم‌کش", sets:3, reps:"۱۰ تا ۱۵ هر طرف"},
+      {name:"Finger Extension / Grip Work", nameFa:"باز کردن انگشتان / تمرین گریپ", sets:2, reps:"۱۵ تا ۲۰"}
+  ], cardio:"۲۰ دقیقه پیاده‌روی + ۱۰ دقیقه دویدن"},
+
+  { day:"روز ۵ — پا + سرشانه", tag:"پا + سرشانه", slots:[
+    {number:1, type:'single', items:[
+      {name:"Romanian Deadlift", nameFa:"ددلیفت رومانیایی", equip:"هالتر", sets:3, reps:"۶ تا ۸", rest:"۲ تا ۳ دقیقه", rir:1,
+       tech:"باسن رو به عقب هل بده، میله نزدیک پاها حرکت کنه، کمر صاف بمونه.",
+       mistake:"گرد کردن کمر برای گرفتن دامنه‌ی بیشتر."}
+    ]},
+    {number:2, type:'single', items:[
+      {name:"Hack Squat", nameFa:"هک اسکوات", equip:"دستگاه", sets:3, reps:"۸ تا ۱۰", rest:"۲ دقیقه", rir:1,
+       tech:"پاها کمی جلوتر از باسن روی صفحه، پایین برو تا زانو حدود ۹۰ درجه.",
+       mistake:"بلند کردن پاشنه از صفحه در پایین حرکت."}
+    ]},
+    {number:3, type:'superset', items:[
+      {name:"Standing Leg Curl", nameFa:"پشت پا دستگاه ایستاده", equip:"دستگاه", sets:3, reps:"۱۰ تا ۱۲", rest:"—", rir:2,
+       tech:"لگن رو ثابت نگه دار، فقط از زانو خم کن.",
+       mistake:"تاب دادن لگن برای کمک به بالا آوردن وزنه."},
+      {name:"Walking Dumbbell Lunge", nameFa:"لانج راه‌رفتن با دمبل", equip:"دمبل", sets:3, reps:"۱۰ تا ۱۲ هر پا", rest:"۹۰ ثانیه بعد از دور کامل", rir:2,
+       tech:"قدم بلند بردار، زانوی جلو تا نزدیک زمین پایین بره.",
+       mistake:"قدم‌های کوتاه که فشار رو از باسن و همسترینگ می‌گیره."}
+    ]},
+    {number:4, type:'single', items:[
+      {name:"Leg Extension", nameFa:"جلو پا دستگاه", equip:"دستگاه", sets:3, reps:"۱۰ تا ۱۵", rest:"۹۰ ثانیه", rir:1,
+       tech:"بالای حرکت یک ثانیه مکث و منقبض کن.",
+       mistake:"رها کردن سریع وزنه در فاز پایین‌رونده."}
+    ]},
+    {number:5, type:'single', items:[
+      {name:"Seated Calf Raise", nameFa:"ساق پا نشسته", equip:"دستگاه", sets:4, reps:"۱۲ تا ۱۵", rest:"۶۰ ثانیه", rir:1,
+       tech:"پاشنه رو کامل بالا و پایین ببر تا کشش و انقباض کامل بگیری.",
+       mistake:"دامنه‌ی حرکتی کوچیک و سریع."}
+    ]},
+    {number:6, type:'single', items:[
+      {name:"Machine Shoulder Press", nameFa:"پرس سرشانه دستگاه", equip:"دستگاه", sets:3, reps:"۸ تا ۱۰", rest:"۹۰ ثانیه", rir:2,
+       tech:"پشت رو کامل به تکیه‌گاه بچسبون، مستقیم بالا فشار بده.",
+       mistake:"جدا شدن کمر از تکیه‌گاه در بالای حرکت."}
+    ]},
+    {number:7, type:'superset', items:[
+      {name:"Dumbbell Lateral Raise", nameFa:"نشر جانب دمبل", equip:"دمبل", sets:3, reps:"۱۰ تا ۱۵", rest:"—", rir:1,
+       tech:"آرنج‌ها رو کمی خم و پیشرو نگه دار، تا ارتفاع شونه بالا ببر.",
+       mistake:"تاب دادن بدن برای بالا بردن وزنه‌ی سنگین‌تر."},
+      {name:"Cable Lateral Raise", nameFa:"نشر جانب سیم‌کش از پشت", equip:"سیم‌کش", sets:3, reps:"۱۲ تا ۱۵", rest:"۹۰ ثانیه بعد از دور کامل", rir:1,
+       tech:"قرقره رو از پشت بدن ببند تا زاویه‌ی کشش متفاوتی از دمبل داشته باشی.",
+       mistake:"چرخوندن تنه به‌جای ثابت نگه داشتنش."}
+    ]},
+    {number:8, type:'single', items:[
+      {name:"Bent-Over Dumbbell Reverse Fly", nameFa:"نشر خم دمبل", equip:"دمبل", sets:3, reps:"۱۰ تا ۱۵", rest:"۹۰ ثانیه", rir:1,
+       tech:"از باسن خم شو، دمبل‌ها رو مثل باز کردن کتاب به طرفین بالا ببر.",
+       mistake:"صاف شدن کمر در طول ست."}
+    ]},
+    {number:9, type:'single', items:[
+      {name:"Face Pull", nameFa:"فیس‌پول", equip:"سیم‌کش", sets:3, reps:"۱۲ تا ۱۵", rest:"۶۰ ثانیه", rir:1,
+       tech:"طناب رو تا نزدیک صورت بکش، آرنج‌ها بالاتر از دست‌ها بمونن تا پشت‌شانه درگیر بشه.",
+       mistake:"پایین کشیدن طناب به‌جای سطح صورت، که فشار رو از پشت‌شانه می‌گیره."}
+    ]}
+  ], accessory:[
+      {name:"45° Back Extension", nameFa:"بک اکستنشن ۴۵ درجه", sets:2, reps:"۱۲ تا ۱۵"}
+  ], cardio:"۲۰ دقیقه پیاده‌روی + ۱۰ دقیقه دویدن"}
+];
+
+/* ---------------- ۵. وضعیت و توابع عمومی برنامه ---------------- */
+let currentMode = 'dumbbell';
+let workoutLogs = [];
+let bodyWeightLogs = [];
+const START_WEIGHT = 78, TARGET_WEIGHT = 85;
+
+function ytLink(name){ return "https://www.youtube.com/results?search_query=" + encodeURIComponent(name); }
+function todayISO(){
+  const d = new Date();
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,'0')+"-"+String(d.getDate()).padStart(2,'0');
+}
+function faDigits(n){
+  const map = {'0':'۰','1':'۱','2':'۲','3':'۳','4':'۴','5':'۵','6':'۶','7':'۷','8':'۸','9':'۹'};
+  return String(n).split('').map(d=>map[d]!==undefined?map[d]:d).join('');
+}
+
+function flattenExercises(){
+  if(currentMode==='gym') return gymFlattenExercises();
+  const list = [];
+  PROGRAM.forEach(day => day.exercises.forEach(ex => list.push(ex.name)));
+  return [...new Set(list)];
+}
+
+function gymFlattenExercises(){
+  const list = [];
+  GYM_PROGRAM.forEach(day=>{
+    day.slots.forEach(slot=> slot.items.forEach(it=>list.push(it.name)));
+    (day.accessory||[]).forEach(a=>list.push(a.name));
+  });
+  return [...new Set(list)];
+}
+
+function exerciseFaName(name){
+  if(currentMode==='gym') return gymExerciseFaName(name);
+  for(const day of PROGRAM){
+    const found = day.exercises.find(e=>e.name===name);
+    if(found) return found.nameFa;
+  }
+  return name;
+}
+
+function gymExerciseFaName(name){
+  for(const day of GYM_PROGRAM){
+    for(const slot of day.slots){
+      const found = slot.items.find(it=>it.name===name);
+      if(found) return found.nameFa;
+    }
+    const acc = (day.accessory||[]).find(a=>a.name===name);
+    if(acc) return acc.nameFa;
+  }
+  return name;
+}
+
+function refreshHeader(){
+  document.getElementById('todayLabel').textContent = new Date().toLocaleDateString('fa-IR',{weekday:'short',month:'short',day:'numeric'});
+  const lastW = bodyWeightLogs.length ? [...bodyWeightLogs].sort((a,b)=>a.date.localeCompare(b.date)).slice(-1)[0].weight : START_WEIGHT;
+  document.getElementById('statWeight').textContent = lastW.toFixed(1)+" کیلوگرم";
+  const toGo = (TARGET_WEIGHT - lastW);
+  document.getElementById('statToGo').textContent = (toGo>=0?"+":"") + toGo.toFixed(1) + " کیلوگرم";
+  document.getElementById('statSessions').textContent = new Set(workoutLogs.map(l=>l.date)).size;
+}
+
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active', b.dataset.tab===name));
+}
+
+function buildLogExerciseSelect(){
+  const sel = document.getElementById('logExercise');
+  const names = flattenExercises();
+  sel.innerHTML = names.map(n=>`<option value="${n}">${exerciseFaName(n)} / ${n}</option>`).join('');
+}
+
+function buildHistExerciseSelect(){
+  const sel = document.getElementById('histExercise');
+  const current = sel.value;
+  const names = [...new Set([...flattenExercises(), ...workoutLogs.map(l=>l.exercise)])];
+  sel.innerHTML = names.map(n=>`<option value="${n}">${exerciseFaName(n)} / ${n}</option>`).join('');
+  if(names.includes(current)) sel.value = current;
+}
+
+/* ---------------- ۶. رندرر برنامه‌های تمرینی ---------------- */
+function renderProgram(){
+  const el = document.getElementById('tab-program');
+
+  if(currentMode==='gym'){
+    let html = GYM_PROGRAM.map(renderGymDay).join('');
+    html += `<section class="card"><div class="sectionhead">⚠️ درباره‌ی استراحت و RIR</div>
+      <div style="font-size:12.5px;color:var(--muted);line-height:1.9;">
+        زمان استراحت و RIR به‌صورت استاندارد هایپرتروفی پیشرفته تنظیم شده‌اند (استراحت کوتاه‌تر برای ایزوله/سوپرست، طولانی‌تر برای حرکات اصلی چندمفصلی).
+      </div>
+    </section>`;
+    el.innerHTML = html;
+    return;
+  }
+
+  let html = '';
+  PROGRAM.forEach(day => {
+    html += `<section class="card"><div class="daytitle"><h2>${day.day}</h2><span class="daytag">${day.tag}</span></div>`;
+    day.exercises.forEach(ex => {
+      html += `
+        <div class="exercise">
+          <div class="exname"><a href="${ytLink(ex.name)}" target="_blank" rel="noopener">${ex.name}</a><span class="dbcount">${ex.dbs}</span></div>
+          <div class="exnamefa">${ex.nameFa}</div>
+          <div class="exmeta">
+            <span><b>${ex.sets}×${ex.reps}</b></span>
+            <span>شروع: <b>${ex.weight}</b></span>
+            <span>RIR <b>${ex.rir}</b></span>
+            <span>استراحت <b>${ex.rest}</b></span>
+          </div>
+          <div class="extech"><span class="lbl">تکنیک — </span>${ex.tech}</div>
+          <div class="exmistake"><span class="lbl">اجتناب: </span>${ex.mistake}</div>
+        </div>`;
+    });
+    html += `</section>`;
+  });
+  html += `<section class="card"><div class="sectionhead">روزهای استراحت</div><div style="font-size:13px;color:var(--muted);line-height:1.8;">${RESTDAY_NOTE}</div></section>`;
+  el.innerHTML = html;
+}
+
+function renderGymDay(day){
+  let html = `<section class="card"><div class="daytitle"><h2>${day.day}</h2><span class="daytag">${day.tag}</span></div>`;
+  day.slots.forEach(slot=>{
+    const supersetBadge = slot.type==='superset' ? '<span class="daytag" style="margin-inline-start:6px;">سوپرست</span>' : '';
+    html += `<div class="exercise">`;
+    html += `<div style="font-size:12.5px;color:var(--accent);font-weight:700;">حرکت ${faDigits(slot.number)}${supersetBadge}</div>`;
+    if(slot.note) html += `<div class="exmistake" style="color:var(--steel);margin-top:4px;">${slot.note}</div>`;
+    slot.items.forEach((it)=>{
+      const indent = slot.type==='superset' ? 'padding-inline-start:12px;border-inline-start:2px solid var(--accent-dim);margin-top:8px;' : 'margin-top:6px;';
+      html += `
+        <div style="${indent}">
+          <div class="exname"><a href="${ytLink(it.name)}" target="_blank" rel="noopener">${it.name}</a><span class="dbcount">${it.equip}</span></div>
+          <div class="exnamefa">${it.nameFa}</div>
+          <div class="exmeta">
+            <span><b>${it.sets}×${it.reps}</b></span>
+            <span>RIR <b>${it.rir}</b></span>
+            <span>استراحت <b>${it.rest}</b></span>
+          </div>
+          <div class="extech"><span class="lbl">تکنیک — </span>${it.tech}</div>
+          <div class="exmistake"><span class="lbl">اجتناب: </span>${it.mistake}</div>
+        </div>`;
+    });
+    html += `</div>`;
+  });
+  if(day.accessory && day.accessory.length){
+    html += `<div class="exercise"><div style="font-size:12.5px;color:var(--accent);font-weight:700;">حرکات کمکی</div>`;
+    day.accessory.forEach(a=>{
+      html += `<div style="margin-top:6px;font-size:13px;">${a.nameFa} <span style="color:var(--muted);font-size:11.5px;">(${a.name})</span> — <b>${a.sets}×${a.reps}</b></div>`;
+    });
+    html += `</div>`;
+  }
+  html += `<div class="exercise" style="font-size:12.5px;color:var(--muted);">کاردیوی پایانی: ${day.cardio}</div>`;
+  html += `</section>`;
+  return html;
+}
+
+/* ---------------- ۷. توابع همگام‌سازی واقعی با بک‌اند (Database Sync) ---------------- */
+async function loadAll() {
+  try {
+    const setRes = await apiFetch('/settings');
+    if (setRes.ok) {
+      const setJson = await setRes.json();
+      currentMode = setJson.activeMode || 'dumbbell';
+      document.querySelectorAll('.modebtn').forEach(b => b.classList.toggle('active', b.dataset.mode === currentMode));
+    }
+
+    const woRes = await apiFetch('/workouts');
+    if (woRes.ok) {
+      const woJson = await woRes.json();
+      workoutLogs = woJson.map(w => ({
+        id: w.id,
+        date: w.logDate,
+        exercise: w.exerciseName,
+        weight: parseFloat(w.weightKg),
+        reps: Array.isArray(w.reps) ? w.reps : JSON.parse(w.reps || '[]'),
+        rir: Array.isArray(w.rir) ? w.rir : JSON.parse(w.rir || '[]'),
+        notes: w.notes
+      }));
+    }
+
+    const bwRes = await apiFetch('/bodyweight');
+    if (bwRes.ok) {
+      const bwJson = await bwRes.json();
+      bodyWeightLogs = bwJson.map(b => ({
+        id: b.id,
+        date: b.logDate,
+        weight: parseFloat(b.weightKg)
+      }));
+    }
+
+    renderProgram();
+    refreshHeader();
+    buildLogExerciseSelect();
+    buildHistExerciseSelect();
+    renderHistory();
+    renderWeightTab();
+  } catch (err) {
+    console.error('loadAll error:', err);
+  }
+}
+
+async function setMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.modebtn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+  renderProgram();
+  buildLogExerciseSelect();
+  buildHistExerciseSelect();
+  renderHistory();
+
+  try {
+    await apiFetch('/settings', {
+      method: 'PUT',
+      body: JSON.stringify({ activeMode: mode })
+    });
+  } catch (e) {
+    console.error('setMode error:', e);
+  }
+}
+
+async function submitLog() {
+  const date = document.getElementById('logDate').value || todayISO();
+  const exercise = document.getElementById('logExercise').value;
+  const weight = parseFloat(document.getElementById('logWeight').value);
+  const repsStr = document.getElementById('logReps').value.trim();
+  const rirStr = document.getElementById('logRir').value.trim();
+  const notes = document.getElementById('logNotes').value.trim();
+
+  if (!weight || !repsStr) {
+    document.getElementById('logFeedback').innerHTML = `<div class="feedback down">قبل از ذخیره، حداقل وزن و تعداد تکرارها را وارد کنید.</div>`;
+    return;
+  }
+  const reps = repsStr.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+  const rir = rirStr.split(',').map(s => parseFloat(s.trim())).filter(n => !isNaN(n));
+
+  try {
+    const res = await apiFetch('/workouts', {
+      method: 'POST',
+      body: JSON.stringify({
+        programMode: currentMode,
+        exerciseName: exercise,
+        logDate: date,
+        weightKg: weight,
+        reps,
+        rir,
+        notes
+      })
+    });
+
+    if (!res.ok) throw new Error('خطا در ذخیره در سرور');
+    const saved = await res.json();
+
+    workoutLogs.push({
+      id: saved.id,
+      date: saved.logDate,
+      exercise: saved.exerciseName,
+      weight: parseFloat(saved.weightKg),
+      reps: saved.reps,
+      rir: saved.rir,
+      notes: saved.notes
+    });
+
+    refreshHeader();
+    buildHistExerciseSelect();
+    renderHistory();
+    document.getElementById('logFeedback').innerHTML = `<div class="feedback up">تمرین با موفقیت در دیتابیس ثبت شد.</div>`;
+    document.getElementById('logReps').value = '';
+    document.getElementById('logRir').value = '';
+    document.getElementById('logNotes').value = '';
+  } catch (err) {
+    document.getElementById('logFeedback').innerHTML = `<div class="feedback down">${err.message}</div>`;
+  }
+}
+
+function renderHistory(){
+  const exercise = document.getElementById('histExercise').value;
+  const entries = workoutLogs.filter(l=>l.exercise===exercise).sort((a,b)=>a.date.localeCompare(b.date));
+  const list = document.getElementById('histList');
+  const chartCard = document.getElementById('histChartCard');
+
+  if(entries.length===0){
+    list.innerHTML = `<div class="empty">هنوز ثبتی برای این حرکت وجود ندارد.</div>`;
+    chartCard.style.display='none';
+    return;
+  }
+
+  let pbScore=-1, pbId=null;
+  entries.forEach(e=>{
+    const score = e.weight * Math.max(...e.reps);
+    if(score>pbScore){ pbScore=score; pbId=e.id; }
+  });
+
+  list.innerHTML = entries.slice().reverse().map(e=>{
+    const isPB = e.id===pbId;
+    return `<div class="histentry">
+      <div class="histdate">${e.date}${isPB?'<span class="pbtag">رکورد</span>':''}</div>
+      <div class="histsets">${e.weight} کیلوگرم — ${e.reps.join(' / ')}${e.rir && e.rir.length?` (RIR ${e.rir.join('/')})`:''}</div>
+      ${e.notes?`<div class="histnote">${e.notes}</div>`:''}
+    </div>`;
+  }).join('');
+
+  chartCard.style.display = entries.length>=2 ? 'block' : 'none';
+  if(entries.length>=2){
+    const vols = entries.map(e => e.weight * (e.reps.reduce((s,n)=>s+n,0)/e.reps.length));
+    drawLineChart('histChart', vols, entries.map(e=>e.date));
+  }
+}
+
+async function submitWeight() {
+  const date = document.getElementById('bwDate').value || todayISO();
+  const weight = parseFloat(document.getElementById('bwWeight').value);
+  if (!weight) return;
+
+  try {
+    const res = await apiFetch('/bodyweight', {
+      method: 'POST',
+      body: JSON.stringify({ logDate: date, weightKg: weight })
+    });
+    if (!res.ok) throw new Error('خطا در ثبت وزن');
+    const saved = await res.json();
+
+    const idx = bodyWeightLogs.findIndex(w => w.date === date);
+    if (idx >= 0) bodyWeightLogs[idx].weight = parseFloat(saved.weightKg);
+    else bodyWeightLogs.push({ id: saved.id, date: saved.logDate, weight: parseFloat(saved.weightKg) });
+
+    document.getElementById('bwWeight').value = '';
+    refreshHeader();
+    renderWeightTab();
+  } catch (e) {
+    alert(e.message);
+  }
+}
+
+function renderWeightTab(){
+  const sorted = [...bodyWeightLogs].sort((a,b)=>a.date.localeCompare(b.date));
+  const list = document.getElementById('bwList');
+  const chartCard = document.getElementById('bwChartCard');
+
+  if(sorted.length===0){
+    list.innerHTML = `<div class="empty">هنوز وزنی ثبت نشده است.</div>`;
+    chartCard.style.display='none';
+    return;
+  }
+
+  list.innerHTML = sorted.slice().reverse().map(w=>`<div class="wrow"><span class="d">${w.date}</span><span class="v">${w.weight.toFixed(1)} کیلوگرم</span></div>`).join('');
+
+  chartCard.style.display = sorted.length>=2 ? 'block' : 'none';
+  if(sorted.length>=2){
+    drawLineChart('bwChart', sorted.map(w=>w.weight), sorted.map(w=>w.date), TARGET_WEIGHT, START_WEIGHT);
+  }
+}
+
+function drawLineChart(svgId, values, labels, refLineHigh=null, refLineLow=null){
+  const svg = document.getElementById(svgId);
+  const W=320,H=120,pad=10;
+  const min = Math.min(...values, refLineLow ?? Infinity);
+  const max = Math.max(...values, refLineHigh ?? -Infinity);
+  const range = (max-min) || 1;
+  const stepX = (W-2*pad)/(values.length-1 || 1);
+  const pts = values.map((v,i)=>{
+    const x = pad + i*stepX;
+    const y = H - pad - ((v-min)/range)*(H-2*pad);
+    return [x,y];
+  });
+  let refLines = '';
+  if(refLineHigh!==null){
+    const y = H - pad - ((refLineHigh-min)/range)*(H-2*pad);
+    refLines += `<line x1="${pad}" y1="${y}" x2="${W-pad}" y2="${y}" stroke="#d9a441" stroke-width="1" stroke-dasharray="3,3" opacity="0.6"/>`;
+  }
+  const path = pts.map((p,i)=> (i===0?'M':'L')+p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+  const dots = pts.map(p=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.6" fill="#d9a441"/>`).join('');
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.innerHTML = `${refLines}<path d="${path}" fill="none" stroke="#d9a441" stroke-width="2"/>${dots}`;
+}
+
+function renderReview(){
+  const out = document.getElementById('reviewOutput');
+  out.innerHTML = `<section class="card"><div class="empty">ارزیابی پیشرفت بر اساس مجموع ثبت‌های شما در دیتابیس در دسترس است.</div></section>`;
+}
+
+async function exportData() {
+  try {
+    const res = await apiFetch('/export');
+    const data = await res.json();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'iron-log-backup-' + todayISO() + '.json';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  } catch (e) {
+    alert('خطا در دانلود بک‌آپ: ' + e.message);
+  }
+}
+
+async function importData(event) {
+  const file = event.target.files[0];
+  const fb = document.getElementById('importFeedback');
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = async function(e) {
+    try {
+      const parsed = JSON.parse(e.target.result);
+      const res = await apiFetch('/import', {
+        method: 'POST',
+        body: JSON.stringify(parsed)
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+
+      fb.innerHTML = `<div class="feedback up">${data.message} (${data.addedWorkouts} تمرین، ${data.upsertedWeights} وزن)</div>`;
+      await loadAll();
+    } catch (err) {
+      fb.innerHTML = `<div class="feedback down">خطا در پردازش فایل: ${err.message}</div>`;
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+/* ---------------- ۸. راه‌اندازی اولیه صفحه ---------------- */
+document.getElementById('logDate').value = todayISO();
+document.getElementById('bwDate').value = todayISO();
+
+window.addEventListener('DOMContentLoaded', async () => {
+  const isSessionValid = await tryRefreshToken();
+  if (isSessionValid) {
+    await loadAll();
+  } else {
+    document.getElementById('authOverlay').style.display = 'flex';
+  }
+});
+</script>
+</body>
+</html>
