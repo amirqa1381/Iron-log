@@ -335,80 +335,6 @@
   </div>
 </div>
 
-<!-- مودال افزودن حرکت جدید به برنامه -->
-<div id="addExModal" class="auth-modal" style="display:none;z-index:9999;">
-  <div class="card auth-card" style="max-width:540px;max-height:92vh;overflow-y:auto;text-align:right;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;border-bottom:1px solid var(--line);padding-bottom:10px;">
-      <h2 style="font-size:16px;margin:0;color:var(--accent);" id="addExModalTitle">افزودن حرکت جدید</h2>
-      <button onclick="closeAddExerciseModal()" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:0 4px;">✕</button>
-    </div>
-    <form onsubmit="submitNewCustomExercise(event)">
-      <input type="hidden" id="addExDayNumber" value="1">
-      <input type="hidden" id="addExProgramMode" value="dumbbell">
-      
-      <div style="margin-bottom:12px;">
-        <label>نام فارسی حرکت (الزامی)</label>
-        <input type="text" id="addExNameFa" placeholder="مثلاً: پرس بالا سینه دمبل دست معکوس" required>
-      </div>
-
-      <div style="margin-bottom:12px;">
-        <label>نام انگلیسی / یوتیوب (اختیاری جهت لینک ویدیوی آموزشی)</label>
-        <input type="text" id="addExNameEn" placeholder="مثلاً: Incline Reverse Grip DB Press" dir="ltr">
-      </div>
-
-      <div class="row2">
-        <div>
-          <label>نوع ابزار / تجهیزات</label>
-          <input type="text" id="addExEquip" placeholder="دو دمبل / هالتر / سیم‌کش" value="دمبل">
-        </div>
-        <div>
-          <label>تعداد ست پیشنهادی</label>
-          <input type="number" id="addExSets" value="3" min="1" max="10">
-        </div>
-      </div>
-
-      <div class="row2" style="margin-top:10px;">
-        <div>
-          <label>دامنه تکرار</label>
-          <input type="text" id="addExReps" placeholder="مثلاً ۸ تا ۱۲" value="۸ تا ۱۲">
-        </div>
-        <div>
-          <label>تکرار در ذخیره (RIR)</label>
-          <input type="number" id="addExRir" value="2" min="0" max="5" step="0.5">
-        </div>
-      </div>
-
-      <div class="row2" style="margin-top:10px;">
-        <div>
-          <label>زمان استراحت</label>
-          <input type="text" id="addExRest" placeholder="مثلاً ۹۰ ثانیه" value="۹۰ ثانیه">
-        </div>
-        <div>
-          <label>وزن پیشنهادی شروع</label>
-          <input type="text" id="addExWeight" placeholder="مثلاً ۱۰ کیلوگرم" value="متوسط">
-        </div>
-      </div>
-
-      <div style="margin-top:10px;">
-        <label>نکته تکنیکی فرم صحیح (اختیاری)</label>
-        <textarea id="addExTech" rows="2" placeholder="توضیح فرم صحیح یا زاویه مفصل..."></textarea>
-      </div>
-
-      <div style="margin-top:10px;">
-        <label>اشتباه رایج که باید پرهیز شود (اختیاری)</label>
-        <textarea id="addExMistake" rows="2" placeholder="مثلاً باز شدن بیش از حد آرنج‌ها..."></textarea>
-      </div>
-
-      <div id="addExFeedback" style="margin-top:10px;font-size:12.5px;"></div>
-
-      <div style="display:flex;gap:10px;margin-top:16px;">
-        <button type="submit" class="primary" style="flex:1;">ذخیره و ثبت حرکت در برنامه</button>
-        <button type="button" class="btn" style="width:auto;padding:0 16px;height:42px;" onclick="closeAddExerciseModal()">انصراف</button>
-      </div>
-    </form>
-  </div>
-</div>
-
 <!-- مودال راهنمای استقرار رایگان روی سرور -->
 <div id="deployModal" class="auth-modal" style="display:none;z-index:9999;background:rgba(0,0,0,0.8);backdrop-filter:blur(4px);">
   <div class="card auth-card" style="max-width:540px;max-height:90vh;overflow-y:auto;text-align:right;">
@@ -717,6 +643,116 @@ PORT=3000
       </section>
 
       <div id="reviewOutput"></div>
+    </div>
+
+    <!-- صفحه اختصاصی افزودن و مدیریت حرکات تمرینی -->
+    <div class="tab" id="tab-add-exercise">
+      <section class="card" style="margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <button type="button" class="btn" style="width:auto;padding:6px 14px;font-size:12.5px;color:var(--accent);border:1px solid var(--accent);background:rgba(217,164,65,0.08);border-radius:6px;cursor:pointer;font-weight:600;" onclick="switchTab('program')">
+            ← بازگشت به برنامه تمرینی
+          </button>
+          <span class="daytag" id="addExPageModeBadge">دمبل خانگی</span>
+        </div>
+        <div class="daytitle" style="margin-top:8px;">
+          <h2 id="addExPageTitle">افزودن حرکت جدید به برنامه</h2>
+        </div>
+        <p style="font-size:12.5px;color:var(--muted);line-height:1.8;margin-top:6px;margin-bottom:0;">
+          مشخصات حرکت ورزشی جدید را وارد کنید تا به جدول هفتگی تمرینات شما و فهرست حرکات در بخش ثبت و تاریخچه اضافه شود:
+        </p>
+      </section>
+
+      <section class="card">
+        <form onsubmit="submitNewCustomExercise(event)">
+          <div class="row2">
+            <div>
+              <label>برنامه هدف</label>
+              <select id="addExProgramMode" onchange="updateAddExDayOptions()">
+                <option value="dumbbell">برنامه دمبل خانگی</option>
+                <option value="gym">برنامه باشگاه</option>
+              </select>
+            </div>
+            <div>
+              <label>روز تمرینی هدف</label>
+              <select id="addExDayNumber"></select>
+            </div>
+          </div>
+
+          <div style="margin-top:10px;">
+            <label>نام فارسی حرکت (الزامی)</label>
+            <input type="text" id="addExNameFa" placeholder="مثلاً: پرس بالا سینه دمبل دست معکوس" required>
+          </div>
+
+          <div style="margin-top:10px;">
+            <label>نام انگلیسی یا کلیدواژه یوتیوب (جهت مشاهده ویدیوی صحیح حرکت)</label>
+            <input type="text" id="addExNameEn" placeholder="مثلاً: Incline Dumbbell Bench Press" dir="ltr">
+          </div>
+
+          <div class="row2" style="margin-top:10px;">
+            <div>
+              <label>نوع تجهیزات / ابزار</label>
+              <select id="addExEquip">
+                <option value="دمبل">دو دمبل</option>
+                <option value="تک دمبل">تک دمبل</option>
+                <option value="هالتر">هالتر</option>
+                <option value="سیم‌کش">سیم‌کش (کابل)</option>
+                <option value="دستگاه">دستگاه بدنسازی</option>
+                <option value="وزن بدن">وزن بدن</option>
+                <option value="کش تمرینی">کش تمرینی</option>
+              </select>
+            </div>
+            <div>
+              <label>تعداد ست پیشنهادی</label>
+              <input type="number" id="addExSets" value="3" min="1" max="10">
+            </div>
+          </div>
+
+          <div class="row2" style="margin-top:10px;">
+            <div>
+              <label>دامنه تکرار هر ست</label>
+              <input type="text" id="addExReps" placeholder="مثلاً ۸ تا ۱۲" value="۸ تا ۱۲">
+            </div>
+            <div>
+              <label>تکرار در ذخیره (RIR)</label>
+              <input type="number" id="addExRir" value="2" min="0" max="5" step="0.5">
+            </div>
+          </div>
+
+          <div class="row2" style="margin-top:10px;">
+            <div>
+              <label>زمان استراحت بین ست‌ها</label>
+              <input type="text" id="addExRest" placeholder="مثلاً ۹۰ ثانیه" value="۹۰ ثانیه">
+            </div>
+            <div>
+              <label>وزن پیشنهادی شروع</label>
+              <input type="text" id="addExWeight" placeholder="مثلاً ۱۰ کیلوگرم" value="متوسط">
+            </div>
+          </div>
+
+          <div style="margin-top:10px;">
+            <label>نکته تکنیکی فرم صحیح (اختیاری)</label>
+            <textarea id="addExTech" rows="2" placeholder="مسیر حرکت، زاویه مفصل، کنترل فاز منفی و انقباض اوج..."></textarea>
+          </div>
+
+          <div style="margin-top:10px;">
+            <label>اشتباه رایج که باید از آن پرهیز شود (اختیاری)</label>
+            <textarea id="addExMistake" rows="2" placeholder="مثلاً باز شدن بیش از حد آرنج‌ها، قوس نامناسب کمر..."></textarea>
+          </div>
+
+          <div id="addExFeedback" style="margin-top:12px;font-size:12.5px;"></div>
+
+          <div style="display:flex;gap:10px;margin-top:16px;">
+            <button type="submit" class="primary" style="flex:1;">ذخیره و اضافه کردن حرکت به برنامه</button>
+            <button type="button" class="btn" style="width:auto;padding:0 18px;height:44px;" onclick="switchTab('program')">انصراف</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- بخش فهرست حرکات اختصاصی ایجاد شده توسط کاربر -->
+      <section class="card" id="myCustomExercisesCard" style="margin-top:16px;">
+        <div class="sectionhead">حرکات اختصاصی ثبت‌شده شما</div>
+        <div id="myCustomExercisesList"></div>
+      </section>
     </div>
   </main>
 
@@ -1422,11 +1458,16 @@ function refreshHeader(){
 
 function switchTab(name){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById('tab-'+name).classList.add('active');
+  const target = document.getElementById('tab-'+name);
+  if(target) target.classList.add('active');
   document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active', b.dataset.tab===name));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
   if(name === 'review'){
     populateReviewExerciseSelect();
     renderReview();
+  }
+  if(name === 'add-exercise'){
+    renderCustomExercisesList();
   }
 }
 
@@ -1448,8 +1489,16 @@ function buildHistExerciseSelect(){
 function renderProgram(){
   const el = document.getElementById('tab-program');
 
+  const topHeader = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding:2px 4px;">
+      <span style="font-size:13px;color:var(--muted);font-weight:600;">برنامه هفتگی شما</span>
+      <button type="button" class="btn" style="width:auto;padding:6px 14px;font-size:12px;border:1px solid var(--accent);color:var(--accent);background:rgba(217,164,65,0.08);border-radius:6px;cursor:pointer;font-weight:600;" onclick="openAddExercisePage()">
+        ➕ افزودن و مدیریت حرکات
+      </button>
+    </div>`;
+
   if(currentMode==='gym'){
-    let html = GYM_PROGRAM.map((day, dIdx) => renderGymDay(day, dIdx)).join('');
+    let html = topHeader + GYM_PROGRAM.map((day, dIdx) => renderGymDay(day, dIdx)).join('');
     html += `<section class="card"><div class="sectionhead">⚠️ درباره‌ی استراحت و RIR</div>
       <div style="font-size:12.5px;color:var(--muted);line-height:1.9;">
         زمان استراحت و RIR به‌صورت استاندارد هایپرتروفی پیشرفته تنظیم شده‌اند (استراحت کوتاه‌تر برای ایزوله/سوپرست، طولانی‌تر برای حرکات اصلی چندمفصلی).
@@ -1459,7 +1508,7 @@ function renderProgram(){
     return;
   }
 
-  let html = '';
+  let html = topHeader;
   PROGRAM.forEach((day, dIdx) => {
     const dayNumber = dIdx + 1;
     const dayCustoms = customExercises.filter(c => c.programMode === 'dumbbell' && Number(c.dayNumber) === dayNumber);
@@ -1508,7 +1557,7 @@ function renderProgram(){
 
     html += `
       <div style="margin-top:14px;padding-top:10px;border-top:1px dashed var(--line);text-align:center;">
-        <button type="button" class="btn" style="width:auto;padding:7px 18px;font-size:12.5px;border:1px solid var(--accent);color:var(--accent);border-radius:6px;background:rgba(217,164,65,0.05);cursor:pointer;" onclick="openAddExerciseModal(${dayNumber}, '${day.day}')">
+        <button type="button" class="btn" style="width:auto;padding:7px 18px;font-size:12.5px;border:1px solid var(--accent);color:var(--accent);border-radius:6px;background:rgba(217,164,65,0.05);cursor:pointer;" onclick="openAddExercisePage(${dayNumber}, '${day.day}')">
           ➕ افزودن حرکت جدید به ${day.day.split('—')[0].trim()}
         </button>
       </div>`;
@@ -1582,7 +1631,7 @@ function renderGymDay(day, dIdx){
   html += `<div class="exercise" style="font-size:12.5px;color:var(--muted);">کاردیوی پایانی: ${day.cardio}</div>`;
   html += `
     <div style="margin-top:14px;padding-top:10px;border-top:1px dashed var(--line);text-align:center;">
-      <button type="button" class="btn" style="width:auto;padding:7px 18px;font-size:12.5px;border:1px solid var(--accent);color:var(--accent);border-radius:6px;background:rgba(217,164,65,0.05);cursor:pointer;" onclick="openAddExerciseModal(${dayNumber}, '${day.day}')">
+      <button type="button" class="btn" style="width:auto;padding:7px 18px;font-size:12.5px;border:1px solid var(--accent);color:var(--accent);border-radius:6px;background:rgba(217,164,65,0.05);cursor:pointer;" onclick="openAddExercisePage(${dayNumber}, '${day.day}')">
         ➕ افزودن حرکت جدید به ${day.day.split('—')[0].trim()}
       </button>
     </div>`;
@@ -1591,21 +1640,114 @@ function renderGymDay(day, dIdx){
   return html;
 }
 
-/* ---------------- مودال افزودن و حذف حرکات اختصاصی ---------------- */
+/* ---------------- توابع صفحه اختصاصی افزودن و مدیریت حرکات ---------------- */
+function updateAddExDayOptions(){
+  const mode = document.getElementById('addExProgramMode')?.value || currentMode;
+  const daySelect = document.getElementById('addExDayNumber');
+  const badge = document.getElementById('addExPageModeBadge');
+  if(badge) badge.textContent = mode === 'gym' ? 'برنامه باشگاه' : 'دمبل خانگی';
+  
+  if(!daySelect) return;
+  daySelect.innerHTML = '';
+  if(mode === 'gym'){
+    GYM_PROGRAM.forEach((day, idx) => {
+      const opt = document.createElement('option');
+      opt.value = idx + 1;
+      opt.textContent = `روز ${idx + 1}: ${day.day.split('—')[0].trim()} (${day.tag})`;
+      daySelect.appendChild(opt);
+    });
+  } else {
+    PROGRAM.forEach((day, idx) => {
+      const opt = document.createElement('option');
+      opt.value = idx + 1;
+      opt.textContent = `روز ${idx + 1}: ${day.day.split('—')[0].trim()} (${day.tag})`;
+      daySelect.appendChild(opt);
+    });
+  }
+}
+
+function openAddExercisePage(dayNumber, dayTitle){
+  const modeSelect = document.getElementById('addExProgramMode');
+  if(modeSelect) modeSelect.value = currentMode;
+  updateAddExDayOptions();
+
+  if(dayNumber){
+    const daySelect = document.getElementById('addExDayNumber');
+    if(daySelect) daySelect.value = dayNumber;
+  }
+
+  const titleEl = document.getElementById('addExPageTitle');
+  if(titleEl){
+    titleEl.textContent = dayTitle 
+      ? `افزودن حرکت جدید به ${dayTitle.split('—')[0].trim()}` 
+      : 'افزودن حرکت جدید به برنامه تمرینی';
+  }
+
+  const nameFaEl = document.getElementById('addExNameFa');
+  if(nameFaEl) nameFaEl.value = '';
+  const nameEnEl = document.getElementById('addExNameEn');
+  if(nameEnEl) nameEnEl.value = '';
+  const techEl = document.getElementById('addExTech');
+  if(techEl) techEl.value = '';
+  const mistakeEl = document.getElementById('addExMistake');
+  if(mistakeEl) mistakeEl.value = '';
+  const fbEl = document.getElementById('addExFeedback');
+  if(fbEl) fbEl.innerHTML = '';
+
+  switchTab('add-exercise');
+  renderCustomExercisesList();
+}
+
 function openAddExerciseModal(dayNumber, dayTitle){
-  document.getElementById('addExDayNumber').value = dayNumber;
-  document.getElementById('addExProgramMode').value = currentMode;
-  document.getElementById('addExModalTitle').textContent = `افزودن حرکت جدید به ${dayTitle.split('—')[0].trim()}`;
-  document.getElementById('addExNameFa').value = '';
-  document.getElementById('addExNameEn').value = '';
-  document.getElementById('addExTech').value = '';
-  document.getElementById('addExMistake').value = '';
-  document.getElementById('addExFeedback').innerHTML = '';
-  document.getElementById('addExModal').style.display = 'flex';
+  openAddExercisePage(dayNumber, dayTitle);
 }
 
 function closeAddExerciseModal(){
-  document.getElementById('addExModal').style.display = 'none';
+  switchTab('program');
+}
+
+function renderCustomExercisesList(){
+  const container = document.getElementById('myCustomExercisesList');
+  if(!container) return;
+  if(!customExercises || customExercises.length === 0){
+    container.innerHTML = `
+      <div style="font-size:12.5px;color:var(--muted);text-align:center;padding:18px;background:rgba(255,255,255,0.02);border:1px dashed var(--line);border-radius:8px;">
+        هنوز هیچ حرکت اختصاصی اضافه نکرده‌اید. با تکمیل فرم بالا می‌توانید هر حرکتی را با ست‌ها و تکرارهای دلخواه به برنامه خود اضافه کنید.
+      </div>`;
+    return;
+  }
+
+  let html = '<div style="display:flex;flex-direction:column;gap:10px;">';
+  customExercises.forEach(c => {
+    const isGym = c.programMode === 'gym';
+    const dayName = isGym 
+      ? (GYM_PROGRAM[c.dayNumber - 1]?.day?.split('—')[0] || `روز ${c.dayNumber}`)
+      : (PROGRAM[c.dayNumber - 1]?.day?.split('—')[0] || `روز ${c.dayNumber}`);
+    
+    html += `
+      <div style="border:1px solid var(--line);background:rgba(255,255,255,0.02);padding:12px 14px;border-radius:8px;display:flex;flex-direction:column;gap:6px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+          <div>
+            <div style="font-weight:700;font-size:14px;color:var(--text);">${c.nameFa}</div>
+            <div style="font-size:12px;color:var(--accent);font-family:monospace;direction:ltr;text-align:right;">${c.name}</div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;flex-shrink:0;">
+            <span class="daytag" style="font-size:11px;">${isGym ? 'باشگاه' : 'دمبل'} - ${dayName}</span>
+            <button type="button" class="delbtn" style="font-size:11px;padding:4px 8px;border-radius:4px;" onclick="deleteCustomExercise(${c.id})">🗑️ حذف</button>
+          </div>
+        </div>
+        <div class="exmeta" style="margin-top:2px;">
+          <span><b>${c.sets}</b> ست × <b>${c.reps}</b> تکرار</span>
+          <span>وسیله: <b>${c.equip}</b></span>
+          <span>RIR <b>${c.rir}</b></span>
+          <span>استراحت <b>${c.rest}</b></span>
+        </div>
+        ${c.tech ? `<div style="font-size:11.5px;color:var(--muted);"><b style="color:var(--accent)">تکنیک:</b> ${c.tech}</div>` : ''}
+        ${c.mistake ? `<div style="font-size:11.5px;color:var(--muted);"><b style="color:var(--danger)">پرهیز:</b> ${c.mistake}</div>` : ''}
+      </div>`;
+  });
+  html += '</div>';
+  container.innerHTML = html;
 }
 
 async function submitNewCustomExercise(e){
@@ -1632,6 +1774,7 @@ async function submitNewCustomExercise(e){
   const finalName = nameEn || nameFa;
 
   try {
+    fb.innerHTML = `<span style="color:var(--muted)">در حال ذخیره حرکت...</span>`;
     const res = await apiFetch('/custom-exercises', {
       method: 'POST',
       body: JSON.stringify({
@@ -1657,7 +1800,13 @@ async function submitNewCustomExercise(e){
     buildLogExerciseSelect();
     buildHistExerciseSelect();
     populateReviewExerciseSelect();
-    closeAddExerciseModal();
+    renderCustomExercisesList();
+    
+    fb.innerHTML = `<span style="color:var(--accent);font-weight:bold;">✓ حرکت «${nameFa}» با موفقیت ثبت شد! در حال انتقال به برنامه تمرینی...</span>`;
+    setTimeout(() => {
+      switchTab('program');
+      fb.innerHTML = '';
+    }, 1000);
   } catch(err) {
     fb.innerHTML = `<span style="color:var(--danger)">خطا: ${err.message}</span>`;
   }
@@ -1673,6 +1822,7 @@ async function deleteCustomExercise(id){
     buildLogExerciseSelect();
     buildHistExerciseSelect();
     populateReviewExerciseSelect();
+    renderCustomExercisesList();
   } catch(err) {
     alert('خطا در حذف حرکت: ' + err.message);
   }
