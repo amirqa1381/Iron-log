@@ -3,7 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>دفتر تمرین آهنین | Iron Log</title>
+<title>Iron Log | دفتر تمرین آهنین</title>
+<meta name="description" content="Smart workout log and progress tracker with home dumbbell and gym programs">
+<meta property="og:title" content="Iron Log">
+<meta property="og:description" content="Smart workout log and progress tracker with home dumbbell and gym programs">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -351,7 +354,7 @@
 <!-- شروع بخش اسکریپت‌ها (Scripts Part) -->
 <script>
 /* ---------------- ۱. اتصال به Auth Service و مدیریت توکن‌ها ---------------- */
-const AUTH_API_URL = window.location.port === '8080' ? '' : 'http://localhost:4001';
+const AUTH_API_URL = '';
 let currentAccessToken = null;
 let currentAuthMode = 'login';
 let currentUser = null;
@@ -395,6 +398,9 @@ async function handleAuthSubmit(e){
     if (!logRes.ok) throw new Error(logData.message || 'ایمیل یا رمز عبور اشتباه است');
 
     currentAccessToken = logData.accessToken;
+    if (logData.refreshToken) {
+      localStorage.setItem('iron_refresh_token', logData.refreshToken);
+    }
     currentUser = logData.user;
     updateUserBar();
     document.getElementById('authOverlay').style.display = 'none';
@@ -407,13 +413,19 @@ async function handleAuthSubmit(e){
 
 async function tryRefreshToken(){
   try {
+    const savedRt = localStorage.getItem('iron_refresh_token');
     const res = await fetch(`${AUTH_API_URL}/auth/refresh`, {
       method: 'POST',
-      credentials: 'include'
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: savedRt ? JSON.stringify({ refreshToken: savedRt }) : undefined
     });
     if (res.ok) {
       const data = await res.json();
       currentAccessToken = data.accessToken;
+      if (data.refreshToken) {
+        localStorage.setItem('iron_refresh_token', data.refreshToken);
+      }
       const meRes = await fetch(`${AUTH_API_URL}/auth/me`, {
         headers: { 'Authorization': `Bearer ${currentAccessToken}` }
       });
@@ -432,7 +444,14 @@ async function tryRefreshToken(){
 
 async function logoutUser(){
   try {
-    await fetch(`${AUTH_API_URL}/auth/logout`, { method: 'POST', credentials: 'include' });
+    const savedRt = localStorage.getItem('iron_refresh_token');
+    localStorage.removeItem('iron_refresh_token');
+    await fetch(`${AUTH_API_URL}/auth/logout`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: savedRt ? JSON.stringify({ refreshToken: savedRt }) : undefined
+    });
   } finally {
     currentAccessToken = null;
     currentUser = null;

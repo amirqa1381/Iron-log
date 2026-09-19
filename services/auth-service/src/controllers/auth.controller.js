@@ -77,15 +77,18 @@ export const login = async (req, res) => {
       [user.id, refreshTokenHash, expiresAt]
     );
 
+    const isHttps = req.secure || req.headers['x-forwarded-proto'] === 'https';
+
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      secure: isHttps,
+      sameSite: isHttps ? 'none' : 'lax',
       maxAge: 30 * 24 * 60 * 60 * 1000
     });
 
     return res.json({
       accessToken,
+      refreshToken,
       expiresIn: 900,
       user: {
         id: user.id,
@@ -143,14 +146,14 @@ export const refresh = async (req, res) => {
 
     const isHttps = req.secure || req.headers['x-forwarded-proto'] === 'https';
 
-    res.cookie('refreshToken', refreshToken, {
+    res.cookie('refreshToken', newRefreshToken, {
       httpOnly: true,
       secure: isHttps,
       sameSite: isHttps ? 'none' : 'lax',
       maxAge: 30 * 24 * 60 * 60 * 1000
     });
 
-    return res.json({ accessToken, expiresIn: 900 });
+    return res.json({ accessToken, refreshToken: newRefreshToken, expiresIn: 900 });
   } catch (err) {
     console.error('Refresh error:', err);
     return res.status(500).json({ message: 'خطای سرور رخ داده است' });

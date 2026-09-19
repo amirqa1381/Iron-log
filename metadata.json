@@ -1,0 +1,6 @@
+{
+  "name": "Iron Log",
+  "description": "Smart workout log and progress tracker with home dumbbell and gym programs",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
