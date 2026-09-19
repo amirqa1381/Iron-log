@@ -614,6 +614,11 @@ export async function initPostgresTables() {
           updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
         );
 
+        -- Ensure schema migrations for existing user_settings tables
+        ALTER TABLE user_settings ADD COLUMN IF NOT EXISTS start_weight NUMERIC(5,2);
+        ALTER TABLE user_settings ADD COLUMN IF NOT EXISTS target_weight NUMERIC(5,2);
+        ALTER TABLE user_settings ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+
         CREATE TABLE IF NOT EXISTS custom_exercises (
           id SERIAL PRIMARY KEY,
           user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
