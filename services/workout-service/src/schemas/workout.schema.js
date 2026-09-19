@@ -16,5 +16,7 @@ export const bodyweightSchema = z.object({
 });
 
 export const settingsSchema = z.object({
-  activeMode: z.enum(['dumbbell', 'gym'])
+  activeMode: z.enum(['dumbbell', 'gym']).optional(),
+  startWeight: z.number().positive().optional(),
+  targetWeight: z.number().positive().optional()
 });

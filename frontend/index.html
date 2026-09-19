@@ -120,10 +120,48 @@
   .scoregrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
   .scorebox{background:var(--surface-2);border-radius:6px;padding:10px;}
   .scorebox .k{font-size:11px;color:var(--muted);}
-  .scorebox .v{font-size:20px;font-weight:700;margin-top:2px;}
+  .scorebox .v{font-size:18px;font-weight:700;margin-top:2px;}
   .scorebox .v small{font-size:12px;color:var(--muted);font-weight:500;}
   .note{font-size:13px;line-height:1.8;padding:4px 0;}
   .note b{color:var(--accent);}
+
+  /* New Review & Control Styles */
+  .delbtn{
+    background:transparent;border:1px solid var(--line);color:var(--muted);
+    width:22px;height:22px;border-radius:4px;display:inline-flex;align-items:center;
+    justify-content:center;font-size:13px;cursor:pointer;line-height:1;transition:all .15s ease;
+  }
+  .delbtn:hover{background:rgba(217,108,108,0.15);border-color:var(--danger);color:var(--danger);}
+
+  .progbar{height:7px;background:var(--surface-2);border-radius:4px;overflow:hidden;margin-top:8px;}
+  .progbar-fill{height:100%;background:linear-gradient(90deg,var(--accent),#f3c969);border-radius:4px;transition:width .4s ease;}
+
+  .review-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;}
+  .review-badge.up{background:rgba(111,191,115,0.15);color:var(--ok);border:1px solid rgba(111,191,115,0.3);}
+  .review-badge.hold{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(217,164,65,0.3);}
+  .review-badge.down{background:rgba(217,108,108,0.15);color:var(--danger);border:1px solid rgba(217,108,108,0.3);}
+
+  .ex-audit-item{background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:12px;margin-bottom:10px;}
+  .ex-audit-item .head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+  .ex-audit-item .name{font-size:14px;font-weight:600;}
+  .ex-audit-item .subname{font-size:12px;color:var(--muted);margin-top:2px;}
+  .ex-audit-item .stats{display:flex;gap:12px;flex-wrap:wrap;font-size:12.5px;margin-top:8px;}
+  .ex-audit-item .stats b{color:var(--text);}
+  .ex-audit-item .rec{margin-top:8px;font-size:12px;line-height:1.75;color:var(--text);background:var(--surface);border-radius:5px;padding:8px 10px;border-inline-start:3px solid var(--accent);}
+
+  .muscle-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-top:10px;}
+  .muscle-box{background:var(--surface-2);padding:10px;border-radius:6px;text-align:center;border:1px solid var(--line);}
+  .muscle-box .m-name{font-size:12px;color:var(--muted);font-weight:500;}
+  .muscle-box .m-val{font-size:18px;font-weight:700;margin-top:4px;color:var(--accent);}
+  .muscle-box .m-sub{font-size:11px;color:var(--muted);margin-top:3px;}
+
+  .btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+  .btn-row button{flex:1;min-width:110px;}
+
+  .alert-box{padding:12px;border-radius:6px;font-size:12.5px;line-height:1.8;margin-bottom:12px;}
+  .alert-box.warn{background:rgba(217,164,65,0.1);border:1px solid rgba(217,164,65,0.3);color:var(--text);}
+  .alert-box.danger{background:rgba(217,108,108,0.1);border:1px solid rgba(217,108,108,0.3);color:var(--text);}
+  .alert-box.ok{background:rgba(111,191,115,0.1);border:1px solid rgba(111,191,115,0.3);color:var(--text);}
 
   nav{position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:0 auto;background:rgba(28,30,31,0.97);backdrop-filter:blur(6px);
       border-top:1px solid var(--line);display:flex;padding:6px 4px calc(6px + env(safe-area-inset-bottom));}
@@ -191,6 +229,78 @@
     background: var(--accent);
     color: #1c1e1f;
   }
+
+  /* نوار شناور تایمر استراحت بین ست‌ها */
+  #restTimerDock {
+    position: fixed;
+    bottom: 58px;
+    left: 0;
+    right: 0;
+    max-width: 480px;
+    margin: 0 auto;
+    background: rgba(28,30,31,0.96);
+    border-top: 1px solid rgba(217,164,65,0.3);
+    border-bottom: 1px solid var(--line);
+    padding: 8px 14px;
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 95;
+    box-shadow: 0 -4px 16px rgba(0,0,0,0.5);
+    backdrop-filter: blur(8px);
+  }
+  .timer-digit {
+    font-family: 'Space Grotesk', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 1px;
+    direction: ltr;
+  }
+  .timer-chips {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    margin-top: 8px;
+    scrollbar-width: none;
+  }
+  .timer-chip {
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 11.5px;
+    color: var(--text);
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .timer-chip:hover {
+    border-color: var(--accent);
+    background: var(--accent-dim);
+    color: var(--accent);
+  }
+
+  /* ماشین‌حساب ۱RM و وزنه‌های گرم‌کردن */
+  .warmup-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 12px;
+  }
+  .warmup-table th, .warmup-table td {
+    padding: 6px 8px;
+    text-align: center;
+    border-bottom: 1px solid var(--line);
+  }
+  .warmup-table th {
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .warmup-table td b {
+    color: var(--accent);
+  }
 </style>
 </head>
 <body>
@@ -225,12 +335,142 @@
   </div>
 </div>
 
+<!-- مودال افزودن حرکت جدید به برنامه -->
+<div id="addExModal" class="auth-modal" style="display:none;z-index:9999;">
+  <div class="card auth-card" style="max-width:540px;max-height:92vh;overflow-y:auto;text-align:right;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;border-bottom:1px solid var(--line);padding-bottom:10px;">
+      <h2 style="font-size:16px;margin:0;color:var(--accent);" id="addExModalTitle">افزودن حرکت جدید</h2>
+      <button onclick="closeAddExerciseModal()" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:0 4px;">✕</button>
+    </div>
+    <form onsubmit="submitNewCustomExercise(event)">
+      <input type="hidden" id="addExDayNumber" value="1">
+      <input type="hidden" id="addExProgramMode" value="dumbbell">
+      
+      <div style="margin-bottom:12px;">
+        <label>نام فارسی حرکت (الزامی)</label>
+        <input type="text" id="addExNameFa" placeholder="مثلاً: پرس بالا سینه دمبل دست معکوس" required>
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <label>نام انگلیسی / یوتیوب (اختیاری جهت لینک ویدیوی آموزشی)</label>
+        <input type="text" id="addExNameEn" placeholder="مثلاً: Incline Reverse Grip DB Press" dir="ltr">
+      </div>
+
+      <div class="row2">
+        <div>
+          <label>نوع ابزار / تجهیزات</label>
+          <input type="text" id="addExEquip" placeholder="دو دمبل / هالتر / سیم‌کش" value="دمبل">
+        </div>
+        <div>
+          <label>تعداد ست پیشنهادی</label>
+          <input type="number" id="addExSets" value="3" min="1" max="10">
+        </div>
+      </div>
+
+      <div class="row2" style="margin-top:10px;">
+        <div>
+          <label>دامنه تکرار</label>
+          <input type="text" id="addExReps" placeholder="مثلاً ۸ تا ۱۲" value="۸ تا ۱۲">
+        </div>
+        <div>
+          <label>تکرار در ذخیره (RIR)</label>
+          <input type="number" id="addExRir" value="2" min="0" max="5" step="0.5">
+        </div>
+      </div>
+
+      <div class="row2" style="margin-top:10px;">
+        <div>
+          <label>زمان استراحت</label>
+          <input type="text" id="addExRest" placeholder="مثلاً ۹۰ ثانیه" value="۹۰ ثانیه">
+        </div>
+        <div>
+          <label>وزن پیشنهادی شروع</label>
+          <input type="text" id="addExWeight" placeholder="مثلاً ۱۰ کیلوگرم" value="متوسط">
+        </div>
+      </div>
+
+      <div style="margin-top:10px;">
+        <label>نکته تکنیکی فرم صحیح (اختیاری)</label>
+        <textarea id="addExTech" rows="2" placeholder="توضیح فرم صحیح یا زاویه مفصل..."></textarea>
+      </div>
+
+      <div style="margin-top:10px;">
+        <label>اشتباه رایج که باید پرهیز شود (اختیاری)</label>
+        <textarea id="addExMistake" rows="2" placeholder="مثلاً باز شدن بیش از حد آرنج‌ها..."></textarea>
+      </div>
+
+      <div id="addExFeedback" style="margin-top:10px;font-size:12.5px;"></div>
+
+      <div style="display:flex;gap:10px;margin-top:16px;">
+        <button type="submit" class="primary" style="flex:1;">ذخیره و ثبت حرکت در برنامه</button>
+        <button type="button" class="btn" style="width:auto;padding:0 16px;height:42px;" onclick="closeAddExerciseModal()">انصراف</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- مودال راهنمای استقرار رایگان روی سرور -->
+<div id="deployModal" class="auth-modal" style="display:none;z-index:9999;background:rgba(0,0,0,0.8);backdrop-filter:blur(4px);">
+  <div class="card auth-card" style="max-width:540px;max-height:90vh;overflow-y:auto;text-align:right;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;border-bottom:1px solid var(--line);padding-bottom:10px;">
+      <h2 style="font-size:16px;margin:0;color:var(--accent);font-weight:700;">🚀 راهنمای آوردن روی سرورهای ابری رایگان</h2>
+      <button type="button" onclick="closeDeployModal()" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:0 4px;">✕</button>
+    </div>
+    
+    <div style="font-size:12.5px;line-height:1.9;color:var(--text);">
+      شما می‌توانید اپلیکیشن <b>Iron Log</b> را با دیتابیس Supabase به صورت <b>۲۴ ساعته و کاملاً رایگان</b> روی سرورهای ابری مستقر (Deploy) کنید:
+
+      <div style="background:var(--surface-2);border-radius:8px;padding:12px;margin:12px 0;border:1px solid var(--line);">
+        <b style="color:var(--accent);font-size:13.5px;">گزینه ۱: Render.com (ساده‌ترین روش رایگان با GitHub)</b>
+        <ol style="padding-inline-start:20px;margin:8px 0;">
+          <li>کد پروژه را در حساب GitHub خود Push کنید.</li>
+          <li>وارد سایت <a href="https://render.com" target="_blank" style="color:var(--accent);text-decoration:underline;">render.com</a> شده و ثبت‌نام رایگان کنید.</li>
+          <li>روی <b>New +</b> کلیک کرده و گزینه <b>Web Service</b> را انتخاب نمایید.</li>
+          <li>مخزن گیت‌هاب <code>Iron-log</code> خود را انتخاب کنید.</li>
+          <li>تنظیمات را دقیقاً به این شکل بگذارید:
+            <ul style="padding-inline-start:18px;margin:4px 0;">
+              <li><b>Environment:</b> <code>Node</code></li>
+              <li><b>Build Command:</b> <code>npm install && npm run build</code></li>
+              <li><b>Start Command:</b> <code>node server.ts</code> (یا <code>npm start</code>)</li>
+            </ul>
+          </li>
+          <li>در تب <b>Environment Variables</b> متغیرهای زیر را وارد کنید:</li>
+        </ol>
+      </div>
+
+      <div style="background:#141617;border-radius:6px;padding:12px;font-family:monospace;font-size:11.5px;direction:ltr;color:#d5c4a1;position:relative;border:1px solid rgba(255,255,255,0.08);">
+        <button class="btn" style="position:absolute;top:6px;right:6px;padding:4px 10px;font-size:11px;background:var(--surface);color:var(--accent);border:1px solid var(--accent);" onclick="copyDeployEnv()">کپی متغیرها</button>
+DATABASE_URL=postgresql://postgres.fzjssseinyiuanwiqvwr:AyWNdPZpvwMfIdZk@aws-1-eu-west-1.pooler.supabase.com:6543/postgres
+JWT_ACCESS_SECRET=Vor+2vsL2CU4044U2w/hFkpwQ8mv5aWr5CH+pinxFRc=
+JWT_REFRESH_SECRET=K4Gtt5qyJsPB66zEh+KSGAoE26oTctQ2Rn7ASW1AKgI=
+PORT=3000
+      </div>
+
+      <div style="background:var(--surface-2);border-radius:8px;padding:12px;margin:12px 0;border:1px solid var(--line);">
+        <b style="color:var(--accent);font-size:13.5px;">گزینه ۲: استقرار با Docker در Railway یا Koyeb</b>
+        <p style="margin:6px 0;">
+          فایل <code>Dockerfile</code> اختصاصی در ریشه پروژه قرار دارد. در پلتفرم‌های Railway یا Koyeb کافی است پروژه را از گیت‌هاب انتخاب کنید؛ به صورت خودکار کانتینر ساخته شده و با اضافه کردن متغیرهای فوق اجرا می‌شود.
+        </p>
+      </div>
+
+      <div id="deployCopyNotice" style="margin-top:8px;font-size:12px;color:var(--ok);"></div>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;margin-top:14px;">
+      <button type="button" class="primary" style="width:auto;padding:8px 24px;" onclick="closeDeployModal()">بستن راهنما</button>
+    </div>
+  </div>
+</div>
+
 <div id="app">
 
   <!-- نوار مشخصات کاربر -->
   <div class="user-bar">
     <span id="userGreeting">در حال اتصال...</span>
-    <button class="logout-btn" onclick="logoutUser()">خروج از حساب</button>
+    <div style="display:flex;gap:6px;align-items:center;">
+      <button class="logout-btn" style="background:rgba(217,164,65,0.12);color:var(--accent);border-color:rgba(217,164,65,0.35);" onclick="openDeployModal()">🚀 سرورهای رایگان</button>
+      <button class="logout-btn" onclick="logoutUser()">خروج</button>
+    </div>
   </div>
 
   <header>
@@ -242,8 +482,8 @@
       <div class="datebadge" id="todayLabel"></div>
     </div>
     <div class="statrow">
-      <div class="statchip"><div class="k">وزن بدن</div><div class="v" id="statWeight">۷۸.۰ کیلوگرم</div></div>
-      <div class="statchip"><div class="k">تا هدف</div><div class="v" id="statToGo">+۷.۰ کیلوگرم</div></div>
+      <div class="statchip" onclick="switchTab('weight')" style="cursor:pointer;" title="مشاهده و ثبت وزن بدن"><div class="k">وزن بدن</div><div class="v" id="statWeight">—</div></div>
+      <div class="statchip" onclick="switchTab('weight')" style="cursor:pointer;" title="مشاهده و تنظیم هدف وزن"><div class="k">تا وزن هدف</div><div class="v" id="statToGo">—</div></div>
       <div class="statchip"><div class="k">جلسات ثبت‌شده</div><div class="v" id="statSessions">۰</div></div>
     </div>
     <div class="modeToggle" id="modeToggle">
@@ -273,6 +513,75 @@
         <button class="primary" onclick="submitLog()">ذخیره ثبت تمرین</button>
         <div id="logFeedback"></div>
       </section>
+
+      <!-- کارت تایمر هوشمند استراحت بین ست‌ها -->
+      <section class="card">
+        <div class="daytitle">
+          <h2>⏱️ تایمر استراحت بین ست‌ها</h2>
+          <span class="daytag" id="timerStatusBadge">آماده</span>
+        </div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:8px;line-height:1.7;">
+          استراحت مناسب بین ست‌ها سبب بازیابی توان ATP و حفظ حجم مکانیکی در ست‌های بعدی می‌شود:
+        </div>
+        <div class="timer-chips">
+          <button type="button" class="timer-chip" onclick="startRestTimer(45)">۴۵ ثانیه (ایزوله)</button>
+          <button type="button" class="timer-chip" onclick="startRestTimer(60)">۶۰ ثانیه</button>
+          <button type="button" class="timer-chip" onclick="startRestTimer(90)">۹۰ ثانیه (هایپرتروفی)</button>
+          <button type="button" class="timer-chip" onclick="startRestTimer(120)">۲ دقیقه (چندمفصلی)</button>
+          <button type="button" class="timer-chip" onclick="startRestTimer(180)">۳ دقیقه (سنگین)</button>
+        </div>
+        <div class="row2" style="margin-top:10px;align-items:flex-end;">
+          <div>
+            <label>زمان سفارشی (ثانیه)</label>
+            <input type="number" id="customTimerSeconds" placeholder="مثلاً ۷۵" min="10" max="600" step="5">
+          </div>
+          <div>
+            <button type="button" class="btn" style="width:100%;height:42px;border:1px solid var(--accent);color:var(--accent);font-weight:600;" onclick="startCustomRestTimer()">شروع استراحت</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- کارت محاسبه‌گر ۱RM و ست‌های گرم‌کردن -->
+      <section class="card">
+        <div class="daytitle">
+          <h2>⚡ محاسبه‌گر ۱RM و وزنه‌های گرم‌کردن</h2>
+          <span class="daytag">پتانسیل عصبی</span>
+        </div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.7;">
+          وزن کاری و تعداد تکرار ست اصلی را وارد کنید تا رکورد ۱RM و ست‌های استاندارد گرم‌کردن بدون خستگی را مشاهده نمایید:
+        </div>
+        <div class="row2">
+          <div>
+            <label>وزن کاری هدف (کیلوگرم)</label>
+            <input type="number" id="calcWeight" placeholder="مثلاً ۲۰" step="0.5" oninput="calculateWarmup()">
+          </div>
+          <div>
+            <label>تکرار ست کاری</label>
+            <input type="number" id="calcReps" placeholder="مثلاً ۸" min="1" max="15" value="8" oninput="calculateWarmup()">
+          </div>
+        </div>
+        <div id="calcResults" style="display:none;margin-top:12px;background:var(--surface-2);border-radius:6px;padding:10px;border:1px solid var(--line);">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span style="font-size:12.5px;color:var(--text);">رکورد تخمینی یک تکرار حداکثر (1RM):</span>
+            <b style="font-size:16px;color:var(--accent);" id="calc1RMVal">—</b>
+          </div>
+          <table class="warmup-table">
+            <thead>
+              <tr>
+                <th>ست</th>
+                <th>درصد</th>
+                <th>وزنه</th>
+                <th>تکرار</th>
+                <th>هدف فیزیولوژیک</th>
+              </tr>
+            </thead>
+            <tbody id="warmupTableBody"></tbody>
+          </table>
+          <button type="button" class="btn" style="width:100%;margin-top:10px;padding:8px;font-size:12px;color:var(--accent);border:1px solid var(--accent);" onclick="applyCalcToLog()">
+            📥 انتقال این وزنه کاری به فرم ثبت تمرین
+          </button>
+        </div>
+      </section>
     </div>
 
     <div class="tab" id="tab-history">
@@ -292,39 +601,140 @@
 
     <div class="tab" id="tab-weight">
       <section class="card">
-        <div class="sectionhead">ثبت وزن بدن</div>
+        <div class="daytitle">
+          <h2>🎯 تنظیم وزن مبدأ و هدف شما</h2>
+          <span class="daytag">پایش وزن</span>
+        </div>
+        <div style="font-size:12.5px;color:var(--muted);margin-bottom:12px;line-height:1.8;">
+          وزن مبدأ و وزن هدف دلخواه خود را تعیین کنید تا تمام محاسبات پیشرفت، تفاضل‌ها و تحلیل‌ها کاملاً بر اساس اهداف شخصی شما تنظیم شوند:
+        </div>
+        <div class="row2">
+          <div>
+            <label>وزن مبدأ / شروع (کیلوگرم)</label>
+            <input type="number" id="tabBwStartWeight" step="0.1" placeholder="مثلاً ۷۵.۰">
+          </div>
+          <div>
+            <label>وزن هدف دلخواه (کیلوگرم)</label>
+            <input type="number" id="tabBwTargetWeight" step="0.1" placeholder="مثلاً ۸۲.۰">
+          </div>
+        </div>
+        <button class="primary" style="margin-top:10px;" onclick="saveTabBwGoals()">ذخیره اهداف وزن</button>
+        <div id="tabBwGoalFeedback" style="margin-top:8px;font-size:12.5px;"></div>
+      </section>
+
+      <section class="card">
+        <div class="sectionhead">ثبت وزن بدن جدید</div>
         <div class="row2">
           <div><label>تاریخ</label><input type="date" id="bwDate"></div>
-          <div><label>وزن (کیلوگرم)</label><input type="number" id="bwWeight" step="0.1" placeholder="78.4"></div>
+          <div><label>وزن (کیلوگرم)</label><input type="number" id="bwWeight" step="0.1" placeholder="مثلاً ۷۹.۵"></div>
         </div>
         <button class="primary" onclick="submitWeight()">ذخیره وزن</button>
       </section>
       <section class="card" id="bwChartCard" style="display:none;">
-        <div class="sectionhead">روند وزن (۷۸ ← ۸۵ کیلوگرم)</div>
+        <div class="sectionhead" id="bwProgHead">روند تغییرات وزن</div>
         <svg class="chart" id="bwChart"></svg>
         <div class="note" id="bwTrendNote"></div>
       </section>
       <section class="card">
-        <div class="sectionhead">تاریخچه</div>
+        <div class="sectionhead">تاریخچه ثبت‌های وزن</div>
         <div class="wlist" id="bwList"></div>
       </section>
     </div>
 
     <div class="tab" id="tab-review">
       <section class="card">
-        <div class="sectionhead">ارزیابی پیشرفت</div>
-        <p style="font-size:13px;color:var(--muted);line-height:1.8;margin-top:0;">
-          این ارزیابی بر اساس همه‌چیزی که تا الان ثبت کردی محاسبه می‌شه. هر ۲ تا ۴ هفته یک‌بار ارزیابی کن — نه بیشتر.
+        <div class="daytitle">
+          <h2>ارزیابی پیشرفت و بار اضافی</h2>
+          <span class="daytag">تحلیل علمی</span>
+        </div>
+        <p style="font-size:12.5px;color:var(--muted);line-height:1.8;margin-top:0;">
+          تحلیل عملکرد، آهنگ رشد وزن، حجم کل تمرینات، پایش خستگی و توصیه‌های هوشمند اصل اضافه‌بار تدریجی (Overload) بر اساس ثبت‌های شما در دیتابیس.
         </p>
-        <button class="primary" onclick="renderReview()">تهیه ارزیابی</button>
-        <button class="ghost" onclick="exportData()">دانلود بک‌آپ (.json)</button>
-        <button class="ghost" onclick="document.getElementById('importFile').click()">ایمپورت بک‌آپ (.json)</button>
+
+        <label>بازه زمانی ارزیابی</label>
+        <select id="revTimeframe" onchange="toggleCustomDates()">
+          <option value="14">۱۴ روز گذشته (۲ هفته - بررسی سریع)</option>
+          <option value="30" selected>۳۰ روز گذشته (۱ ماه - استاندارد هایپرتروفی)</option>
+          <option value="60">۶۰ روز گذشته (۲ ماه - بررسی فاز کامل)</option>
+          <option value="all">تمام تاریخچه ثبت‌ها (All-Time)</option>
+          <option value="custom">بازه انتخابی دلخواه (Custom)...</option>
+        </select>
+
+        <div class="row2" id="revCustomDates" style="display:none;margin-top:8px;">
+          <div><label>از تاریخ</label><input type="date" id="revStartDate"></div>
+          <div><label>تا تاریخ</label><input type="date" id="revEndDate"></div>
+        </div>
+
+        <div class="row2" style="margin-top:6px;">
+          <div>
+            <label>فیلتر برنامه</label>
+            <select id="revMode" onchange="renderReview()">
+              <option value="all">همه برنامه‌ها</option>
+              <option value="dumbbell">فقط دمبل خانگی</option>
+              <option value="gym">فقط باشگاه</option>
+            </select>
+          </div>
+          <div>
+            <label>تمرکز روی حرکت خاص</label>
+            <select id="revExercise" onchange="renderReview()">
+              <option value="all">همه حرکات ثبت‌شده</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- تنظیمات وزن مبدأ و هدف -->
+        <div style="margin-top:12px;background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:10px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;" onclick="toggleGoalSettings()">
+            <span style="font-size:12px;font-weight:600;color:var(--accent);">🎯 تنظیم وزن شروع و وزن هدف</span>
+            <span id="goalToggleIcon" style="font-size:11px;color:var(--muted);">▼</span>
+          </div>
+          <div id="goalSettingsBox" style="display:none;margin-top:10px;">
+            <div class="row2">
+              <div>
+                <label style="margin-top:0;">وزن اولیه (کیلوگرم)</label>
+                <input type="number" id="cfgStartWeight" step="0.1" placeholder="مثلاً ۷۵.۰">
+              </div>
+              <div>
+                <label style="margin-top:0;">وزن هدف (کیلوگرم)</label>
+                <input type="number" id="cfgTargetWeight" step="0.1" placeholder="مثلاً ۸۲.۰">
+              </div>
+            </div>
+            <button class="ghost" style="margin-top:8px;font-size:12px;padding:6px 10px;" onclick="saveWeightGoals()">ذخیره اهداف وزن</button>
+            <div id="goalSaveFeedback" style="font-size:11.5px;margin-top:4px;"></div>
+          </div>
+        </div>
+
+        <button class="primary" style="margin-top:14px;" onclick="renderReview()">📊 محاسبه و تهیه ارزیابی جامع</button>
+
+        <div class="btn-row">
+          <button class="ghost" onclick="copyReviewReport()">📋 کپی متن ارزیابی</button>
+          <button class="ghost" onclick="exportData()">💾 دانلود بک‌آپ (.json)</button>
+          <button class="ghost" onclick="document.getElementById('importFile').click()">📥 ایمپورت بک‌آپ (.json)</button>
+        </div>
         <input type="file" id="importFile" accept="application/json,.json" style="display:none" onchange="importData(event)">
         <div id="importFeedback"></div>
+        <div id="copyFeedback"></div>
       </section>
+
       <div id="reviewOutput"></div>
     </div>
   </main>
+
+  <!-- نوار شناور تایمر استراحت بین ست‌ها (Persistent Floating Rest Timer) -->
+  <div id="restTimerDock">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span style="font-size:18px;">⏱️</span>
+      <div>
+        <div style="font-size:10px;color:var(--muted);">استراحت بین ست</div>
+        <div class="timer-digit" id="dockTimerDigit">۰۰:۰۰</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:6px;align-items:center;">
+      <button type="button" class="btn" style="width:auto;padding:5px 9px;font-size:11px;" onclick="addTimerSeconds(30)">+۳۰ثانیه</button>
+      <button type="button" class="btn" id="dockPauseBtn" style="width:auto;padding:5px 9px;font-size:11px;" onclick="togglePauseTimer()">مکث</button>
+      <button type="button" class="btn" style="width:auto;padding:5px 9px;font-size:11px;color:var(--danger);" onclick="stopRestTimer()">✕</button>
+    </div>
+  </div>
 
   <nav>
     <button class="navbtn active" data-tab="program" onclick="switchTab('program')">
@@ -899,7 +1309,8 @@ const GYM_PROGRAM = [
 let currentMode = 'dumbbell';
 let workoutLogs = [];
 let bodyWeightLogs = [];
-const START_WEIGHT = 78, TARGET_WEIGHT = 85;
+let customExercises = [];
+let START_WEIGHT = null, TARGET_WEIGHT = null;
 
 function ytLink(name){ return "https://www.youtube.com/results?search_query=" + encodeURIComponent(name); }
 function todayISO(){
@@ -912,9 +1323,13 @@ function faDigits(n){
 }
 
 function flattenExercises(){
-  if(currentMode==='gym') return gymFlattenExercises();
-  const list = [];
-  PROGRAM.forEach(day => day.exercises.forEach(ex => list.push(ex.name)));
+  let list = [];
+  if(currentMode==='gym'){
+    list = gymFlattenExercises();
+  } else {
+    PROGRAM.forEach(day => day.exercises.forEach(ex => list.push(ex.name)));
+  }
+  customExercises.filter(c => c.programMode === currentMode).forEach(c => list.push(c.name));
   return [...new Set(list)];
 }
 
@@ -928,6 +1343,8 @@ function gymFlattenExercises(){
 }
 
 function exerciseFaName(name){
+  const cust = customExercises.find(c => c.name === name || c.nameFa === name);
+  if(cust) return cust.nameFa;
   if(currentMode==='gym') return gymExerciseFaName(name);
   for(const day of PROGRAM){
     const found = day.exercises.find(e=>e.name===name);
@@ -950,17 +1367,67 @@ function gymExerciseFaName(name){
 
 function refreshHeader(){
   document.getElementById('todayLabel').textContent = new Date().toLocaleDateString('fa-IR',{weekday:'short',month:'short',day:'numeric'});
-  const lastW = bodyWeightLogs.length ? [...bodyWeightLogs].sort((a,b)=>a.date.localeCompare(b.date)).slice(-1)[0].weight : START_WEIGHT;
-  document.getElementById('statWeight').textContent = lastW.toFixed(1)+" کیلوگرم";
-  const toGo = (TARGET_WEIGHT - lastW);
-  document.getElementById('statToGo').textContent = (toGo>=0?"+":"") + toGo.toFixed(1) + " کیلوگرم";
+  
+  const sortedBw = [...bodyWeightLogs].sort((a,b)=>a.date.localeCompare(b.date));
+  const lastW = sortedBw.length ? sortedBw[sortedBw.length - 1].weight : (START_WEIGHT !== null ? START_WEIGHT : null);
+  
+  const statWEl = document.getElementById('statWeight');
+  const statToGoEl = document.getElementById('statToGo');
+
+  if (lastW !== null) {
+    statWEl.textContent = lastW.toFixed(1) + " کیلوگرم";
+  } else {
+    statWEl.textContent = "ثبت‌نشده";
+  }
+
+  if (TARGET_WEIGHT !== null && lastW !== null) {
+    const toGo = (TARGET_WEIGHT - lastW);
+    if (Math.abs(toGo) < 0.05) {
+      statToGoEl.textContent = "رسیدن به هدف! 🎉";
+    } else if (toGo > 0) {
+      statToGoEl.textContent = "+" + toGo.toFixed(1) + " کیلوگرم";
+    } else {
+      statToGoEl.textContent = toGo.toFixed(1) + " کیلوگرم";
+    }
+  } else if (TARGET_WEIGHT !== null) {
+    statToGoEl.textContent = "هدف: " + TARGET_WEIGHT.toFixed(1) + " kg";
+  } else {
+    statToGoEl.textContent = "تنظیم نشده";
+  }
+
   document.getElementById('statSessions').textContent = new Set(workoutLogs.map(l=>l.date)).size;
+
+  // Sync inputs
+  const tabSw = document.getElementById('tabBwStartWeight');
+  const tabTw = document.getElementById('tabBwTargetWeight');
+  if (tabSw && START_WEIGHT !== null) tabSw.value = START_WEIGHT;
+  if (tabTw && TARGET_WEIGHT !== null) tabTw.value = TARGET_WEIGHT;
+
+  const cfgSw = document.getElementById('cfgStartWeight');
+  const cfgTw = document.getElementById('cfgTargetWeight');
+  if (cfgSw && START_WEIGHT !== null) cfgSw.value = START_WEIGHT;
+  if (cfgTw && TARGET_WEIGHT !== null) cfgTw.value = TARGET_WEIGHT;
+
+  const progHead = document.getElementById('bwProgHead');
+  if (progHead) {
+    if (START_WEIGHT !== null && TARGET_WEIGHT !== null) {
+      progHead.textContent = `روند وزن (${START_WEIGHT} ← ${TARGET_WEIGHT} کیلوگرم)`;
+    } else if (TARGET_WEIGHT !== null) {
+      progHead.textContent = `روند وزن (هدف: ${TARGET_WEIGHT} کیلوگرم)`;
+    } else {
+      progHead.textContent = 'روند تغییرات وزن';
+    }
+  }
 }
 
 function switchTab(name){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.getElementById('tab-'+name).classList.add('active');
   document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active', b.dataset.tab===name));
+  if(name === 'review'){
+    populateReviewExerciseSelect();
+    renderReview();
+  }
 }
 
 function buildLogExerciseSelect(){
@@ -982,7 +1449,7 @@ function renderProgram(){
   const el = document.getElementById('tab-program');
 
   if(currentMode==='gym'){
-    let html = GYM_PROGRAM.map(renderGymDay).join('');
+    let html = GYM_PROGRAM.map((day, dIdx) => renderGymDay(day, dIdx)).join('');
     html += `<section class="card"><div class="sectionhead">⚠️ درباره‌ی استراحت و RIR</div>
       <div style="font-size:12.5px;color:var(--muted);line-height:1.9;">
         زمان استراحت و RIR به‌صورت استاندارد هایپرتروفی پیشرفته تنظیم شده‌اند (استراحت کوتاه‌تر برای ایزوله/سوپرست، طولانی‌تر برای حرکات اصلی چندمفصلی).
@@ -993,7 +1460,10 @@ function renderProgram(){
   }
 
   let html = '';
-  PROGRAM.forEach(day => {
+  PROGRAM.forEach((day, dIdx) => {
+    const dayNumber = dIdx + 1;
+    const dayCustoms = customExercises.filter(c => c.programMode === 'dumbbell' && Number(c.dayNumber) === dayNumber);
+
     html += `<section class="card"><div class="daytitle"><h2>${day.day}</h2><span class="daytag">${day.tag}</span></div>`;
     day.exercises.forEach(ex => {
       html += `
@@ -1010,13 +1480,49 @@ function renderProgram(){
           <div class="exmistake"><span class="lbl">اجتناب: </span>${ex.mistake}</div>
         </div>`;
     });
+
+    if(dayCustoms.length > 0){
+      dayCustoms.forEach(c => {
+        html += `
+          <div class="exercise" style="border-right:3px solid var(--accent);background:rgba(217,164,65,0.03);padding:10px 12px;border-radius:6px;margin-bottom:8px;">
+            <div class="exname">
+              <a href="${ytLink(c.name)}" target="_blank" rel="noopener">${c.name}</a>
+              <span class="dbcount">${c.equip}</span>
+              <span class="daytag" style="background:rgba(217,164,65,0.15);color:var(--accent);margin-inline-start:6px;">حرکت اختصاصی شما</span>
+            </div>
+            <div class="exnamefa">${c.nameFa}</div>
+            <div class="exmeta">
+              <span><b>${c.sets}×${c.reps}</b></span>
+              <span>وزن: <b>${c.weight}</b></span>
+              <span>RIR <b>${c.rir}</b></span>
+              <span>استراحت <b>${c.rest}</b></span>
+            </div>
+            ${c.tech ? `<div class="extech"><span class="lbl">تکنیک — </span>${c.tech}</div>` : ''}
+            ${c.mistake ? `<div class="exmistake"><span class="lbl">اجتناب: </span>${c.mistake}</div>` : ''}
+            <div style="margin-top:8px;text-align:left;">
+              <button class="delbtn" style="font-size:11px;padding:3px 10px;border-radius:4px;" onclick="deleteCustomExercise(${c.id})">حذف این حرکت</button>
+            </div>
+          </div>`;
+      });
+    }
+
+    html += `
+      <div style="margin-top:14px;padding-top:10px;border-top:1px dashed var(--line);text-align:center;">
+        <button type="button" class="btn" style="width:auto;padding:7px 18px;font-size:12.5px;border:1px solid var(--accent);color:var(--accent);border-radius:6px;background:rgba(217,164,65,0.05);cursor:pointer;" onclick="openAddExerciseModal(${dayNumber}, '${day.day}')">
+          ➕ افزودن حرکت جدید به ${day.day.split('—')[0].trim()}
+        </button>
+      </div>`;
+
     html += `</section>`;
   });
   html += `<section class="card"><div class="sectionhead">روزهای استراحت</div><div style="font-size:13px;color:var(--muted);line-height:1.8;">${RESTDAY_NOTE}</div></section>`;
   el.innerHTML = html;
 }
 
-function renderGymDay(day){
+function renderGymDay(day, dIdx){
+  const dayNumber = dIdx + 1;
+  const dayCustoms = customExercises.filter(c => c.programMode === 'gym' && Number(c.dayNumber) === dayNumber);
+
   let html = `<section class="card"><div class="daytitle"><h2>${day.day}</h2><span class="daytag">${day.tag}</span></div>`;
   day.slots.forEach(slot=>{
     const supersetBadge = slot.type==='superset' ? '<span class="daytag" style="margin-inline-start:6px;">سوپرست</span>' : '';
@@ -1047,9 +1553,129 @@ function renderGymDay(day){
     });
     html += `</div>`;
   }
+
+  if(dayCustoms.length > 0){
+    dayCustoms.forEach(c => {
+      html += `
+        <div class="exercise" style="border-right:3px solid var(--accent);background:rgba(217,164,65,0.03);padding:10px 12px;border-radius:6px;margin-bottom:8px;">
+          <div class="exname">
+            <a href="${ytLink(c.name)}" target="_blank" rel="noopener">${c.name}</a>
+            <span class="dbcount">${c.equip}</span>
+            <span class="daytag" style="background:rgba(217,164,65,0.15);color:var(--accent);margin-inline-start:6px;">حرکت اختصاصی شما</span>
+          </div>
+          <div class="exnamefa">${c.nameFa}</div>
+          <div class="exmeta">
+            <span><b>${c.sets}×${c.reps}</b></span>
+            <span>وزن: <b>${c.weight}</b></span>
+            <span>RIR <b>${c.rir}</b></span>
+            <span>استراحت <b>${c.rest}</b></span>
+          </div>
+          ${c.tech ? `<div class="extech"><span class="lbl">تکنیک — </span>${c.tech}</div>` : ''}
+          ${c.mistake ? `<div class="exmistake"><span class="lbl">اجتناب: </span>${c.mistake}</div>` : ''}
+          <div style="margin-top:8px;text-align:left;">
+            <button class="delbtn" style="font-size:11px;padding:3px 10px;border-radius:4px;" onclick="deleteCustomExercise(${c.id})">حذف این حرکت</button>
+          </div>
+        </div>`;
+    });
+  }
+
   html += `<div class="exercise" style="font-size:12.5px;color:var(--muted);">کاردیوی پایانی: ${day.cardio}</div>`;
+  html += `
+    <div style="margin-top:14px;padding-top:10px;border-top:1px dashed var(--line);text-align:center;">
+      <button type="button" class="btn" style="width:auto;padding:7px 18px;font-size:12.5px;border:1px solid var(--accent);color:var(--accent);border-radius:6px;background:rgba(217,164,65,0.05);cursor:pointer;" onclick="openAddExerciseModal(${dayNumber}, '${day.day}')">
+        ➕ افزودن حرکت جدید به ${day.day.split('—')[0].trim()}
+      </button>
+    </div>`;
+
   html += `</section>`;
   return html;
+}
+
+/* ---------------- مودال افزودن و حذف حرکات اختصاصی ---------------- */
+function openAddExerciseModal(dayNumber, dayTitle){
+  document.getElementById('addExDayNumber').value = dayNumber;
+  document.getElementById('addExProgramMode').value = currentMode;
+  document.getElementById('addExModalTitle').textContent = `افزودن حرکت جدید به ${dayTitle.split('—')[0].trim()}`;
+  document.getElementById('addExNameFa').value = '';
+  document.getElementById('addExNameEn').value = '';
+  document.getElementById('addExTech').value = '';
+  document.getElementById('addExMistake').value = '';
+  document.getElementById('addExFeedback').innerHTML = '';
+  document.getElementById('addExModal').style.display = 'flex';
+}
+
+function closeAddExerciseModal(){
+  document.getElementById('addExModal').style.display = 'none';
+}
+
+async function submitNewCustomExercise(e){
+  e.preventDefault();
+  const dayNumber = parseInt(document.getElementById('addExDayNumber').value, 10);
+  const programMode = document.getElementById('addExProgramMode').value;
+  const nameFa = document.getElementById('addExNameFa').value.trim();
+  const nameEn = document.getElementById('addExNameEn').value.trim();
+  const equip = document.getElementById('addExEquip').value.trim();
+  const sets = parseInt(document.getElementById('addExSets').value, 10) || 3;
+  const reps = document.getElementById('addExReps').value.trim();
+  const rir = parseFloat(document.getElementById('addExRir').value) || 2;
+  const rest = document.getElementById('addExRest').value.trim();
+  const weight = document.getElementById('addExWeight').value.trim();
+  const tech = document.getElementById('addExTech').value.trim();
+  const mistake = document.getElementById('addExMistake').value.trim();
+  const fb = document.getElementById('addExFeedback');
+
+  if(!nameFa){
+    fb.innerHTML = `<span style="color:var(--danger)">نام فارسی حرکت الزامی است.</span>`;
+    return;
+  }
+
+  const finalName = nameEn || nameFa;
+
+  try {
+    const res = await apiFetch('/custom-exercises', {
+      method: 'POST',
+      body: JSON.stringify({
+        programMode,
+        dayNumber,
+        name: finalName,
+        nameFa,
+        equip,
+        sets,
+        reps,
+        rest,
+        rir,
+        weight,
+        tech,
+        mistake
+      })
+    });
+    if(!res.ok) throw new Error('خطا در ذخیره حرکت در سرور');
+    const created = await res.json();
+    customExercises.push(created);
+    
+    renderProgram();
+    buildLogExerciseSelect();
+    buildHistExerciseSelect();
+    populateReviewExerciseSelect();
+    closeAddExerciseModal();
+  } catch(err) {
+    fb.innerHTML = `<span style="color:var(--danger)">خطا: ${err.message}</span>`;
+  }
+}
+
+async function deleteCustomExercise(id){
+  if(!confirm('آیا از حذف این حرکت اختصاصی اطمینان دارید؟')) return;
+  try {
+    const res = await apiFetch('/custom-exercises/' + id, { method: 'DELETE' });
+    if(!res.ok && res.status !== 204) throw new Error('خطا در حذف حرکت');
+    customExercises = customExercises.filter(c => c.id !== id);
+    renderProgram();
+    buildLogExerciseSelect();
+    buildHistExerciseSelect();
+    populateReviewExerciseSelect();
+  } catch(err) {
+    alert('خطا در حذف حرکت: ' + err.message);
+  }
 }
 
 /* ---------------- ۷. توابع همگام‌سازی واقعی با بک‌اند (Database Sync) ---------------- */
@@ -1059,6 +1685,12 @@ async function loadAll() {
     if (setRes.ok) {
       const setJson = await setRes.json();
       currentMode = setJson.activeMode || 'dumbbell';
+      if (setJson.startWeight !== undefined && setJson.startWeight !== null) {
+        START_WEIGHT = Number(setJson.startWeight);
+      }
+      if (setJson.targetWeight !== undefined && setJson.targetWeight !== null) {
+        TARGET_WEIGHT = Number(setJson.targetWeight);
+      }
       document.querySelectorAll('.modebtn').forEach(b => b.classList.toggle('active', b.dataset.mode === currentMode));
     }
 
@@ -1084,6 +1716,11 @@ async function loadAll() {
         date: b.logDate,
         weight: parseFloat(b.weightKg)
       }));
+    }
+
+    const custRes = await apiFetch('/custom-exercises');
+    if (custRes.ok) {
+      customExercises = await custRes.json();
     }
 
     renderProgram();
@@ -1160,13 +1797,203 @@ async function submitLog() {
     refreshHeader();
     buildHistExerciseSelect();
     renderHistory();
-    document.getElementById('logFeedback').innerHTML = `<div class="feedback up">تمرین با موفقیت در دیتابیس ثبت شد.</div>`;
+    document.getElementById('logFeedback').innerHTML = `
+      <div class="feedback up" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+        <span>✅ ست با موفقیت در دیتابیس ثبت شد.</span>
+        <button type="button" class="btn" style="width:auto;padding:5px 12px;font-size:11.5px;color:var(--accent);border:1px solid var(--accent);background:rgba(217,164,65,0.1);font-weight:600;" onclick="startRestTimer(90)">
+          ⏱️ شروع ۹۰ ثانیه استراحت
+        </button>
+      </div>`;
     document.getElementById('logReps').value = '';
     document.getElementById('logRir').value = '';
     document.getElementById('logNotes').value = '';
   } catch (err) {
     document.getElementById('logFeedback').innerHTML = `<div class="feedback down">${err.message}</div>`;
   }
+}
+
+/* ---------------- تایمر هوشمند استراحت بین ست‌ها (Smart Rest Timer) ---------------- */
+let timerInterval = null;
+let timerRemainingSeconds = 0;
+let timerTotalSeconds = 0;
+let isTimerPaused = false;
+
+function formatTimerMMSS(sec) {
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
+function updateTimerDisplay() {
+  const dock = document.getElementById('restTimerDock');
+  const digit = document.getElementById('dockTimerDigit');
+  const badge = document.getElementById('timerStatusBadge');
+  const pauseBtn = document.getElementById('dockPauseBtn');
+
+  if (timerRemainingSeconds <= 0) {
+    if (dock) dock.style.display = 'none';
+    if (badge) {
+      badge.textContent = 'آماده';
+      badge.style.background = '';
+      badge.style.color = '';
+    }
+    return;
+  }
+
+  if (dock) dock.style.display = 'flex';
+  if (digit) digit.textContent = formatTimerMMSS(timerRemainingSeconds);
+  if (pauseBtn) pauseBtn.textContent = isTimerPaused ? 'ادامه' : 'مکث';
+  if (badge) {
+    badge.textContent = `${formatTimerMMSS(timerRemainingSeconds)} استراحت`;
+    badge.style.background = 'rgba(217,164,65,0.2)';
+    badge.style.color = 'var(--accent)';
+  }
+}
+
+function playTimerChime() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const notes = [587.33, 739.99, 880.00]; // D5, F#5, A5 arpeggio
+    notes.forEach((freq, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.15, ctx.currentTime + idx * 0.15);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.15 + 0.35);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(ctx.currentTime + idx * 0.15);
+      osc.stop(ctx.currentTime + idx * 0.15 + 0.4);
+    });
+  } catch (e) {
+    console.warn('AudioContext chime:', e);
+  }
+
+  if (navigator.vibrate) {
+    try { navigator.vibrate([250, 100, 250, 100, 400]); } catch (e) {}
+  }
+}
+
+function startRestTimer(seconds) {
+  if (timerInterval) clearInterval(timerInterval);
+  timerTotalSeconds = seconds;
+  timerRemainingSeconds = seconds;
+  isTimerPaused = false;
+  updateTimerDisplay();
+
+  timerInterval = setInterval(() => {
+    if (isTimerPaused) return;
+    timerRemainingSeconds--;
+    if (timerRemainingSeconds <= 0) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      updateTimerDisplay();
+      playTimerChime();
+      const feedback = document.getElementById('logFeedback');
+      if (feedback) {
+        feedback.innerHTML = `<div class="feedback up" style="font-weight:700;">🔔 استراحت تمام شد! وقت ست بعدیه، پرقدرت ادامه بده 💪</div>`;
+      }
+    } else {
+      updateTimerDisplay();
+    }
+  }, 1000);
+}
+
+function startCustomRestTimer() {
+  const val = parseInt(document.getElementById('customTimerSeconds').value, 10);
+  if (isNaN(val) || val <= 0) {
+    alert('لطفاً زمان معتبری به ثانیه وارد کنید (مثلاً ۹۰)');
+    return;
+  }
+  startRestTimer(val);
+}
+
+function addTimerSeconds(sec) {
+  if (timerRemainingSeconds > 0) {
+    timerRemainingSeconds += sec;
+    timerTotalSeconds += sec;
+    updateTimerDisplay();
+  } else {
+    startRestTimer(sec);
+  }
+}
+
+function togglePauseTimer() {
+  isTimerPaused = !isTimerPaused;
+  updateTimerDisplay();
+}
+
+function stopRestTimer() {
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = null;
+  timerRemainingSeconds = 0;
+  isTimerPaused = false;
+  updateTimerDisplay();
+}
+
+/* ---------------- محاسبه‌گر ۱RM و ست‌های گرم‌کردن (1RM & Warmup Calculator) ---------------- */
+function calculateWarmup() {
+  const w = parseFloat(document.getElementById('calcWeight').value);
+  const r = parseInt(document.getElementById('calcReps').value, 10);
+  const resBox = document.getElementById('calcResults');
+  const tbody = document.getElementById('warmupTableBody');
+  const val1RM = document.getElementById('calc1RMVal');
+
+  if (!w || isNaN(w) || w <= 0 || !r || isNaN(r) || r <= 0) {
+    if (resBox) resBox.style.display = 'none';
+    return;
+  }
+
+  // Epley 1RM formula: w * (1 + r / 30)
+  const est1RM = w * (1 + r / 30);
+  val1RM.textContent = `${est1RM.toFixed(1)} کیلوگرم`;
+
+  // Standard Hypertrophy Warmup scheme based on working weight
+  const sets = [
+    { name: 'ست ۱ (سبک)', pct: '۵۰٪', weight: (w * 0.5).toFixed(1), reps: '۱۰ تا ۱۲', goal: 'خون‌رسانی و گرم‌کردن مفاصل' },
+    { name: 'ست ۲ (متوسط)', pct: '۷۰٪', weight: (w * 0.7).toFixed(1), reps: '۵ تا ۶', goal: 'تثبیت الگوی حرکتی' },
+    { name: 'ست ۳ (آماده‌سازی)', pct: '۸۵٪', weight: (w * 0.85).toFixed(1), reps: '۲ تا ۳', goal: 'فعال‌سازی عصبی بدون خستگی' },
+    { name: 'ست کاری اصلی', pct: '۱۰۰٪', weight: w.toFixed(1), reps: `${r} تکرار (هدف)`, goal: 'محرک اصلی هایپرتروفی و حجم مکانیکی' }
+  ];
+
+  tbody.innerHTML = sets.map(s => `
+    <tr>
+      <td>${s.name}</td>
+      <td>${s.pct}</td>
+      <td><b>${s.weight}</b> <small>kg</small></td>
+      <td>${s.reps}</td>
+      <td style="color:var(--muted);font-size:11px;">${s.goal}</td>
+    </tr>
+  `).join('');
+
+  if (resBox) resBox.style.display = 'block';
+}
+
+function applyCalcToLog() {
+  const w = document.getElementById('calcWeight').value;
+  const r = document.getElementById('calcReps').value;
+  if (w) document.getElementById('logWeight').value = w;
+  if (r) document.getElementById('logReps').value = `${r},${r},${r}`;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ---------------- راهنمای استقرار روی سرورهای ابری رایگان ---------------- */
+function openDeployModal() {
+  document.getElementById('deployModal').style.display = 'flex';
+}
+function closeDeployModal() {
+  document.getElementById('deployModal').style.display = 'none';
+}
+function copyDeployEnv() {
+  const envText = `DATABASE_URL=postgresql://postgres.fzjssseinyiuanwiqvwr:AyWNdPZpvwMfIdZk@aws-1-eu-west-1.pooler.supabase.com:6543/postgres\nJWT_ACCESS_SECRET=Vor+2vsL2CU4044U2w/hFkpwQ8mv5aWr5CH+pinxFRc=\nJWT_REFRESH_SECRET=K4Gtt5qyJsPB66zEh+KSGAoE26oTctQ2Rn7ASW1AKgI=\nPORT=3000`;
+  navigator.clipboard.writeText(envText).then(() => {
+    const notice = document.getElementById('deployCopyNotice');
+    if (notice) notice.textContent = '✅ تمام متغیرهای محیطی با موفقیت در کلیپ‌بورد کپی شد!';
+    setTimeout(() => { if (notice) notice.textContent = ''; }, 3500);
+  }).catch(() => {
+    alert('متغیرها:\n' + envText);
+  });
 }
 
 function renderHistory(){
@@ -1190,7 +2017,10 @@ function renderHistory(){
   list.innerHTML = entries.slice().reverse().map(e=>{
     const isPB = e.id===pbId;
     return `<div class="histentry">
-      <div class="histdate">${e.date}${isPB?'<span class="pbtag">رکورد</span>':''}</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div class="histdate">${e.date}${isPB?'<span class="pbtag">رکورد</span>':''}</div>
+        <button class="delbtn" onclick="deleteWorkoutLog(${e.id})" title="حذف این ثبت">×</button>
+      </div>
       <div class="histsets">${e.weight} کیلوگرم — ${e.reps.join(' / ')}${e.rir && e.rir.length?` (RIR ${e.rir.join('/')})`:''}</div>
       ${e.notes?`<div class="histnote">${e.notes}</div>`:''}
     </div>`;
@@ -1200,6 +2030,40 @@ function renderHistory(){
   if(entries.length>=2){
     const vols = entries.map(e => e.weight * (e.reps.reduce((s,n)=>s+n,0)/e.reps.length));
     drawLineChart('histChart', vols, entries.map(e=>e.date));
+  }
+}
+
+async function deleteWorkoutLog(id){
+  if(!confirm('آیا از حذف این ثبت تمرین اطمینان دارید؟')) return;
+  try{
+    const res = await apiFetch('/workouts/' + id, { method:'DELETE' });
+    if(!res.ok && res.status!==204) throw new Error('خطا در حذف تمرین');
+    workoutLogs = workoutLogs.filter(w => w.id !== id);
+    refreshHeader();
+    buildHistExerciseSelect();
+    renderHistory();
+    populateReviewExerciseSelect();
+    if(document.getElementById('tab-review').classList.contains('active')){
+      renderReview();
+    }
+  }catch(err){
+    alert('خطا در حذف ثبت: ' + err.message);
+  }
+}
+
+async function deleteWeightLog(id){
+  if(!confirm('آیا از حذف این ثبت وزن اطمینان دارید؟')) return;
+  try{
+    const res = await apiFetch('/bodyweight/' + id, { method:'DELETE' });
+    if(!res.ok && res.status!==204) throw new Error('خطا در حذف وزن');
+    bodyWeightLogs = bodyWeightLogs.filter(w => w.id !== id);
+    refreshHeader();
+    renderWeightTab();
+    if(document.getElementById('tab-review').classList.contains('active')){
+      renderReview();
+    }
+  }catch(err){
+    alert('خطا در حذف وزن: ' + err.message);
   }
 }
 
@@ -1239,7 +2103,15 @@ function renderWeightTab(){
     return;
   }
 
-  list.innerHTML = sorted.slice().reverse().map(w=>`<div class="wrow"><span class="d">${w.date}</span><span class="v">${w.weight.toFixed(1)} کیلوگرم</span></div>`).join('');
+  list.innerHTML = sorted.slice().reverse().map(w=>`
+    <div class="wrow">
+      <span class="d">${w.date}</span>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="v">${w.weight.toFixed(1)} کیلوگرم</span>
+        <button class="delbtn" onclick="deleteWeightLog(${w.id})" title="حذف این ثبت">×</button>
+      </div>
+    </div>
+  `).join('');
 
   chartCard.style.display = sorted.length>=2 ? 'block' : 'none';
   if(sorted.length>=2){
@@ -1270,9 +2142,583 @@ function drawLineChart(svgId, values, labels, refLineHigh=null, refLineLow=null)
   svg.innerHTML = `${refLines}<path d="${path}" fill="none" stroke="#d9a441" stroke-width="2"/>${dots}`;
 }
 
+/* ---------------- توابع کمکی و کنترل‌های ارزیابی (Assessment Helpers) ---------------- */
+function toggleCustomDates(){
+  const tf = document.getElementById('revTimeframe').value;
+  const box = document.getElementById('revCustomDates');
+  box.style.display = tf === 'custom' ? 'flex' : 'none';
+  if(tf === 'custom'){
+    const now = new Date();
+    const past = new Date(Date.now() - 30*24*3600*1000);
+    if(!document.getElementById('revStartDate').value) {
+      document.getElementById('revStartDate').value = past.toISOString().slice(0,10);
+    }
+    if(!document.getElementById('revEndDate').value) {
+      document.getElementById('revEndDate').value = now.toISOString().slice(0,10);
+    }
+  }
+}
+
+function toggleGoalSettings(){
+  const box = document.getElementById('goalSettingsBox');
+  const icon = document.getElementById('goalToggleIcon');
+  if(box.style.display === 'none'){
+    box.style.display = 'block';
+    icon.textContent = '▲';
+  }else{
+    box.style.display = 'none';
+    icon.textContent = '▼';
+  }
+}
+
+async function saveTabBwGoals(){
+  const swInput = document.getElementById('tabBwStartWeight').value;
+  const twInput = document.getElementById('tabBwTargetWeight').value;
+  return saveCustomGoals(swInput, twInput, document.getElementById('tabBwGoalFeedback'));
+}
+
+async function saveWeightGoals(){
+  const swInput = document.getElementById('cfgStartWeight').value;
+  const twInput = document.getElementById('cfgTargetWeight').value;
+  return saveCustomGoals(swInput, twInput, document.getElementById('goalSaveFeedback'));
+}
+
+async function saveCustomGoals(swInput, twInput, fbEl){
+  const sw = swInput ? parseFloat(swInput) : null;
+  const tw = twInput ? parseFloat(twInput) : null;
+  if(!tw || tw <= 0){
+    if(fbEl) fbEl.innerHTML = `<span style="color:var(--danger)">لطفاً یک وزن هدف معتبر وارد کنید.</span>`;
+    return;
+  }
+  START_WEIGHT = sw;
+  TARGET_WEIGHT = tw;
+  try{
+    const res = await apiFetch('/settings', {
+      method: 'PUT',
+      body: JSON.stringify({ activeMode: currentMode, startWeight: sw, targetWeight: tw })
+    });
+    if(!res.ok) throw new Error('خطا در ذخیره اهداف در سرور');
+    if(fbEl) fbEl.innerHTML = `<span style="color:var(--ok)">✓ اهداف وزن با موفقیت ذخیره شد.</span>`;
+    refreshHeader();
+    renderWeightTab();
+    if(document.getElementById('tab-review').classList.contains('active')){
+      renderReview();
+    }
+    setTimeout(() => { if(fbEl) fbEl.innerHTML = ''; }, 3500);
+  }catch(err){
+    if(fbEl) fbEl.innerHTML = `<span style="color:var(--danger)">خطا: ${err.message}</span>`;
+  }
+}
+
+function populateReviewExerciseSelect(){
+  const sel = document.getElementById('revExercise');
+  if(!sel) return;
+  const curr = sel.value;
+  const allNames = [...new Set([...flattenExercises(), ...workoutLogs.map(l=>l.exercise)])];
+  let options = `<option value="all">همه حرکات ثبت‌شده (${allNames.length} حرکت)</option>`;
+  allNames.forEach(n => {
+    options += `<option value="${n}">${exerciseFaName(n)} / ${n}</option>`;
+  });
+  sel.innerHTML = options;
+  if(allNames.includes(curr)) sel.value = curr;
+}
+
+function getMuscleGroup(name){
+  const lower = (name || '').toLowerCase();
+  if(lower.includes('bench') || lower.includes('chest') || lower.includes('fly') || lower.includes('crossover') || (lower.includes('press') && !lower.includes('shoulder') && !lower.includes('leg'))) return 'سینه';
+  if(lower.includes('row') || lower.includes('lat') || lower.includes('pull') || lower.includes('chin') || lower.includes('back')) return 'پشت و زیربغل';
+  if(lower.includes('squat') || lower.includes('lunge') || lower.includes('leg') || lower.includes('deadlift') || lower.includes('calf') || lower.includes('glute')) return 'پا و باسن';
+  if(lower.includes('shoulder') || lower.includes('lateral') || lower.includes('front raise') || lower.includes('arnold') || lower.includes('delt') || lower.includes('face pull') || lower.includes('overhead')) return 'سرشانه';
+  if(lower.includes('curl') || lower.includes('pushdown') || lower.includes('triceps') || lower.includes('biceps') || lower.includes('skull') || lower.includes('dip') || lower.includes('abs') || lower.includes('crunch') || lower.includes('plank')) return 'بازو و شکم';
+  return 'عمومی / سایر';
+}
+
+let lastGeneratedReportText = '';
+
+function copyReviewReport(){
+  const fb = document.getElementById('copyFeedback');
+  if(!lastGeneratedReportText){
+    fb.innerHTML = `<div class="feedback hold">ابتدا ارزیابی را تهیه کنید تا گزارش ایجاد شود.</div>`;
+    return;
+  }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(lastGeneratedReportText).then(()=>{
+      fb.innerHTML = `<div class="feedback up">گزارش ارزیابی با موفقیت در کلیپ‌بورد کپی شد! می‌توانید آن را برای مربی یا در یادداشت‌ها ذخیره کنید.</div>`;
+      setTimeout(()=>{ fb.innerHTML = ''; }, 4000);
+    }).catch(err=>{
+      fallbackCopyText(lastGeneratedReportText, fb);
+    });
+  }else{
+    fallbackCopyText(lastGeneratedReportText, fb);
+  }
+}
+
+function fallbackCopyText(text, fb){
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try{
+    document.execCommand('copy');
+    fb.innerHTML = `<div class="feedback up">گزارش ارزیابی در کلیپ‌بورد کپی شد!</div>`;
+    setTimeout(()=>{ fb.innerHTML = ''; }, 4000);
+  }catch(e){
+    fb.innerHTML = `<div class="feedback down">امکان کپی خودکار فراهم نشد. لطفاً متن را دستی انتخاب و کپی کنید.</div>`;
+  }
+  document.body.removeChild(ta);
+}
+
+/* ---------------- ۹. موتور اصلی ارزیابی و آنالیز علمی (Comprehensive Review Engine) ---------------- */
 function renderReview(){
   const out = document.getElementById('reviewOutput');
-  out.innerHTML = `<section class="card"><div class="empty">ارزیابی پیشرفت بر اساس مجموع ثبت‌های شما در دیتابیس در دسترس است.</div></section>`;
+  const tf = document.getElementById('revTimeframe').value;
+  const modeFilter = document.getElementById('revMode').value;
+  const exFilter = document.getElementById('revExercise').value;
+
+  // محاسبه بازه زمانی
+  let startDate = null, endDate = new Date();
+  let periodLabel = '';
+
+  if(tf === '14'){
+    startDate = new Date(Date.now() - 14 * 24 * 3600 * 1000);
+    periodLabel = '۱۴ روز گذشته (۲ هفته)';
+  } else if(tf === '30'){
+    startDate = new Date(Date.now() - 30 * 24 * 3600 * 1000);
+    periodLabel = '۳۰ روز گذشته (۱ ماه)';
+  } else if(tf === '60'){
+    startDate = new Date(Date.now() - 60 * 24 * 3600 * 1000);
+    periodLabel = '۶۰ روز گذشته (۲ ماه)';
+  } else if(tf === 'custom'){
+    const sStr = document.getElementById('revStartDate').value;
+    const eStr = document.getElementById('revEndDate').value;
+    if(sStr) startDate = new Date(sStr + 'T00:00:00');
+    if(eStr) endDate = new Date(eStr + 'T23:59:59');
+    periodLabel = `از ${sStr || 'شروع'} تا ${eStr || 'امروز'}`;
+  } else {
+    startDate = null;
+    periodLabel = 'کل تاریخچه ثبت‌ها (All-Time)';
+  }
+
+  const startIso = startDate ? startDate.toISOString().slice(0, 10) : '0000-00-00';
+  const endIso = endDate ? endDate.toISOString().slice(0, 10) : '9999-99-99';
+
+  // فیلتر کردن تمرین‌ها
+  const periodWorkouts = workoutLogs.filter(w => {
+    if(w.date < startIso || w.date > endIso) return false;
+    if(exFilter !== 'all' && w.exercise !== exFilter) return false;
+    return true;
+  }).sort((a,b)=>a.date.localeCompare(b.date));
+
+  // فیلتر کردن وزن‌ها
+  const periodWeights = bodyWeightLogs.filter(w => {
+    return w.date >= startIso && w.date <= endIso;
+  }).sort((a,b)=>a.date.localeCompare(b.date));
+
+  // بررسی در صورت نبود داده
+  if(periodWorkouts.length === 0 && periodWeights.length === 0){
+    out.innerHTML = `
+      <section class="card">
+        <div class="empty">
+          در بازه انتخابی (${periodLabel}) هیچ تمرین یا وزنی ثبت نشده است.<br>
+          می‌توانید بازه زمانی را روی «تمام تاریخچه ثبت‌ها» قرار دهید یا از تب‌های «ثبت» و «وزن»، رکوردهای جدید وارد کنید.
+        </div>
+      </section>`;
+    lastGeneratedReportText = '';
+    return;
+  }
+
+  // ۱. آنالیز وزن و روند هایپرتروفی پاک
+  let weightCardHtml = '';
+  const initialBaseW = (START_WEIGHT !== null) ? START_WEIGHT : (periodWeights.length ? periodWeights[0].weight : (bodyWeightLogs.length ? bodyWeightLogs[0].weight : null));
+  let startW = initialBaseW, latestW = initialBaseW;
+  let weightDelta = 0, weeklyRate = 0;
+  let weightEval = { badge: 'hold', title: 'داده کافی نیست', desc: 'برای محاسبه آهنگ تغییر هفتگی، حداقل ۲ ثبت وزن در این بازه نیاز است.' };
+
+  if(periodWeights.length >= 2){
+    startW = periodWeights[0].weight;
+    latestW = periodWeights[periodWeights.length - 1].weight;
+    weightDelta = latestW - startW;
+    const daysDiff = Math.max(1, Math.round((new Date(periodWeights[periodWeights.length - 1].date) - new Date(periodWeights[0].date)) / (1000 * 3600 * 24)));
+    weeklyRate = (weightDelta / daysDiff) * 7;
+
+    if(weeklyRate >= 0.20 && weeklyRate <= 0.50){
+      weightEval = {
+        badge: 'up',
+        title: '🟢 آهنگ ایده‌آل افزایش وزن تمیز (Lean Bulk)',
+        desc: `آهنگ رشد شما میانگین <b>${weeklyRate >= 0 ? '+' : ''}${weeklyRate.toFixed(2)} کیلوگرم در هفته</b> است. این مقدار در محدوده طلایی عضله‌سازی بهینه با حداقل بافت چربی قرار دارد.`
+      };
+    } else if(weeklyRate > 0.50){
+      weightEval = {
+        badge: 'hold',
+        title: '⚠️ آهنگ افزایش سریع‌تر از حد بهینه',
+        desc: `افزایش هفتگی شما <b>+${weeklyRate.toFixed(2)} کیلوگرم</b> است. برای پیشگیری از انباشت چربی اضافه، مازاد کالری را کنترل کرده و روی ۳۰۰ تا ۴۰۰ کالری روزانه تثبیت کنید.`
+      };
+    } else if(weeklyRate >= 0 && weeklyRate < 0.20){
+      weightEval = {
+        badge: 'hold',
+        title: '🟡 افزایش ناچیز / ثبات وزن',
+        desc: `آهنگ افزایش شما <b>+${weeklyRate.toFixed(2)} کیلوگرم در هفته</b> است. در صورت تمایل به افزایش وزن، دریافت کالری و کربوهیدرات‌های پیچیده را افزایش دهید.`
+      };
+    } else {
+      weightEval = {
+        badge: 'down',
+        title: '🔴 کاهش وزن در این بازه',
+        desc: `شما در این بازه <b>${Math.abs(weeklyRate).toFixed(2)} کیلوگرم در هفته</b> وزن کم کرده‌اید.`
+      };
+    }
+  } else if(periodWeights.length === 1){
+    latestW = periodWeights[0].weight;
+    weightDelta = (startW !== null) ? (latestW - startW) : 0;
+    weightEval = {
+      badge: 'hold',
+      title: 'تنها یک وزن ثبت‌شده در این بازه',
+      desc: `وزن ثبت‌شده: <b>${latestW.toFixed(1)} کیلوگرم</b>` + (startW !== null ? ` (تغییر از مبدأ: ${weightDelta >= 0 ? '+' : ''}${weightDelta.toFixed(1)} kg)` : '')
+    };
+  } else if(bodyWeightLogs.length > 0){
+    const lastOverall = bodyWeightLogs[bodyWeightLogs.length - 1];
+    latestW = lastOverall.weight;
+    weightDelta = (startW !== null) ? (latestW - startW) : 0;
+    weightEval = {
+      badge: 'hold',
+      title: 'استفاده از آخرین وزن کلی دیتابیس',
+      desc: `آخرین وزن ثبت‌شده در سیستم: <b>${latestW.toFixed(1)} کیلوگرم</b>.`
+    };
+  }
+
+  // درصد پیشرفت تا هدف
+  let progressPct = 0;
+  const hasTarget = (TARGET_WEIGHT !== null && TARGET_WEIGHT > 0);
+  let remainingKg = 0;
+  if(hasTarget && latestW !== null){
+    const baseW = (startW !== null) ? startW : latestW;
+    const totalSpan = TARGET_WEIGHT - baseW;
+    const gained = latestW - baseW;
+    if(Math.abs(totalSpan) > 0.05){
+      progressPct = Math.min(100, Math.max(0, Math.round((gained / totalSpan) * 100)));
+    } else {
+      progressPct = 100;
+    }
+    remainingKg = Math.max(0, TARGET_WEIGHT - latestW);
+  }
+
+  // ۲. حجم کل، فرکانس جلسات و رکوردهای جدید
+  const uniqueWorkoutDays = new Set(periodWorkouts.map(w => w.date)).size;
+  const daysInPeriod = startDate ? Math.max(7, Math.round((endDate - startDate) / (1000 * 3600 * 24))) : Math.max(7, uniqueWorkoutDays * 2);
+  const weeksCount = Math.max(1, daysInPeriod / 7);
+  const sessionsPerWeek = (uniqueWorkoutDays / weeksCount).toFixed(1);
+
+  let totalVolumeKg = 0;
+  let totalSetsCount = 0;
+  let allRirList = [];
+  const exerciseMap = {};
+
+  periodWorkouts.forEach(w => {
+    const repsArr = Array.isArray(w.reps) ? w.reps : [];
+    const rirArr = Array.isArray(w.rir) ? w.rir : [];
+    const setSum = repsArr.reduce((s,r)=>s+r, 0);
+    const vol = w.weight * setSum;
+    totalVolumeKg += vol;
+    totalSetsCount += repsArr.length;
+    rirArr.forEach(r => allRirList.push(r));
+
+    if(!exerciseMap[w.exercise]) exerciseMap[w.exercise] = [];
+    exerciseMap[w.exercise].push(w);
+  });
+
+  const avgVolumePerSession = uniqueWorkoutDays > 0 ? Math.round(totalVolumeKg / uniqueWorkoutDays) : 0;
+  const avgRir = allRirList.length ? (allRirList.reduce((s,r)=>s+r, 0) / allRirList.length).toFixed(1) : null;
+  const failureSets = allRirList.filter(r => r === 0).length;
+  const failurePercent = allRirList.length ? Math.round((failureSets / allRirList.length) * 100) : 0;
+
+  // ۳. بررسی اضافه‌بار تدریجی حرکات (Movement Overload Audit)
+  const movementAudit = [];
+  let overloadCount = 0, maintainCount = 0, dropCount = 0;
+
+  for(const [exName, logs] of Object.entries(exerciseMap)){
+    logs.sort((a,b)=>a.date.localeCompare(b.date));
+    if(logs.length >= 2){
+      const firstLog = logs[0];
+      const lastLog = logs[logs.length - 1];
+      const firstMaxRep = Math.max(...firstLog.reps);
+      const lastMaxRep = Math.max(...lastLog.reps);
+
+      const first1RM = firstLog.weight * (1 + (firstMaxRep / 30));
+      const last1RM = lastLog.weight * (1 + (lastMaxRep / 30));
+      const delta1RM = last1RM - first1RM;
+      const pct1RM = first1RM > 0 ? ((delta1RM / first1RM) * 100).toFixed(1) : 0;
+
+      const firstAvgReps = firstLog.reps.reduce((a,b)=>a+b,0) / firstLog.reps.length;
+      const lastAvgReps = lastLog.reps.reduce((a,b)=>a+b,0) / lastLog.reps.length;
+
+      let status = 'hold', badgeText = '🟡 ثبات بار (Maintenance)', rule = '';
+      if(lastLog.weight > firstLog.weight || (lastLog.weight === firstLog.weight && lastAvgReps > firstAvgReps)){
+        status = 'up';
+        badgeText = `🟢 اضافه‌بار مثبت (+${pct1RM}%)`;
+        overloadCount++;
+      } else if(lastLog.weight === firstLog.weight && Math.abs(lastAvgReps - firstAvgReps) < 0.4){
+        status = 'hold';
+        badgeText = `🟡 ثبات بار (۰%)`;
+        maintainCount++;
+      } else {
+        status = 'down';
+        badgeText = `🔴 افت بار (${pct1RM}%)`;
+        dropCount++;
+      }
+
+      // تولید توصیه علمی جلسه بعد بر مبنای اصل بار اضافه
+      if(lastMaxRep >= 12){
+        rule = `💡 سقف دامنه هایپرتروفی (${lastMaxRep} تکرار) فتح شد! در جلسه بعد وزنه را به میزان ۱ تا ۲.۵ کیلوگرم افزایش بده و تکرارها را به کف دامنه (۸ تا ۱۰ تکرار) تنظیم کن.`;
+      } else if(lastLog.weight > firstLog.weight){
+        rule = `💪 افزایش وزنه به ${lastLog.weight} کیلوگرم عالی بوده است؛ جلسه بعد همین وزنه را حفظ کن و روی رساندن ست اول به سقف تکرار تمرکز کن.`;
+      } else if(lastAvgReps < firstAvgReps){
+        rule = `⚠️ افت تکرارها؛ مطمئن شو زمان استراحت حداقل ۹۰ تا ۱۲۰ ثانیه است و کالری قبل تمرین کافی بوده است.`;
+      } else {
+        rule = `🎯 وزنه فعلی (${lastLog.weight} کیلوگرم) را حفظ کن و برای اضافه کردن ۱ تکرار به ست اول یا دوم در جلسه بعدی تلاش کن.`;
+      }
+
+      movementAudit.push({
+        name: exName,
+        faName: exerciseFaName(exName),
+        sessionsCount: logs.length,
+        status,
+        badgeText,
+        rule,
+        first: `${firstLog.weight}kg × [${firstLog.reps.join('/')}] (${firstLog.date})`,
+        last: `${lastLog.weight}kg × [${lastLog.reps.join('/')}] (${lastLog.date})`,
+        first1RM: first1RM.toFixed(1),
+        last1RM: last1RM.toFixed(1)
+      });
+    } else if(logs.length === 1){
+      const l = logs[0];
+      const maxRep = Math.max(...l.reps);
+      const est1RM = (l.weight * (1 + (maxRep / 30))).toFixed(1);
+      movementAudit.push({
+        name: exName,
+        faName: exerciseFaName(exName),
+        sessionsCount: 1,
+        status: 'hold',
+        badgeText: 'ثبت پایه (۱ جلسه)',
+        rule: `جلسه اول ثبت شد (${l.weight}kg × [${l.reps.join('/')}]). برای مشاهده روند پیشرفت، در جلسه بعدی این حرکت را مجدداً ثبت نمایید.`,
+        first: `${l.weight}kg × [${l.reps.join('/')}] (${l.date})`,
+        last: `1RM تخمینی: ${est1RM} kg`,
+        first1RM: est1RM,
+        last1RM: est1RM
+      });
+    }
+  }
+
+  // ۴. توزیع حجم عضلانی (Muscle Group Distribution)
+  const muscleGroups = { 'سینه': 0, 'پشت و زیربغل': 0, 'پا و باسن': 0, 'سرشانه': 0, 'بازو و شکم': 0 };
+  periodWorkouts.forEach(w => {
+    const group = getMuscleGroup(w.exercise);
+    if(muscleGroups[group] !== undefined) {
+      muscleGroups[group] += (w.reps ? w.reps.length : 0);
+    }
+  });
+
+  // ۵. روند حجم هفتگی برای نمودار SVG
+  const weekBuckets = {};
+  periodWorkouts.forEach(w => {
+    const d = new Date(w.date);
+    const dayOfWeek = (d.getDay() + 1) % 7; // شنبه تا جمعه
+    const diff = d.getDate() - dayOfWeek;
+    const weekStart = new Date(d.setDate(diff)).toISOString().slice(5, 10);
+    const vol = w.weight * (w.reps || []).reduce((s,r)=>s+r, 0);
+    weekBuckets[weekStart] = (weekBuckets[weekStart] || 0) + vol;
+  });
+
+  const weekLabels = Object.keys(weekBuckets).slice(-6);
+  const weekValues = weekLabels.map(l => Math.round(weekBuckets[l]));
+
+  // ۶. ساخت گزارش کپی‌شونده
+  lastGeneratedReportText = `📊 گزارش ارزیابی پیشرفت Iron Log
+بازه زمانی: ${periodLabel}
+----------------------------------------
+وزن بدن:
+• شروع بازه: ${startW !== null ? startW.toFixed(1) + ' کیلوگرم' : 'ثبت‌نشده'} | فعلی: ${latestW !== null ? latestW.toFixed(1) + ' کیلوگرم' : 'ثبت‌نشده'}
+• تغییر کل: ${weightDelta >= 0 ? '+' : ''}${weightDelta.toFixed(1)} کیلوگرم
+• آهنگ هفتگی: ${weeklyRate >= 0 ? '+' : ''}${weeklyRate.toFixed(2)} کیلوگرم در هفته
+• وضعیت هدف: ${hasTarget ? `${progressPct}٪ از مسیر تا هدف (${TARGET_WEIGHT}kg) طی شده است (${remainingKg > 0 ? remainingKg.toFixed(1) + 'kg باقی‌مانده' : 'هدف محقق شده'})` : 'هدف وزنی در تنظیمات مشخص نشده است'}
+
+تمرینات و انضباط:
+• کل جلسات: ${uniqueWorkoutDays} جلسه (میانگین ${sessionsPerWeek} جلسه در هفته)
+• کل ست‌های اجرا شده: ${totalSetsCount} ست
+• تناژ کل کار: ${(totalVolumeKg/1000).toFixed(2)} تن (${totalVolumeKg.toLocaleString()} کیلوگرم)
+• میانگین RIR: ${avgRir ? avgRir : 'ثبت‌نشده'} (${failurePercent}٪ ست‌ها تا ناتوانی کامل RIR 0)
+
+اصل اضافه‌بار تدریجی (Overload):
+• حرکات با رشد بار مثبت: ${overloadCount} حرکت
+• حرکات با بار ثابت: ${maintainCount} حرکت
+• حرکات با افت بار: ${dropCount} حرکت
+----------------------------------------
+Iron Log — ثبت و تحلیل علمی هایپرتروفی`;
+
+  // ۷. رندر HTML کامل خروجی ارزیابی
+  let html = `
+    <!-- کارت وضعیت کلی و خلاصه شاخص‌ها -->
+    <section class="card">
+      <div class="daytitle">
+        <h2>خلاصه دوره: ${periodLabel}</h2>
+        <span class="daytag">${uniqueWorkoutDays} جلسه تمرین</span>
+      </div>
+
+      <!-- وضعیت وزن و آهنگ رشد -->
+      <div class="alert-box ${weightEval.badge === 'up' ? 'ok' : weightEval.badge === 'down' ? 'danger' : 'warn'}">
+        <div style="font-weight:700;font-size:13.5px;margin-bottom:4px;">${weightEval.title}</div>
+        <div>${weightEval.desc}</div>
+      </div>
+
+      ${hasTarget && latestW !== null ? `
+      <!-- نوار پیشرفت تا وزن هدف -->
+      <div style="margin-bottom:14px;background:var(--surface-2);border-radius:6px;padding:10px;border:1px solid var(--line);">
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);">
+          <span>مسیر تا وزن هدف (${TARGET_WEIGHT} کیلوگرم)</span>
+          <b style="color:var(--accent);">${progressPct}٪</b>
+        </div>
+        <div class="progbar">
+          <div class="progbar-fill" style="width:${progressPct}%;"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:6px;">
+          <span>شروع: ${startW !== null ? startW.toFixed(1) + ' kg' : '—'}</span>
+          <span>فعلی: ${latestW.toFixed(1)} kg</span>
+          <span>مانده: ${remainingKg > 0 ? remainingKg.toFixed(1) + ' kg' : 'هدف محقق شده 🎉'}</span>
+        </div>
+      </div>` : `
+      <div style="margin-bottom:14px;font-size:12px;color:var(--muted);background:var(--surface-2);padding:8px 10px;border-radius:6px;border:1px dashed var(--line);">
+        🎯 هنوز وزن هدفی مشخص نکرده‌اید. می‌توانید در بخش «تنظیم وزن شروع و وزن هدف» در بالای صفحه یا تب «وزن»، اهداف دلخواهتان را تعیین نمایید.
+      </div>`}
+
+      <!-- گرید آماری شاخص‌ها -->
+      <div class="scoregrid">
+        <div class="scorebox">
+          <div class="k">تغییر وزن در بازه</div>
+          <div class="v" style="color:${weightDelta>=0?'var(--ok)':'var(--danger)'}">
+            ${weightDelta>=0?'+':''}${weightDelta.toFixed(1)} <small>کیلوگرم</small>
+          </div>
+        </div>
+        <div class="scorebox">
+          <div class="k">فرکانس تمرین</div>
+          <div class="v">${sessionsPerWeek} <small>جلسه / هفته</small></div>
+        </div>
+        <div class="scorebox">
+          <div class="k">تناژ کار کل (حجم)</div>
+          <div class="v">${(totalVolumeKg/1000).toFixed(1)} <small>تُن وزنه</small></div>
+        </div>
+        <div class="scorebox">
+          <div class="k">میانگین RIR و خستگی</div>
+          <div class="v">${avgRir ? avgRir : '—'} <small>${failurePercent>0 ? `(${failurePercent}٪ ناتوانی)` : ''}</small></div>
+        </div>
+      </div>
+    </section>
+  `;
+
+  // پایش خستگی CNS و ده‌لود
+  if(failurePercent > 35){
+    html += `
+      <section class="card">
+        <div class="alert-box danger">
+          <div style="font-weight:700;font-size:13.5px;margin-bottom:4px;">⚠️ هشدار خستگی سیستم عصبی مرکزی (CNS Fatigue)</div>
+          <div>
+            حدود <b>${failurePercent}٪</b> از ست‌های شما با RIR صفر (ناتوانی مطلق) به اتمام رسیده‌اند. تمرین دائمی تا مرز ناتوانی بدون ذخیره، روند ریکاوری را مختل کرده و مفاصل را مستعد آسیب می‌کند. در بیشتر ست‌ها حداقل ۱ تا ۲ تکرار ذخیره (RIR 1-2) نگه دارید.
+          </div>
+        </div>
+      </section>
+    `;
+  } else if(dropCount >= 3){
+    html += `
+      <section class="card">
+        <div class="alert-box warn">
+          <div style="font-weight:700;font-size:13.5px;margin-bottom:4px;">🛑 زنگ خطر استپ عضلانی — پیشنهاد ده‌لود (Deload Week)</div>
+          <div>
+            در <b>${dropCount}</b> حرکت مختلف افت عملکرد و کاهش تکرار ثبت شده است. پیشنهاد می‌شود برای ۱ هفته حجم ست‌ها را ۵۰٪ کاهش داده و با وزنه‌های سبک‌تر تمرین کنید تا ذخایر انرژی بازسازی شوند.
+          </div>
+        </div>
+      </section>
+    `;
+  }
+
+  // نمودار روند حجم هفتگی
+  if(weekValues.length >= 2){
+    html += `
+      <section class="card">
+        <div class="sectionhead">روند تناژ کل در هفته‌های اخیر (کیلوگرم)</div>
+        <svg class="chart" id="revVolumeChart"></svg>
+        <div class="note">نمودار فوق نشان‌دهنده تناژ کل جابجا شده در طول هفته‌هاست؛ افزایش پیوسته تناژ مهم‌ترین عامل رشد هایپرتروفی بلندمدت است.</div>
+      </section>
+    `;
+  }
+
+  // کارت اصل اضافه‌بار تدریجی حرکات
+  html += `
+    <section class="card">
+      <div class="daytitle">
+        <h2>تحلیل اضافه‌بار تدریجی حرکات</h2>
+        <span class="daytag">${movementAudit.length} حرکت</span>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">
+        مقایسه عملکرد اولین جلسه دوره در برابر آخرین جلسه ثبت‌شده، همراه با نسخه تمرینی جلسه آینده:
+      </div>
+  `;
+
+  movementAudit.forEach(item => {
+    html += `
+      <div class="ex-audit-item">
+        <div class="head">
+          <div>
+            <div class="name">${item.faName}</div>
+            <div class="subname">${item.name} (${item.sessionsCount} جلسه)</div>
+          </div>
+          <span class="review-badge ${item.status}">${item.badgeText}</span>
+        </div>
+        <div class="stats">
+          <span>شروع: <b>${item.first}</b></span>
+          <span>آخرین: <b>${item.last}</b></span>
+        </div>
+        <div class="rec">${item.rule}</div>
+      </div>
+    `;
+  });
+  html += `</section>`;
+
+  // توزیع حجم عضلانی (Muscle Group Distribution)
+  html += `
+    <section class="card">
+      <div class="daytitle">
+        <h2>توزیع هفتگی ست‌ها بر گروه‌های عضلانی</h2>
+        <span class="daytag">استاندارد هایپرتروفی</span>
+      </div>
+      <p style="font-size:12px;color:var(--muted);line-height:1.8;margin:0 0 8px;">
+        بر اساس تحقیقات علمی، ۱۰ تا ۲۰ ست موثر در هفته برای هر گروه عضلانی اصلی بهترین رشد هایپرتروفی را ایجاد می‌کند:
+      </p>
+      <div class="muscle-grid">
+  `;
+
+  for(const [group, count] of Object.entries(muscleGroups)){
+    const setsPerWeek = (count / weeksCount).toFixed(1);
+    let statusText = 'مناسب';
+    if(setsPerWeek < 8) statusText = 'حجم کم';
+    else if(setsPerWeek > 22) statusText = 'حجم بالا';
+
+    html += `
+      <div class="muscle-box">
+        <div class="m-name">${group}</div>
+        <div class="m-val">${setsPerWeek} <small style="font-size:11px;font-weight:400;color:var(--muted);">ست/هفته</small></div>
+        <div class="m-sub">${count} ست کل (${statusText})</div>
+      </div>
+    `;
+  }
+  html += `</div></section>`;
+
+  out.innerHTML = html;
+
+  // رسم نمودار در صورت وجود داده هفتگی
+  if(weekValues.length >= 2){
+    setTimeout(()=>{
+      drawLineChart('revVolumeChart', weekValues, weekLabels);
+    }, 50);
+  }
 }
 
 async function exportData() {

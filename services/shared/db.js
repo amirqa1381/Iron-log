@@ -91,9 +91,14 @@ const userSettings = [
   {
     user_id: 1,
     active_mode: 'dumbbell',
+    start_weight: null,
+    target_weight: null,
     updated_at: new Date()
   }
 ];
+
+const customExercises = [];
+let nextCustomExerciseId = 1;
 
 // In-memory query router
 function executeInMemoryQuery(text, params = []) {
@@ -334,34 +339,136 @@ function executeInMemoryQuery(text, params = []) {
     }
   }
 
+  if (lower.startsWith('delete from bodyweight_logs where id = $1 and user_id = $2')) {
+    const id = Number(params[0]);
+    const userId = Number(params[1]);
+    const idx = bodyweightLogs.findIndex(b => Number(b.id) === id && Number(b.user_id) === userId);
+    if (idx !== -1) {
+      const removed = bodyweightLogs.splice(idx, 1);
+      return { rows: [{ id: removed[0].id }], rowCount: 1 };
+    }
+    return { rows: [], rowCount: 0 };
+  }
+
   // SETTINGS queries
   if (lower.includes('from user_settings where user_id = $1')) {
     const userId = Number(params[0]);
-    const setting = userSettings.find(s => Number(s.user_id) === userId);
-    if (!setting) {
-      return { rows: [], rowCount: 0 };
-    }
-    if (lower.includes('as "activemode"')) {
-      return { rows: [{ activeMode: setting.active_mode }], rowCount: 1 };
-    }
-    return { rows: [{ active_mode: setting.active_mode }], rowCount: 1 };
+    const setting = userSettings.find(s => Number(s.user_id) === userId) || {
+      active_mode: 'dumbbell',
+      start_weight: null,
+      target_weight: null
+    };
+    return {
+      rows: [{
+        activeMode: setting.active_mode,
+        startWeight: setting.start_weight !== undefined && setting.start_weight !== null ? setting.start_weight : null,
+        targetWeight: setting.target_weight !== undefined && setting.target_weight !== null ? setting.target_weight : null
+      }],
+      rowCount: 1
+    };
   }
 
   if (lower.includes('into user_settings')) {
-    const [user_id, active_mode] = params;
+    const [user_id, active_mode, start_weight, target_weight] = params;
     const userId = Number(user_id);
     const existing = userSettings.find(s => Number(s.user_id) === userId);
     if (existing) {
-      existing.active_mode = active_mode;
+      if (active_mode !== undefined) existing.active_mode = active_mode;
+      if (start_weight !== undefined) existing.start_weight = start_weight !== null ? Number(start_weight) : null;
+      if (target_weight !== undefined) existing.target_weight = target_weight !== null ? Number(target_weight) : null;
       existing.updated_at = new Date();
     } else {
       userSettings.push({
         user_id: userId,
-        active_mode,
+        active_mode: active_mode || 'dumbbell',
+        start_weight: start_weight !== undefined && start_weight !== null ? Number(start_weight) : null,
+        target_weight: target_weight !== undefined && target_weight !== null ? Number(target_weight) : null,
         updated_at: new Date()
       });
     }
     return { rows: [{ active_mode }], rowCount: 1 };
+  }
+
+  // CUSTOM_EXERCISES queries
+  if (lower.startsWith('insert into custom_exercises')) {
+    const [user_id, program_mode, day_number, name, name_fa, equip, sets, reps, rest, rir, weight, tech, mistake] = params;
+    const item = {
+      id: nextCustomExerciseId++,
+      user_id: Number(user_id),
+      program_mode: program_mode || 'dumbbell',
+      day_number: Number(day_number),
+      name: name || name_fa,
+      name_fa: name_fa,
+      equip: equip || 'دمبل',
+      sets: Number(sets) || 3,
+      reps: reps || '۸ تا ۱۲',
+      rest: rest || '۹۰ ثانیه',
+      rir: Number(rir) || 2,
+      weight: weight || 'متوسط',
+      tech: tech || '',
+      mistake: mistake || '',
+      created_at: new Date()
+    };
+    customExercises.push(item);
+    return {
+      rows: [{
+        id: item.id,
+        programMode: item.program_mode,
+        dayNumber: item.day_number,
+        name: item.name,
+        nameFa: item.name_fa,
+        equip: item.equip,
+        sets: item.sets,
+        reps: item.reps,
+        rest: item.rest,
+        rir: item.rir,
+        weight: item.weight,
+        tech: item.tech,
+        mistake: item.mistake,
+        createdAt: item.created_at
+      }],
+      rowCount: 1
+    };
+  }
+
+  if (lower.includes('from custom_exercises where user_id = $1')) {
+    const userId = Number(params[0]);
+    let list = customExercises.filter(c => Number(c.user_id) === userId);
+    if (lower.includes('program_mode = $2')) {
+      const pMode = params[1];
+      if (pMode) list = list.filter(c => c.program_mode === pMode);
+    }
+    list.sort((a, b) => a.id - b.id);
+    return {
+      rows: list.map(item => ({
+        id: item.id,
+        programMode: item.program_mode,
+        dayNumber: item.day_number,
+        name: item.name,
+        nameFa: item.name_fa,
+        equip: item.equip,
+        sets: item.sets,
+        reps: item.reps,
+        rest: item.rest,
+        rir: item.rir,
+        weight: item.weight,
+        tech: item.tech,
+        mistake: item.mistake,
+        createdAt: item.created_at
+      })),
+      rowCount: list.length
+    };
+  }
+
+  if (lower.startsWith('delete from custom_exercises where id = $1 and user_id = $2')) {
+    const id = Number(params[0]);
+    const userId = Number(params[1]);
+    const idx = customExercises.findIndex(c => Number(c.id) === id && Number(c.user_id) === userId);
+    if (idx !== -1) {
+      const removed = customExercises.splice(idx, 1);
+      return { rows: [{ id: removed[0].id }], rowCount: 1 };
+    }
+    return { rows: [], rowCount: 0 };
   }
 
   console.warn('[Mock DB] Unhandled SQL query:', sql);
@@ -370,40 +477,140 @@ function executeInMemoryQuery(text, params = []) {
 
 // Check if a real DATABASE_URL is available
 let realPool = null;
+let isPostgresAvailable = null; // null = pending check, true = active, false = unreachable
+
 if (process.env.DATABASE_URL) {
   try {
     const { Pool } = pg;
     realPool = new Pool({
       connectionString: process.env.DATABASE_URL,
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+      ssl: { rejectUnauthorized: false },
       max: 10,
       idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 2500 // Fast fail for unreachable DNS or sandboxed networks
+    });
+    // Handle pool-level idle client errors so they do not crash process
+    realPool.on('error', (err) => {
+      isPostgresAvailable = false;
     });
   } catch (err) {
-    console.warn('[AI Studio] PostgreSQL initialization failed, fallback to in-memory store:', err.message);
     realPool = null;
+    isPostgresAvailable = false;
+  }
+} else {
+  isPostgresAvailable = false;
+}
+
+export async function initPostgresTables() {
+  if (!realPool) {
+    isPostgresAvailable = false;
+    return;
+  }
+  try {
+    const client = await realPool.connect();
+    try {
+      await client.query(`
+        CREATE TABLE IF NOT EXISTS users (
+          id SERIAL PRIMARY KEY,
+          email VARCHAR(255) UNIQUE NOT NULL,
+          password_hash VARCHAR(255) NOT NULL,
+          display_name VARCHAR(100),
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        );
+
+        CREATE TABLE IF NOT EXISTS refresh_tokens (
+          id SERIAL PRIMARY KEY,
+          user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+          token_hash VARCHAR(255) NOT NULL,
+          expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+          revoked_at TIMESTAMP WITH TIME ZONE DEFAULT NULL,
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        );
+
+        CREATE TABLE IF NOT EXISTS workout_logs (
+          id SERIAL PRIMARY KEY,
+          user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+          program_mode VARCHAR(50) NOT NULL,
+          exercise_name VARCHAR(255) NOT NULL,
+          log_date DATE NOT NULL,
+          weight_kg NUMERIC(6,2) NOT NULL,
+          reps JSONB NOT NULL,
+          rir JSONB DEFAULT '[]',
+          notes TEXT,
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        );
+
+        CREATE TABLE IF NOT EXISTS bodyweight_logs (
+          id SERIAL PRIMARY KEY,
+          user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+          log_date DATE NOT NULL,
+          weight_kg NUMERIC(5,2) NOT NULL,
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+          CONSTRAINT unique_user_bw_date UNIQUE (user_id, log_date)
+        );
+
+        CREATE TABLE IF NOT EXISTS user_settings (
+          user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+          active_mode VARCHAR(50) DEFAULT 'dumbbell',
+          start_weight NUMERIC(5,2),
+          target_weight NUMERIC(5,2),
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+          updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        );
+
+        CREATE TABLE IF NOT EXISTS custom_exercises (
+          id SERIAL PRIMARY KEY,
+          user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+          program_mode VARCHAR(50) NOT NULL,
+          day_number INTEGER NOT NULL,
+          name VARCHAR(255) NOT NULL,
+          name_fa VARCHAR(255) NOT NULL,
+          equip VARCHAR(100) DEFAULT 'دمبل',
+          sets INTEGER DEFAULT 3,
+          reps VARCHAR(50) DEFAULT '۸ تا ۱۲',
+          rest VARCHAR(50) DEFAULT '۹۰ ثانیه',
+          rir NUMERIC(3,1) DEFAULT 2,
+          weight VARCHAR(100) DEFAULT 'متوسط',
+          tech TEXT DEFAULT '',
+          mistake TEXT DEFAULT '',
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        );
+      `);
+      isPostgresAvailable = true;
+      console.log('✅ Supabase PostgreSQL connected and verified successfully');
+    } finally {
+      client.release();
+    }
+  } catch (err) {
+    isPostgresAvailable = false;
+    // Log gracefully once without spamming
+    console.log('[Storage Engine] Cloud PostgreSQL host unreachable in current network environment; active in-memory storage engaged.');
   }
 }
 
 export const pool = {
   query: async (text, params) => {
-    if (realPool) {
+    if (realPool && isPostgresAvailable !== false) {
       try {
-        return await realPool.query(text, params);
+        const res = await realPool.query(text, params);
+        isPostgresAvailable = true;
+        return res;
       } catch (dbErr) {
-        console.warn('[AI Studio] PostgreSQL query failed, using in-memory mock:', dbErr.message);
+        // If network / DNS / socket error occurs, mark offline so subsequent queries don't stall
+        isPostgresAvailable = false;
         return executeInMemoryQuery(text, params);
       }
     }
     return executeInMemoryQuery(text, params);
   },
   connect: async () => {
-    if (realPool) {
+    if (realPool && isPostgresAvailable !== false) {
       try {
         const client = await realPool.connect();
+        isPostgresAvailable = true;
         return client;
       } catch (err) {
-        console.warn('[AI Studio] PostgreSQL connect failed, using mock client');
+        isPostgresAvailable = false;
       }
     }
     return {

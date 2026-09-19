@@ -38,3 +38,17 @@ export const upsertBodyweight = async (req, res) => {
     return res.status(500).json({ message: 'خطا در ذخیره وزن بدن' });
   }
 };
+
+export const deleteBodyweight = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query('DELETE FROM bodyweight_logs WHERE id = $1 AND user_id = $2 RETURNING id', [id, req.userId]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'ثبت وزن یافت نشد' });
+    }
+    return res.status(204).send();
+  } catch (err) {
+    console.error('deleteBodyweight error:', err);
+    return res.status(500).json({ message: 'خطا در حذف وزن' });
+  }
+};

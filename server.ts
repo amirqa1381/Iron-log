@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
@@ -73,8 +73,8 @@ app.get('/export', requireAuth, exportData);
 app.post('/import', requireAuth, importData);
 
 // Health check endpoint
-app.get('/health', (req, res) => {
-  res.json({ status: 'healthy', app: 'Iron Log', port: PORT });
+app.get('/health', (req: Request, res: Response) => {
+  res.json({ status: 'healthy', app: 'Iron Log', port: PORT, typescript: true });
 });
 
 // Serve frontend static files
@@ -82,7 +82,7 @@ const frontendDir = path.join(__dirname, 'frontend');
 app.use(express.static(frontendDir));
 
 // SPA fallback
-app.get('*', (req, res) => {
+app.get('*', (req: Request, res: Response) => {
   res.sendFile(path.join(frontendDir, 'index.html'));
 });
 
@@ -91,6 +91,6 @@ initPostgresTables().catch(err => {
   console.warn('[Postgres Init]', err.message);
 });
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 Iron Log unified server running on http://0.0.0.0:${PORT}`);
+app.listen(PORT, () => {
+  console.log(`🚀 Iron Log TypeScript server running on http://0.0.0.0:${PORT}`);
 });
