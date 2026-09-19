@@ -23,8 +23,9 @@ export const register = async (req, res) => {
     }
 
     const { email, password, displayName } = parseResult.data;
+    const normalizedEmail = email.toLowerCase().trim();
 
-    const userExists = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
+    const userExists = await pool.query('SELECT id FROM users WHERE LOWER(email) = LOWER($1)', [normalizedEmail]);
     if (userExists.rows.length > 0) {
       return res.status(409).json({ message: 'این ایمیل قبلاً ثبت شده است' });
     }
@@ -35,7 +36,7 @@ export const register = async (req, res) => {
     const newUser = await pool.query(
       `INSERT INTO users (email, password_hash, display_name) 
        VALUES ($1, $2, $3) RETURNING id, email, display_name`,
-      [email, passwordHash, displayName || null]
+      [normalizedEmail, passwordHash, displayName || null]
     );
 
     return res.status(201).json({
@@ -56,8 +57,9 @@ export const login = async (req, res) => {
     }
 
     const { email, password } = parseResult.data;
+    const normalizedEmail = email.toLowerCase().trim();
 
-    const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+    const result = await pool.query('SELECT * FROM users WHERE LOWER(email) = LOWER($1)', [normalizedEmail]);
     if (result.rows.length === 0) {
       return res.status(401).json({ message: 'ایمیل یا رمز عبور اشتباه است' });
     }
@@ -177,7 +179,8 @@ export const logout = async (req, res) => {
 
 export const me = async (req, res) => {
   try {
-    const result = await pool.query('SELECT id, email, display_name, created_at FROM users WHERE id = $1', [req.user.userId]);
+    const userId = req.user?.id || req.user?.userId;
+    const result = await pool.query('SELECT id, email, display_name, created_at FROM users WHERE id = $1', [userId]);
     if (result.rows.length === 0) {
       return res.status(404).json({ message: 'کاربر یافت نشد' });
     }
@@ -185,5 +188,23 @@ export const me = async (req, res) => {
   } catch (err) {
     console.error('Me error:', err);
     return res.status(500).json({ message: 'خطای سرور رخ داده است' });
+  }
+};
+
+export const deleteAccount = async (req, res) => {
+  try {
+    const userId = req.user?.id || req.user?.userId;
+    if (!userId) {
+      return res.status(401).json({ message: 'کاربر شناسایی نشد' });
+    }
+
+    // CASCADE delete removes user, refresh tokens, workouts, bodyweights, custom exercises
+    await pool.query('DELETE FROM users WHERE id = $1', [userId]);
+
+    res.clearCookie('refreshToken');
+    return res.json({ message: 'حساب کاربری با موفقیت حذف شد' });
+  } catch (err) {
+    console.error('Delete account error:', err);
+    return res.status(500).json({ message: 'خطای سرور در حذف حساب' });
   }
 };

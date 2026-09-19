@@ -111,9 +111,9 @@ function executeInMemoryQuery(text, params = []) {
   }
 
   // USERS queries
-  if (lower.startsWith('select id from users where email = $1')) {
-    const email = params[0]?.toLowerCase();
-    const found = users.filter(u => u.email.toLowerCase() === email);
+  if (lower.startsWith('select id from users where email = $1') || lower.includes('select id from users where lower(email) = lower($1)')) {
+    const email = params[0]?.toLowerCase().trim();
+    const found = users.filter(u => u.email.toLowerCase().trim() === email);
     return { rows: found.map(u => ({ id: u.id })), rowCount: found.length };
   }
 
@@ -122,7 +122,7 @@ function executeInMemoryQuery(text, params = []) {
     const [email, password_hash, display_name] = params;
     const newUser = {
       id: nextUserId++,
-      email,
+      email: email.trim(),
       password_hash,
       display_name: display_name || null,
       created_at: new Date()
@@ -134,9 +134,9 @@ function executeInMemoryQuery(text, params = []) {
     };
   }
 
-  if (lower.startsWith('select * from users where email = $1')) {
-    const email = params[0]?.toLowerCase();
-    const found = users.filter(u => u.email.toLowerCase() === email);
+  if (lower.startsWith('select * from users where email = $1') || lower.includes('select * from users where lower(email) = lower($1)')) {
+    const email = params[0]?.toLowerCase().trim();
+    const found = users.filter(u => u.email.toLowerCase().trim() === email);
     return { rows: found, rowCount: found.length };
   }
 
@@ -158,6 +158,57 @@ function executeInMemoryQuery(text, params = []) {
       })),
       rowCount: found.length
     };
+  }
+
+  if (lower.startsWith('delete from users')) {
+    let deleted = 0;
+    if (lower.includes('where id = $1')) {
+      const targetId = Number(params[0]);
+      const idx = users.findIndex(u => Number(u.id) === targetId);
+      if (idx !== -1) {
+        users.splice(idx, 1);
+        for (let i = refreshTokens.length - 1; i >= 0; i--) {
+          if (Number(refreshTokens[i].user_id) === targetId) refreshTokens.splice(i, 1);
+        }
+        for (let i = workoutLogs.length - 1; i >= 0; i--) {
+          if (Number(workoutLogs[i].user_id) === targetId) workoutLogs.splice(i, 1);
+        }
+        for (let i = bodyweightLogs.length - 1; i >= 0; i--) {
+          if (Number(bodyweightLogs[i].user_id) === targetId) bodyweightLogs.splice(i, 1);
+        }
+        for (let i = customExercises.length - 1; i >= 0; i--) {
+          if (Number(customExercises[i].user_id) === targetId) customExercises.splice(i, 1);
+        }
+        for (let i = userSettings.length - 1; i >= 0; i--) {
+          if (Number(userSettings[i].user_id) === targetId) userSettings.splice(i, 1);
+        }
+        deleted = 1;
+      }
+    } else if (lower.includes('where lower(email) = lower($1)') || lower.includes('where email = $1')) {
+      const targetEmail = params[0]?.toLowerCase().trim();
+      const idx = users.findIndex(u => u.email.toLowerCase().trim() === targetEmail);
+      if (idx !== -1) {
+        const targetId = users[idx].id;
+        users.splice(idx, 1);
+        for (let i = refreshTokens.length - 1; i >= 0; i--) {
+          if (Number(refreshTokens[i].user_id) === targetId) refreshTokens.splice(i, 1);
+        }
+        for (let i = workoutLogs.length - 1; i >= 0; i--) {
+          if (Number(workoutLogs[i].user_id) === targetId) workoutLogs.splice(i, 1);
+        }
+        for (let i = bodyweightLogs.length - 1; i >= 0; i--) {
+          if (Number(bodyweightLogs[i].user_id) === targetId) bodyweightLogs.splice(i, 1);
+        }
+        for (let i = customExercises.length - 1; i >= 0; i--) {
+          if (Number(customExercises[i].user_id) === targetId) customExercises.splice(i, 1);
+        }
+        for (let i = userSettings.length - 1; i >= 0; i--) {
+          if (Number(userSettings[i].user_id) === targetId) userSettings.splice(i, 1);
+        }
+        deleted = 1;
+      }
+    }
+    return { rows: [], rowCount: deleted };
   }
 
   // REFRESH TOKENS queries
@@ -487,11 +538,11 @@ if (process.env.DATABASE_URL) {
       ssl: { rejectUnauthorized: false },
       max: 10,
       idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 2500 // Fast fail for unreachable DNS or sandboxed networks
+      connectionTimeoutMillis: 10000 // 10s timeout to allow secure SSL handshake to cloud DB
     });
-    // Handle pool-level idle client errors so they do not crash process
+    // Handle pool-level idle client errors
     realPool.on('error', (err) => {
-      isPostgresAvailable = false;
+      console.warn('[Postgres Pool Warning]', err.message);
     });
   } catch (err) {
     realPool = null;
@@ -577,40 +628,57 @@ export async function initPostgresTables() {
         );
       `);
       isPostgresAvailable = true;
-      console.log('✅ Supabase PostgreSQL connected and verified successfully');
+      console.log('✅ Supabase PostgreSQL connected and tables verified successfully');
     } finally {
       client.release();
     }
   } catch (err) {
     isPostgresAvailable = false;
-    // Log gracefully once without spamming
-    console.log('[Storage Engine] Cloud PostgreSQL host unreachable in current network environment; active in-memory storage engaged.');
+    console.log('[Storage Engine] Cloud PostgreSQL host unreachable in current network environment; active in-memory storage engaged:', err.message);
   }
+}
+
+export function getDatabaseStatus() {
+  return {
+    hasDatabaseUrl: Boolean(process.env.DATABASE_URL),
+    isPostgresActive: isPostgresAvailable === true,
+    engine: isPostgresAvailable === true ? 'PostgreSQL' : 'In-Memory Mock Storage'
+  };
 }
 
 export const pool = {
   query: async (text, params) => {
-    if (realPool && isPostgresAvailable !== false) {
+    if (realPool) {
       try {
         const res = await realPool.query(text, params);
         isPostgresAvailable = true;
         return res;
       } catch (dbErr) {
-        // If network / DNS / socket error occurs, mark offline so subsequent queries don't stall
-        isPostgresAvailable = false;
-        return executeInMemoryQuery(text, params);
+        // Fallback only if genuine network or host resolution failure
+        const isNetworkErr = ['ECONNREFUSED', 'ENOTFOUND', 'EAI_AGAIN', 'ETIMEDOUT'].includes(dbErr.code);
+        if (isNetworkErr) {
+          isPostgresAvailable = false;
+          return executeInMemoryQuery(text, params);
+        }
+        // Rethrow query errors so they are not masked by in-memory mock!
+        throw dbErr;
       }
     }
     return executeInMemoryQuery(text, params);
   },
   connect: async () => {
-    if (realPool && isPostgresAvailable !== false) {
+    if (realPool) {
       try {
         const client = await realPool.connect();
         isPostgresAvailable = true;
         return client;
       } catch (err) {
-        isPostgresAvailable = false;
+        const isNetworkErr = ['ECONNREFUSED', 'ENOTFOUND', 'EAI_AGAIN', 'ETIMEDOUT'].includes(err.code);
+        if (isNetworkErr) {
+          isPostgresAvailable = false;
+        } else {
+          throw err;
+        }
       }
     }
     return {

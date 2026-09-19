@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { register, login, refresh, logout, me } from './services/auth-service/src/controllers/auth.controller.js';
+import { register, login, refresh, logout, me, deleteAccount } from './services/auth-service/src/controllers/auth.controller.js';
 import { verifyAccessToken } from './services/auth-service/src/middlewares/auth.middleware.js';
 
 import { requireAuth } from './services/workout-service/src/middlewares/auth.middleware.js';
@@ -15,7 +15,7 @@ import { getBodyweights, upsertBodyweight, deleteBodyweight } from './services/w
 import { getSettings, updateSettings } from './services/workout-service/src/controllers/settings.controller.js';
 import { exportData, importData } from './services/workout-service/src/controllers/sync.controller.js';
 import { getCustomExercises, createCustomExercise, deleteCustomExercise } from './services/workout-service/src/controllers/custom-exercise.controller.js';
-import { initPostgresTables } from './services/shared/db.js';
+import { initPostgresTables, getDatabaseStatus } from './services/shared/db.js';
 
 dotenv.config();
 
@@ -52,6 +52,7 @@ app.post('/auth/login', authLimiter, login);
 app.post('/auth/refresh', refresh);
 app.post('/auth/logout', logout);
 app.get('/auth/me', verifyAccessToken, me);
+app.delete('/auth/me', verifyAccessToken, deleteAccount);
 
 // Workout Service Routes (Protected)
 app.get('/workouts', requireAuth, getWorkouts);
@@ -72,9 +73,18 @@ app.delete('/custom-exercises/:id', requireAuth, deleteCustomExercise);
 app.get('/export', requireAuth, exportData);
 app.post('/import', requireAuth, importData);
 
-// Health check endpoint
+// Health check and database status endpoint
 app.get('/health', (req: Request, res: Response) => {
-  res.json({ status: 'healthy', app: 'Iron Log', port: PORT, typescript: true });
+  res.json({
+    status: 'healthy',
+    app: 'Iron Log',
+    port: PORT,
+    database: getDatabaseStatus()
+  });
+});
+
+app.get('/db-status', (req: Request, res: Response) => {
+  res.json(getDatabaseStatus());
 });
 
 // Serve frontend static files

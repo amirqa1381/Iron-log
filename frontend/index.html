@@ -882,8 +882,15 @@ async function tryRefreshToken(){
         return true;
       }
     }
+    // If refresh failed or user is not found, clear stale tokens
+    localStorage.removeItem('iron_refresh_token');
+    currentAccessToken = null;
+    currentUser = null;
   } catch(e) {
-    console.warn('نیاز به ورود به حساب کاربری.');
+    console.warn('نیاز به ورود به حساب کاربری:', e.message);
+    localStorage.removeItem('iron_refresh_token');
+    currentAccessToken = null;
+    currentUser = null;
   }
   return false;
 }
