@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Iron Log | دفتر تمرین آهنین</title>
 <meta name="description" content="Smart workout log and progress tracker with home dumbbell and gym programs">
 <meta property="og:title" content="Iron Log">
@@ -162,6 +165,88 @@
   .alert-box.warn{background:rgba(217,164,65,0.1);border:1px solid rgba(217,164,65,0.3);color:var(--text);}
   .alert-box.danger{background:rgba(217,108,108,0.1);border:1px solid rgba(217,108,108,0.3);color:var(--text);}
   .alert-box.ok{background:rgba(111,191,115,0.1);border:1px solid rgba(111,191,115,0.3);color:var(--text);}
+
+  /* Day Selector List Bar */
+  .day-nav-wrapper{margin-bottom:12px;}
+  .day-selector-bar{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 8px;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+  .day-selector-bar::-webkit-scrollbar{display:none;}
+  .day-pill-btn{
+    flex:0 0 auto;background:var(--surface);border:1px solid var(--line);color:var(--muted);
+    border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;
+    transition:all .15s ease;white-space:nowrap;font-family:inherit;
+  }
+  .day-pill-btn:hover{border-color:var(--accent);color:var(--text);}
+  .day-pill-btn.active{
+    background:rgba(217,164,65,0.15);border-color:var(--accent);color:var(--accent);
+    box-shadow:0 2px 8px rgba(217,164,65,0.2);
+  }
+
+  /* View Mode Switcher (گام‌به‌گام vs فهرست کل حرکات) */
+  .view-switch-row{
+    display:flex;background:var(--surface-2);border:1px solid var(--line);
+    border-radius:8px;padding:3px;margin-bottom:14px;gap:4px;
+  }
+  .view-switch-btn{
+    flex:1;background:none;border:none;color:var(--muted);font-size:12px;
+    font-weight:600;padding:7px 10px;border-radius:6px;cursor:pointer;
+    transition:all .15s ease;font-family:inherit;
+  }
+  .view-switch-btn.active{
+    background:var(--surface);color:var(--accent);box-shadow:0 1px 4px rgba(0,0,0,0.3);
+  }
+
+  /* Step-by-Step Training Player Card */
+  .player-card{
+    background:var(--surface);border:1px solid var(--line);border-radius:10px;
+    padding:16px;margin-bottom:16px;position:relative;
+  }
+  .player-step-header{
+    display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;
+  }
+  .player-step-tag{
+    font-size:11px;font-weight:700;color:var(--accent);background:rgba(217,164,65,0.12);
+    border:1px solid rgba(217,164,65,0.3);padding:3px 10px;border-radius:20px;
+  }
+  .player-dots-bar{
+    display:flex;gap:6px;overflow-x:auto;padding:6px 0;margin-bottom:12px;scrollbar-width:none;
+  }
+  .player-dots-bar::-webkit-scrollbar{display:none;}
+  .player-dot{
+    width:28px;height:28px;border-radius:50%;background:var(--surface-2);border:1px solid var(--line);
+    color:var(--muted);font-size:11px;font-weight:700;display:flex;align-items:center;
+    justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s ease;
+  }
+  .player-dot.active{background:var(--accent);color:#1c1e1f;border-color:var(--accent);box-shadow:0 0 8px rgba(217,164,65,0.4);}
+  .player-dot.completed{background:rgba(111,191,115,0.2);border-color:var(--ok);color:var(--ok);}
+  .player-meta-grid{
+    display:grid;grid-template-columns:repeat(2,1fr);gap:8px;background:var(--surface-2);
+    border-radius:8px;padding:10px 12px;margin:12px 0;border:1px solid var(--line);
+  }
+  .player-meta-item{font-size:12px;}
+  .player-meta-item span{color:var(--muted);font-size:11px;display:block;}
+  .player-meta-item b{color:var(--text);font-size:12.5px;}
+  .player-input-card{
+    background:var(--surface-2);border:1px solid rgba(217,164,65,0.25);border-radius:8px;
+    padding:12px;margin:14px 0;
+  }
+  .auto-save-pill{
+    display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--ok);
+    background:rgba(111,191,115,0.1);border:1px solid rgba(111,191,115,0.3);
+    padding:2px 8px;border-radius:4px;
+  }
+  .player-nav-row{display:flex;gap:10px;margin-top:16px;}
+  .player-prev-btn{
+    flex:1;background:var(--surface-2);border:1px solid var(--line);color:var(--text);
+    border-radius:6px;padding:12px;font-size:13px;font-weight:600;cursor:pointer;
+    font-family:inherit;transition:all .15s ease;
+  }
+  .player-prev-btn:disabled{opacity:0.4;cursor:not-allowed;}
+  .player-next-btn{
+    flex:2;background:var(--accent);color:#1c1e1f;border:none;border-radius:6px;
+    padding:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;
+    box-shadow:0 2px 10px rgba(217,164,65,0.3);transition:all .15s ease;
+  }
+  .player-next-btn:active{transform:scale(0.98);}
 
   nav{position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:0 auto;background:rgba(28,30,31,0.97);backdrop-filter:blur(6px);
       border-top:1px solid var(--line);display:flex;padding:6px 4px calc(6px + env(safe-area-inset-bottom));}
@@ -394,68 +479,16 @@
   </div>
 </div>
 
-<!-- مودال راهنمای استقرار رایگان روی سرور -->
-<div id="deployModal" class="auth-modal" style="display:none;z-index:9999;background:rgba(0,0,0,0.8);backdrop-filter:blur(4px);">
-  <div class="card auth-card" style="max-width:540px;max-height:90vh;overflow-y:auto;text-align:right;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;border-bottom:1px solid var(--line);padding-bottom:10px;">
-      <h2 style="font-size:16px;margin:0;color:var(--accent);font-weight:700;">🚀 راهنمای آوردن روی سرورهای ابری رایگان</h2>
-      <button type="button" onclick="closeDeployModal()" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:0 4px;">✕</button>
-    </div>
-    
-    <div style="font-size:12.5px;line-height:1.9;color:var(--text);">
-      شما می‌توانید اپلیکیشن <b>Iron Log</b> را با دیتابیس Supabase به صورت <b>۲۴ ساعته و کاملاً رایگان</b> روی سرورهای ابری مستقر (Deploy) کنید:
-
-      <div style="background:var(--surface-2);border-radius:8px;padding:12px;margin:12px 0;border:1px solid var(--line);">
-        <b style="color:var(--accent);font-size:13.5px;">گزینه ۱: Render.com (ساده‌ترین روش رایگان با GitHub)</b>
-        <ol style="padding-inline-start:20px;margin:8px 0;">
-          <li>کد پروژه را در حساب GitHub خود Push کنید.</li>
-          <li>وارد سایت <a href="https://render.com" target="_blank" style="color:var(--accent);text-decoration:underline;">render.com</a> شده و ثبت‌نام رایگان کنید.</li>
-          <li>روی <b>New +</b> کلیک کرده و گزینه <b>Web Service</b> را انتخاب نمایید.</li>
-          <li>مخزن گیت‌هاب <code>Iron-log</code> خود را انتخاب کنید.</li>
-          <li>تنظیمات را دقیقاً به این شکل بگذارید:
-            <ul style="padding-inline-start:18px;margin:4px 0;">
-              <li><b>Environment:</b> <code>Node</code></li>
-              <li><b>Build Command:</b> <code>npm install && npm run build</code></li>
-              <li><b>Start Command:</b> <code>node server.ts</code> (یا <code>npm start</code>)</li>
-            </ul>
-          </li>
-          <li>در تب <b>Environment Variables</b> متغیرهای زیر را وارد کنید:</li>
-        </ol>
-      </div>
-
-      <div style="background:#141617;border-radius:6px;padding:12px;font-family:monospace;font-size:11.5px;direction:ltr;color:#d5c4a1;position:relative;border:1px solid rgba(255,255,255,0.08);">
-        <button class="btn" style="position:absolute;top:6px;right:6px;padding:4px 10px;font-size:11px;background:var(--surface);color:var(--accent);border:1px solid var(--accent);" onclick="copyDeployEnv()">کپی متغیرها</button>
-DATABASE_URL=postgresql://postgres.fzjssseinyiuanwiqvwr:AyWNdPZpvwMfIdZk@aws-1-eu-west-1.pooler.supabase.com:6543/postgres
-JWT_ACCESS_SECRET=Vor+2vsL2CU4044U2w/hFkpwQ8mv5aWr5CH+pinxFRc=
-JWT_REFRESH_SECRET=K4Gtt5qyJsPB66zEh+KSGAoE26oTctQ2Rn7ASW1AKgI=
-PORT=3000
-      </div>
-
-      <div style="background:var(--surface-2);border-radius:8px;padding:12px;margin:12px 0;border:1px solid var(--line);">
-        <b style="color:var(--accent);font-size:13.5px;">گزینه ۲: استقرار با Docker در Railway یا Koyeb</b>
-        <p style="margin:6px 0;">
-          فایل <code>Dockerfile</code> اختصاصی در ریشه پروژه قرار دارد. در پلتفرم‌های Railway یا Koyeb کافی است پروژه را از گیت‌هاب انتخاب کنید؛ به صورت خودکار کانتینر ساخته شده و با اضافه کردن متغیرهای فوق اجرا می‌شود.
-        </p>
-      </div>
-
-      <div id="deployCopyNotice" style="margin-top:8px;font-size:12px;color:var(--ok);"></div>
-    </div>
-
-    <div style="display:flex;justify-content:flex-end;margin-top:14px;">
-      <button type="button" class="primary" style="width:auto;padding:8px 24px;" onclick="closeDeployModal()">بستن راهنما</button>
-    </div>
-  </div>
-</div>
-
 <div id="app">
 
   <!-- نوار مشخصات کاربر -->
   <div class="user-bar">
-    <span id="userGreeting">در حال اتصال...</span>
-    <div style="display:flex;gap:6px;align-items:center;">
-      <button class="logout-btn" style="background:rgba(52,199,89,0.12);color:#34c759;border-color:rgba(52,199,89,0.35);" onclick="openScalabilityModal()">⚡ ظرفیت و وضعیت سرور</button>
-      <button class="logout-btn" style="background:rgba(217,164,65,0.12);color:var(--accent);border-color:rgba(217,164,65,0.35);" onclick="openDeployModal()">🚀 سرورهای رایگان</button>
-      <button class="logout-btn" onclick="logoutUser()">خروج</button>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span style="font-size:15px;">👤</span>
+      <span id="userGreeting" style="font-weight:600;color:var(--text);">در حال اتصال...</span>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button class="logout-btn" onclick="logoutUser()">خروج از حساب</button>
     </div>
   </div>
 
@@ -860,23 +893,23 @@ PORT=3000
   <nav>
     <button class="navbtn active" data-tab="program" onclick="switchTab('program')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.5 6.5l11 11M4 9l3-3 3 3M17 15l3 3-3 3M2 12h4M18 12h4M6 6l-2-2M18 18l2 2"/></svg>
-      برنامه
+      تمرین و برنامه
     </button>
     <button class="navbtn" data-tab="log" onclick="switchTab('log')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-      ثبت
+      ثبت سریع و ابزارها
     </button>
     <button class="navbtn" data-tab="history" onclick="switchTab('history')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18M7 15l4-5 3 3 5-7"/></svg>
-      تاریخچه
+      تاریخچه و رکوردها
     </button>
     <button class="navbtn" data-tab="weight" onclick="switchTab('weight')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-      وزن
+      وزن بدن
     </button>
     <button class="navbtn" data-tab="review" onclick="switchTab('review')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4M5 3h14a2 2 0 012 2v16l-4-3-4 3-4-3-4 3V5a2 2 0 012-2z"/></svg>
-      ارزیابی
+      ارزیابی جامع
     </button>
   </nav>
 
@@ -1589,159 +1622,640 @@ function buildHistExerciseSelect(){
   if(names.includes(current)) sel.value = current;
 }
 
-/* ---------------- ۶. رندرر برنامه‌های تمرینی ---------------- */
-function renderProgram(){
-  const el = document.getElementById('tab-program');
+/* ---------------- ۶. سیستم نوین مدیریت روزها و کارت گام‌به‌گام تمرین ---------------- */
+let currentSelectedDayIndex = 0; // 0..3: روزهای تمرین، 4: استراحت
+let currentProgramView = 'card'; // 'card': کارت تک‌حرکته گام‌به‌گام، 'list': فهرست کامل روز
+let currentCardStepIndex = 0;    // شماره حرکت فعال در کارت تمرین
+let autoSaveTimer = null;
+window._lastAutoSavedSig = null;
 
-  const topHeader = `
+function selectDay(dIdx) {
+  currentSelectedDayIndex = dIdx;
+  currentCardStepIndex = 0;
+  window._lastAutoSavedSig = null;
+  renderProgram();
+}
+
+function setProgramView(view) {
+  currentProgramView = view;
+  renderProgram();
+}
+
+function getDayExercises(mode, dIdx) {
+  if (dIdx >= 4) return [];
+  const list = [];
+  const dayNumber = dIdx + 1;
+  const dayCustoms = customExercises.filter(c => c.programMode === mode && Number(c.dayNumber) === dayNumber);
+
+  if (mode === 'dumbbell') {
+    const day = PROGRAM[dIdx];
+    if (day && day.exercises) {
+      day.exercises.forEach((ex, idx) => {
+        list.push({
+          id: `db_${dIdx}_${idx}`,
+          name: ex.name,
+          nameFa: ex.nameFa,
+          equip: ex.dbs || 'دمبل',
+          weight: ex.weight || 'متوسط',
+          sets: ex.sets || 3,
+          reps: ex.reps || '۸ تا ۱۲',
+          rest: ex.rest || '۹۰ ثانیه',
+          rir: ex.rir !== undefined ? ex.rir : 2,
+          tech: ex.tech || '',
+          mistake: ex.mistake || '',
+          isCustom: false
+        });
+      });
+    }
+  } else {
+    // Gym mode
+    const day = GYM_PROGRAM[dIdx];
+    if (day && day.slots) {
+      day.slots.forEach(slot => {
+        if (slot.type === 'single' && slot.items && slot.items.length) {
+          const it = slot.items[0];
+          list.push({
+            id: `gym_${dIdx}_s${slot.number}_0`,
+            name: it.name,
+            nameFa: it.nameFa,
+            equip: it.equip || 'دستگاه / هالتر',
+            weight: 'متناسب با هدف',
+            sets: it.sets || 3,
+            reps: it.reps || '۸ تا ۱۰',
+            rest: it.rest || '۹۰ ثانیه',
+            rir: it.rir !== undefined ? it.rir : 1,
+            tech: it.tech || '',
+            mistake: it.mistake || '',
+            note: slot.note || '',
+            isSuperset: false,
+            isCustom: false
+          });
+        } else if (slot.type === 'superset' && slot.items) {
+          slot.items.forEach((it, itIdx) => {
+            const partner = slot.items[itIdx === 0 ? 1 : 0];
+            list.push({
+              id: `gym_${dIdx}_s${slot.number}_${itIdx}`,
+              name: it.name,
+              nameFa: it.nameFa,
+              equip: it.equip || 'سیم‌کش / دمبل',
+              weight: 'متناسب با سوپرست',
+              sets: it.sets || 3,
+              reps: it.reps || '۱۰ تا ۱۲',
+              rest: it.rest || '۹۰ ثانیه بعد از سوپرست',
+              rir: it.rir !== undefined ? it.rir : 1,
+              tech: it.tech || '',
+              mistake: it.mistake || '',
+              note: slot.note || '',
+              isSuperset: true,
+              supersetPart: itIdx === 0 ? 'بخش ۱ سوپرست' : 'بخش ۲ سوپرست',
+              supersetPartnerName: partner ? partner.nameFa : '',
+              isCustom: false
+            });
+          });
+        }
+      });
+
+      if (day.accessory && day.accessory.length) {
+        day.accessory.forEach((ac, acIdx) => {
+          list.push({
+            id: `gym_${dIdx}_acc_${acIdx}`,
+            name: ac.name,
+            nameFa: ac.nameFa,
+            equip: 'حرکت کمکی',
+            weight: 'سبک / کنترلی',
+            sets: ac.sets || 3,
+            reps: ac.reps || '۱۲ تا ۱۵',
+            rest: '۶۰ ثانیه',
+            rir: 1,
+            tech: 'تمرکز روی انقباض اوج و کنترل کامل در تمام دامنه حرکت.',
+            mistake: 'شتاب‌زدگی یا استفاده از تکانه بدن.',
+            isAccessory: true,
+            isCustom: false
+          });
+        });
+      }
+    }
+  }
+
+  // اضافه کردن حرکات اختصاصی ایجاد شده توسط کاربر برای این روز
+  dayCustoms.forEach(c => {
+    list.push({
+      id: `custom_${c.id}`,
+      name: c.name,
+      nameFa: c.nameFa,
+      equip: c.equip || 'اختصاصی',
+      weight: c.weight || 'متوسط',
+      sets: c.sets || 3,
+      reps: c.reps || '۱۰',
+      rest: c.rest || '۹۰ ثانیه',
+      rir: c.rir !== undefined ? c.rir : 2,
+      tech: c.tech || '',
+      mistake: c.mistake || '',
+      isCustom: true,
+      customId: c.id
+    });
+  });
+
+  return list;
+}
+
+function parseRestSeconds(restStr) {
+  if (!restStr) return 90;
+  const s = String(restStr);
+  if (s.includes('45') || s.includes('۴۵')) return 45;
+  if (s.includes('60') || s.includes('۶۰')) return 60;
+  if (s.includes('2 تا 3') || s.includes('۲ تا ۳')) return 150;
+  if (s.includes('2') || s.includes('۲')) return 120;
+  if (s.includes('3') || s.includes('۳')) return 180;
+  if (s.includes('90') || s.includes('۹۰')) return 90;
+  return 90;
+}
+
+function triggerRestForExercise(restStr) {
+  const sec = parseRestSeconds(restStr);
+  startRestTimer(sec);
+}
+
+function jumpToExerciseStep(idx) {
+  autoSaveCurrentCardExercise(false);
+  currentCardStepIndex = idx;
+  renderProgram();
+}
+
+function restartDayCardPlayer() {
+  currentCardStepIndex = 0;
+  window._lastAutoSavedSig = null;
+  renderProgram();
+}
+
+function scheduleCardAutoSave() {
+  const statusEl = document.getElementById('cardAutoSaveStatus');
+  if (statusEl) {
+    statusEl.innerHTML = '<span style="color:var(--accent);">⏳ در انتظار اتمام تایپ...</span>';
+  }
+  if (autoSaveTimer) clearTimeout(autoSaveTimer);
+  autoSaveTimer = setTimeout(() => {
+    autoSaveCurrentCardExercise(false);
+  }, 1000);
+}
+
+async function autoSaveCurrentCardExercise(showNotification = false) {
+  const weightInput = document.getElementById('cardExWeight');
+  const repsInput = document.getElementById('cardExReps');
+  const rirInput = document.getElementById('cardExRir');
+  const notesInput = document.getElementById('cardExNotes');
+  const statusEl = document.getElementById('cardAutoSaveStatus');
+
+  if (!weightInput || !repsInput) return false;
+
+  const exercises = getDayExercises(currentMode, currentSelectedDayIndex);
+  if (!exercises || currentCardStepIndex >= exercises.length) return false;
+  const ex = exercises[currentCardStepIndex];
+
+  const weightVal = parseUserNumber(weightInput.value);
+  const repsStr = repsInput.value.trim();
+  const rirStr = rirInput ? rirInput.value.trim() : '';
+  const notes = notesInput ? notesInput.value.trim() : '';
+
+  if (isNaN(weightVal) || weightVal <= 0 || !repsStr) {
+    if (statusEl) statusEl.innerHTML = '<span style="color:var(--muted);">ℹ️ برای ثبت خودکار، وزن و تکرار را وارد کنید</span>';
+    return false;
+  }
+
+  const repsArr = repsStr.split(/[,،\s]+/).map(s => parseUserNumber(s)).filter(n => !isNaN(n) && n > 0);
+  if (repsArr.length === 0) return false;
+
+  const rirArr = rirStr ? rirStr.split(/[,،\s]+/).map(s => parseUserNumber(s)).filter(n => !isNaN(n)) : [];
+
+  // امضای داده برای جلوگیری از ثبت تکراری غیرضروری
+  const sig = `${ex.name}|${todayISO()}|${weightVal}|${repsArr.join(',')}|${rirArr.join(',')}|${notes}`;
+  if (window._lastAutoSavedSig === sig) {
+    if (statusEl) statusEl.innerHTML = '<span class="auto-save-pill">✓ ذخیره‌شده و همگام</span>';
+    return true;
+  }
+
+  if (statusEl) statusEl.innerHTML = '<span style="color:var(--accent);">💾 در حال ثبت خودکار...</span>';
+
+  try {
+    const res = await apiFetch('/workouts', {
+      method: 'POST',
+      body: JSON.stringify({
+        date: todayISO(),
+        exercise: ex.name,
+        weight: weightVal,
+        reps: repsArr,
+        rir: rirArr,
+        notes: notes
+      })
+    });
+
+    if (!res.ok) throw new Error('خطا در ثبت خودکار');
+    const created = await res.json();
+    window._lastAutoSavedSig = sig;
+
+    // به‌روزرسانی آرایه لوکال لاگ‌ها
+    workoutLogs.unshift({
+      id: created.id,
+      date: created.logDate || todayISO(),
+      exercise: created.exerciseName,
+      weight: parseFloat(created.weightKg),
+      reps: Array.isArray(created.reps) ? created.reps : JSON.parse(created.reps || '[]'),
+      rir: Array.isArray(created.rir) ? created.rir : JSON.parse(created.rir || '[]'),
+      notes: created.notes
+    });
+
+    if (statusEl) statusEl.innerHTML = '<span class="auto-save-pill">✓ ثبت و ذخیره خودکار انجام شد</span>';
+    refreshHeader();
+    buildHistExerciseSelect();
+
+    return true;
+  } catch (err) {
+    console.error('Auto-save error:', err);
+    if (statusEl) statusEl.innerHTML = '<span style="color:var(--danger);">✕ خطا در ثبت خودکار: ' + err.message + '</span>';
+    return false;
+  }
+}
+
+async function handleNextExerciseCard() {
+  const exercises = getDayExercises(currentMode, currentSelectedDayIndex);
+  if (!exercises.length) return;
+
+  // ذخیره خودکار پیش از رفتن به حرکت بعدی
+  await autoSaveCurrentCardExercise(false);
+
+  if (currentCardStepIndex < exercises.length) {
+    currentCardStepIndex++;
+    window._lastAutoSavedSig = null;
+    renderProgram();
+    window.scrollTo({ top: 120, behavior: 'smooth' });
+  }
+}
+
+function handlePrevExerciseCard() {
+  if (currentCardStepIndex > 0) {
+    currentCardStepIndex--;
+    window._lastAutoSavedSig = null;
+    renderProgram();
+    window.scrollTo({ top: 120, behavior: 'smooth' });
+  }
+}
+
+function renderProgram() {
+  const el = document.getElementById('tab-program');
+  if (!el) return;
+
+  const modeName = currentMode === 'gym' ? 'برنامه باشگاه (تمرکز هایپرتروفی)' : 'برنامه دمبل خانگی (۴ روزه)';
+
+  // نوار انتخاب روزها (Minimized Day Selector Bar)
+  const daysMeta = currentMode === 'dumbbell' ? [
+    { title: 'روز ۱ (بالاتنه فشاری)', sub: 'سینه، شانه، پشت‌بازو', dayObj: PROGRAM[0] },
+    { title: 'روز ۲ (پایین‌تنه A)', sub: 'چهارسر، همسترینگ، شکم', dayObj: PROGRAM[1] },
+    { title: 'روز ۳ (بالاتنه کششی)', sub: 'زیربغل، جلوبازو، شانه خلفی', dayObj: PROGRAM[2] },
+    { title: 'روز ۴ (فول‌بادی)', sub: 'کل بدن و تقویت میان‌تنه', dayObj: PROGRAM[3] },
+    { title: 'استراحت و ریکاوری 💤', sub: 'بازیابی عضلات و تغذیه', isRest: true }
+  ] : [
+    { title: 'روز ۱ (سینه + جلو بازو)', sub: 'فشاری سینه و ایزوله بازو', dayObj: GYM_PROGRAM[0] },
+    { title: 'روز ۲ (پشت + پشت بازو)', sub: 'لت، قایقی، زیربغل، سه‌سر', dayObj: GYM_PROGRAM[1] },
+    { title: 'روز ۳ (پا + سرشانه)', sub: 'اسکوات، پرس پا، نشرها', dayObj: GYM_PROGRAM[2] },
+    { title: 'روز ۴ (سینه + پشت)', sub: 'هایپرتروفی بالاتنه', dayObj: GYM_PROGRAM[3] },
+    { title: 'استراحت و ریکاوری 💤', sub: 'بازیابی عضلات و تغذیه', isRest: true }
+  ];
+
+  let html = `
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding:2px 4px;">
-      <span style="font-size:13px;color:var(--muted);font-weight:600;">برنامه هفتگی شما</span>
-      <button type="button" class="btn" style="width:auto;padding:6px 14px;font-size:12px;border:1px solid var(--accent);color:var(--accent);background:rgba(217,164,65,0.08);border-radius:6px;cursor:pointer;font-weight:600;" onclick="openAddExercisePage()">
+      <div>
+        <span style="font-size:13px;color:var(--muted);font-weight:600;">${modeName}</span>
+      </div>
+      <button type="button" class="btn" style="width:auto;padding:6px 14px;font-size:12px;border:1px solid var(--accent);color:var(--accent);background:rgba(217,164,65,0.08);border-radius:6px;cursor:pointer;font-weight:600;" onclick="openAddExercisePage(${currentSelectedDayIndex < 4 ? currentSelectedDayIndex + 1 : 1}, '${daysMeta[currentSelectedDayIndex].title}')">
         ➕ افزودن و مدیریت حرکات
       </button>
-    </div>`;
+    </div>
 
-  if(currentMode==='gym'){
-    let html = topHeader + GYM_PROGRAM.map((day, dIdx) => renderGymDay(day, dIdx)).join('');
-    html += `<section class="card"><div class="sectionhead">⚠️ درباره‌ی استراحت و RIR</div>
-      <div style="font-size:12.5px;color:var(--muted);line-height:1.9;">
-        زمان استراحت و RIR به‌صورت استاندارد هایپرتروفی پیشرفته تنظیم شده‌اند (استراحت کوتاه‌تر برای ایزوله/سوپرست، طولانی‌تر برای حرکات اصلی چندمفصلی).
+    <!-- نوار افقی انتخاب روز (Day Selector Bar) -->
+    <div class="day-nav-wrapper">
+      <div class="day-selector-bar">
+        ${daysMeta.map((d, idx) => `
+          <button type="button" 
+                  class="day-pill-btn ${idx === currentSelectedDayIndex ? 'active' : ''}" 
+                  onclick="selectDay(${idx})">
+            ${d.title}
+          </button>
+        `).join('')}
       </div>
-    </section>`;
+    </div>
+  `;
+
+  // اگر روز استراحت انتخاب شده باشد
+  if (currentSelectedDayIndex === 4) {
+    html += `
+      <section class="card" style="border-inline-start:4px solid var(--accent);">
+        <div class="daytitle">
+          <h2>روزهای استراحت و بازسازی عضلات</h2>
+          <span class="daytag">ریکاوری</span>
+        </div>
+        <div style="font-size:13px;color:var(--text);line-height:1.9;margin-top:10px;">
+          ${RESTDAY_NOTE}
+        </div>
+        <div style="background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:12px;margin-top:14px;font-size:12.5px;line-height:1.8;">
+          <b style="color:var(--accent);display:block;margin-bottom:4px;">💡 توصیه‌های روز استراحت:</b>
+          • مصرف پروتئین با کیفیت (حداقل ۱.۶ تا ۲ گرم به ازای هر کیلوگرم وزن بدن)<br>
+          • خواب عمیق و کافی (۷ تا ۸ ساعت) جهت ترشح هورمون رشد عضلانی<br>
+          • پیاده‌روی سبک یا کشش‌های سبک جهت تسریع جریان خون در عضلات خسته
+        </div>
+      </section>
+    `;
     el.innerHTML = html;
     return;
   }
 
-  let html = topHeader;
-  PROGRAM.forEach((day, dIdx) => {
-    const dayNumber = dIdx + 1;
-    const dayCustoms = customExercises.filter(c => c.programMode === 'dumbbell' && Number(c.dayNumber) === dayNumber);
+  // سوئیچر حالت نمایش: کارت گام‌به‌گام vs فهرست کامل
+  html += `
+    <div class="view-switch-row">
+      <button type="button" class="view-switch-btn ${currentProgramView === 'card' ? 'active' : ''}" onclick="setProgramView('card')">
+        🎯 کارت تمرین گام‌به‌گام (تمرکز روی تک‌حرکت)
+      </button>
+      <button type="button" class="view-switch-btn ${currentProgramView === 'list' ? 'active' : ''}" onclick="setProgramView('list')">
+        📋 فهرست کامل حرکات روز
+      </button>
+    </div>
+  `;
 
-    html += `<section class="card"><div class="daytitle"><h2>${day.day}</h2><span class="daytag">${day.tag}</span></div>`;
-    day.exercises.forEach(ex => {
+  const dayExercises = getDayExercises(currentMode, currentSelectedDayIndex);
+  const currentDayInfo = daysMeta[currentSelectedDayIndex];
+
+  // حالت ۱: کارت گام‌به‌گام تمرین (Card-Based Training Flow)
+  if (currentProgramView === 'card') {
+    if (!dayExercises || dayExercises.length === 0) {
       html += `
-        <div class="exercise">
-          <div class="exname"><a href="${ytLink(ex.name)}" target="_blank" rel="noopener">${ex.name}</a><span class="dbcount">${ex.dbs}</span></div>
+        <section class="card" style="text-align:center;padding:24px;">
+          <div style="font-size:14px;color:var(--muted);">حرکتی برای این روز تعریف نشده است.</div>
+          <button type="button" class="primary" style="margin-top:12px;" onclick="openAddExercisePage(${currentSelectedDayIndex + 1})">➕ اضافه کردن اولین حرکت</button>
+        </section>
+      `;
+      el.innerHTML = html;
+      return;
+    }
+
+    // بررسی آیا تمرین به اتمام رسیده است
+    if (currentCardStepIndex >= dayExercises.length) {
+      html += `
+        <section class="card" style="text-align:center;padding:28px 16px;">
+          <div style="font-size:42px;margin-bottom:8px;">🏆</div>
+          <h2 style="font-size:18px;color:var(--accent);font-weight:700;margin-bottom:8px;">خسته نباشید! تمرین ${currentDayInfo.title} با موفقیت به پایان رسید</h2>
+          <p style="font-size:13px;color:var(--muted);line-height:1.8;max-width:380px;margin:0 auto 16px;">
+            تمامی ${dayExercises.length} حرکت این جلسه با موفقیت اجرا و در دیتابیس ثبت خودکار شدند. عضلات شما آماده بازسازی هستند.
+          </p>
+          <div style="background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:12px;margin-bottom:18px;font-size:12.5px;text-align:right;">
+            <div>• تعداد کل حرکات انجام‌شده: <b>${dayExercises.length} حرکت</b></div>
+            <div>• تاریخ ثبت: <b>${todayISO()}</b></div>
+            <div style="color:var(--ok);margin-top:4px;">✔ تمامی اطلاعات به صورت آنی ذخیره شدند.</div>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button type="button" class="primary" style="flex:1;" onclick="switchTab('history')">📊 مشاهده تاریخچه و رکوردها</button>
+            <button type="button" class="btn" style="flex:1;" onclick="restartDayCardPlayer()">🔄 مرور مجدد حرکات از ابتدا</button>
+          </div>
+        </section>
+      `;
+      el.innerHTML = html;
+      return;
+    }
+
+    const ex = dayExercises[currentCardStepIndex];
+    const isLastEx = currentCardStepIndex === dayExercises.length - 1;
+
+    // یافتن آخرین ثبت قبلی این حرکت در سیستم برای کمک به کاربر
+    const prevLogs = workoutLogs.filter(l => l.exercise === ex.name).sort((a,b) => b.date.localeCompare(a.date));
+    const lastLog = prevLogs.length > 0 ? prevLogs[0] : null;
+
+    // تگ سوپرست یا حرکت اختصاصی
+    let badgeHtml = `<span class="dbcount">${ex.equip}</span>`;
+    if (ex.isSuperset) {
+      badgeHtml += `<span class="daytag" style="background:rgba(217,164,65,0.2);color:var(--accent);margin-inline-start:6px;">${ex.supersetPart}</span>`;
+    }
+    if (ex.isCustom) {
+      badgeHtml += `<span class="daytag" style="background:rgba(52,199,89,0.15);color:var(--ok);margin-inline-start:6px;">حرکت اختصاصی</span>`;
+    }
+
+    // پیش‌فرض وزن و تکرار
+    let defaultWeight = '';
+    let defaultReps = '';
+    if (lastLog) {
+      defaultWeight = lastLog.weight;
+      defaultReps = lastLog.reps.join(', ');
+    } else if (!isNaN(parseFloat(ex.weight))) {
+      defaultWeight = parseFloat(ex.weight);
+    }
+
+    const restSec = parseRestSeconds(ex.rest);
+
+    html += `
+      <!-- پلیر کارت حرکت فعال -->
+      <section class="player-card">
+        <div class="player-step-header">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="player-step-tag">حرکت ${faDigits(currentCardStepIndex + 1)} از ${faDigits(dayExercises.length)}</span>
+            <span style="font-size:12px;color:var(--muted);">${currentDayInfo.title}</span>
+          </div>
+          <div id="cardAutoSaveStatus">
+            <span class="auto-save-pill">✓ آماده ثبت خودکار</span>
+          </div>
+        </div>
+
+        <!-- نوار نقاط حرکات جهت پرش سریع -->
+        <div class="player-dots-bar">
+          ${dayExercises.map((e, idx) => {
+            const isCompleted = workoutLogs.some(l => l.exercise === e.name && l.date === todayISO());
+            const isActive = idx === currentCardStepIndex;
+            return `
+              <div class="player-dot ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}" 
+                   title="${e.nameFa}" 
+                   onclick="jumpToExerciseStep(${idx})">
+                ${isCompleted ? '✓' : idx + 1}
+              </div>
+            `;
+          }).join('')}
+        </div>
+
+        <!-- نوار پیشرفت کلی روز -->
+        <div class="progbar" style="margin:4px 0 14px;">
+          <div class="progbar-fill" style="width:${((currentCardStepIndex + 1) / dayExercises.length) * 100}%;"></div>
+        </div>
+
+        <!-- عنوان و اطلاعات حرکت -->
+        <div style="margin-bottom:12px;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+            <div>
+              <div style="font-size:16px;font-weight:700;line-height:1.4;">
+                <a href="${ytLink(ex.name)}" target="_blank" rel="noopener" style="color:var(--text);text-decoration:none;" title="مشاهده ویدیو آموزشی در یوتیوب">
+                  ${ex.name} ↗
+                </a>
+              </div>
+              <div style="font-size:13.5px;color:var(--accent);margin-top:2px;font-weight:600;">${ex.nameFa}</div>
+            </div>
+            <div>${badgeHtml}</div>
+          </div>
+        </div>
+
+        ${ex.isSuperset && ex.supersetPartnerName ? `
+          <div style="background:rgba(217,164,65,0.08);border:1px dashed var(--accent);border-radius:6px;padding:8px 10px;font-size:12px;color:var(--accent);margin-bottom:10px;">
+            🔗 همراه با سوپرست: <b>${ex.supersetPartnerName}</b> (بدون استراحت اجرا شود)
+          </div>
+        ` : ''}
+
+        <!-- جدول مشخصات هدف حرکت -->
+        <div class="player-meta-grid">
+          <div class="player-meta-item">
+            <span>ست‌ها و تکرار هدف:</span>
+            <b>${ex.sets} ست × ${ex.reps}</b>
+          </div>
+          <div class="player-meta-item">
+            <span>هدف RIR (ذخیره تا ناتوانی):</span>
+            <b>RIR ${ex.rir}</b>
+          </div>
+          <div class="player-meta-item">
+            <span>وزن پیشنهادی شروع:</span>
+            <b>${ex.weight}</b>
+          </div>
+          <div class="player-meta-item">
+            <span>زمان استاندارد استراحت:</span>
+            <div style="display:flex;align-items:center;gap:6px;margin-top:2px;">
+              <b>${ex.rest}</b>
+              <button type="button" class="btn" style="padding:2px 7px;font-size:10.5px;background:rgba(217,164,65,0.15);color:var(--accent);border:1px solid var(--accent);" onclick="triggerRestForExercise('${ex.rest}')">
+                ⏱️ تایمر (${restSec}ث)
+              </button>
+            </div>
+          </div>
+        </div>
+
+        ${ex.tech ? `<div class="extech" style="margin-bottom:8px;"><span class="lbl">تکنیک اجرای صحیح: </span>${ex.tech}</div>` : ''}
+        ${ex.mistake ? `<div class="exmistake" style="margin-bottom:10px;"><span class="lbl">اشتباه رایج: </span>${ex.mistake}</div>` : ''}
+
+        <!-- سابقه قبلی در صورت وجود -->
+        ${lastLog ? `
+          <div style="background:var(--surface-2);border-radius:6px;padding:8px 10px;font-size:12px;margin-bottom:12px;border-inline-start:3px solid var(--steel);">
+            📌 <b>سابقه قبلی شما:</b> ${lastLog.weight} کیلوگرم — تکرارها: [${lastLog.reps.join(', ')}] — RIR: [${lastLog.rir ? lastLog.rir.join(', ') : '—'}] <span style="color:var(--muted);font-size:11px;">(${lastLog.date})</span>
+          </div>
+        ` : `
+          <div style="font-size:11.5px;color:var(--muted);margin-bottom:12px;">
+            ℹ️ این حرکت هنوز برای شما رکوردی ندارد؛ با وارد کردن وزن و تکرار زیر اولین رکوردتان ثبت می‌شود.
+          </div>
+        `}
+
+        <!-- بخش ثبت مستقیم و خودکار اطلاعات ست‌ها (Direct & Auto-Submit Logger) -->
+        <div class="player-input-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <span style="font-size:12.5px;font-weight:700;color:var(--text);">✍️ ثبت عملکرد این حرکت</span>
+            <span style="font-size:11px;color:var(--muted);">ثبت به محض تایپ یا زدن دکمه حرکت بعد</span>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div>
+              <label style="font-size:11.5px;">وزن ست‌ها (کیلوگرم):</label>
+              <input type="text" id="cardExWeight" placeholder="مثلاً ۲۵" value="${defaultWeight}" oninput="scheduleCardAutoSave()">
+            </div>
+            <div>
+              <label style="font-size:11.5px;">تکرارهای انجام‌شده:</label>
+              <input type="text" id="cardExReps" placeholder="مثلاً ۱۰، ۱۰، ۸" value="${defaultReps}" oninput="scheduleCardAutoSave()">
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px;">
+            <div>
+              <label style="font-size:11.5px;">RIR ست‌ها (اختیاری):</label>
+              <input type="text" id="cardExRir" placeholder="مثلاً ۲، ۱، ۰" oninput="scheduleCardAutoSave()">
+            </div>
+            <div>
+              <label style="font-size:11.5px;">یادداشت یا حس ست (اختیاری):</label>
+              <input type="text" id="cardExNotes" placeholder="مثلاً پمپ عالی، افزایش وزن بعدی..." oninput="scheduleCardAutoSave()">
+            </div>
+          </div>
+        </div>
+
+        <!-- دکمه‌های جابجایی بین حرکات -->
+        <div class="player-nav-row">
+          <button type="button" 
+                  class="player-prev-btn" 
+                  onclick="handlePrevExerciseCard()" 
+                  ${currentCardStepIndex === 0 ? 'disabled' : ''}>
+            « حرکت قبلی
+          </button>
+          <button type="button" 
+                  class="player-next-btn" 
+                  onclick="handleNextExerciseCard()">
+            ${isLastEx ? '🏁 پایان تمرین روز و ثبت نهایی' : 'حرکت بعدی (و ثبت خودکار) →'}
+          </button>
+        </div>
+
+        ${ex.isCustom ? `
+          <div style="margin-top:14px;text-align:left;border-top:1px dashed var(--line);padding-top:10px;">
+            <button class="delbtn" style="font-size:11px;padding:3px 10px;border-radius:4px;" onclick="deleteCustomExercise(${ex.customId})">
+              حذف این حرکت از برنامه
+            </button>
+          </div>
+        ` : ''}
+      </section>
+    `;
+  } else {
+    // حالت ۲: فهرست کامل حرکات روز (Full Day List View)
+    html += `
+      <section class="card">
+        <div class="daytitle">
+          <h2>${currentDayInfo.title}</h2>
+          <span class="daytag">${currentDayInfo.sub}</span>
+        </div>
+
+        <div style="margin:10px 0;font-size:12px;color:var(--muted);">
+          شما در حال مشاهده تمام حرکات ${currentDayInfo.title} به صورت یکجا هستید:
+        </div>
+    `;
+
+    dayExercises.forEach((ex, idx) => {
+      let badgeHtml = `<span class="dbcount">${ex.equip}</span>`;
+      if (ex.isSuperset) {
+        badgeHtml += `<span class="daytag" style="background:rgba(217,164,65,0.2);color:var(--accent);margin-inline-start:6px;">${ex.supersetPart}</span>`;
+      }
+      if (ex.isCustom) {
+        badgeHtml += `<span class="daytag" style="background:rgba(52,199,89,0.15);color:var(--ok);margin-inline-start:6px;">اختصاصی</span>`;
+      }
+
+      html += `
+        <div class="exercise" style="border-inline-start:3px solid var(--accent);padding:10px 12px;margin-bottom:12px;background:var(--surface-2);border-radius:6px;">
+          <div class="exname">
+            <a href="${ytLink(ex.name)}" target="_blank" rel="noopener">${faDigits(idx + 1)}. ${ex.name}</a>
+            ${badgeHtml}
+          </div>
           <div class="exnamefa">${ex.nameFa}</div>
           <div class="exmeta">
             <span><b>${ex.sets}×${ex.reps}</b></span>
-            <span>شروع: <b>${ex.weight}</b></span>
+            <span>وزن: <b>${ex.weight}</b></span>
             <span>RIR <b>${ex.rir}</b></span>
             <span>استراحت <b>${ex.rest}</b></span>
           </div>
-          <div class="extech"><span class="lbl">تکنیک — </span>${ex.tech}</div>
-          <div class="exmistake"><span class="lbl">اجتناب: </span>${ex.mistake}</div>
-        </div>`;
+          ${ex.tech ? `<div class="extech"><span class="lbl">تکنیک — </span>${ex.tech}</div>` : ''}
+          ${ex.mistake ? `<div class="exmistake"><span class="lbl">اجتناب: </span>${ex.mistake}</div>` : ''}
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;border-top:1px dashed var(--line);padding-top:8px;">
+            <button type="button" class="btn" style="width:auto;padding:4px 12px;font-size:11.5px;color:var(--accent);border:1px solid var(--accent);" onclick="jumpToExerciseStep(${idx});setProgramView('card');">
+              🎯 تمرین با این حرکت در کارت
+            </button>
+            ${ex.isCustom ? `
+              <button class="delbtn" style="font-size:11px;padding:3px 10px;" onclick="deleteCustomExercise(${ex.customId})">حذف حرکت</button>
+            ` : ''}
+          </div>
+        </div>
+      `;
     });
-
-    if(dayCustoms.length > 0){
-      dayCustoms.forEach(c => {
-        html += `
-          <div class="exercise" style="border-right:3px solid var(--accent);background:rgba(217,164,65,0.03);padding:10px 12px;border-radius:6px;margin-bottom:8px;">
-            <div class="exname">
-              <a href="${ytLink(c.name)}" target="_blank" rel="noopener">${c.name}</a>
-              <span class="dbcount">${c.equip}</span>
-              <span class="daytag" style="background:rgba(217,164,65,0.15);color:var(--accent);margin-inline-start:6px;">حرکت اختصاصی شما</span>
-            </div>
-            <div class="exnamefa">${c.nameFa}</div>
-            <div class="exmeta">
-              <span><b>${c.sets}×${c.reps}</b></span>
-              <span>وزن: <b>${c.weight}</b></span>
-              <span>RIR <b>${c.rir}</b></span>
-              <span>استراحت <b>${c.rest}</b></span>
-            </div>
-            ${c.tech ? `<div class="extech"><span class="lbl">تکنیک — </span>${c.tech}</div>` : ''}
-            ${c.mistake ? `<div class="exmistake"><span class="lbl">اجتناب: </span>${c.mistake}</div>` : ''}
-            <div style="margin-top:8px;text-align:left;">
-              <button class="delbtn" style="font-size:11px;padding:3px 10px;border-radius:4px;" onclick="deleteCustomExercise(${c.id})">حذف این حرکت</button>
-            </div>
-          </div>`;
-      });
-    }
 
     html += `
-      <div style="margin-top:14px;padding-top:10px;border-top:1px dashed var(--line);text-align:center;">
-        <button type="button" class="btn" style="width:auto;padding:7px 18px;font-size:12.5px;border:1px solid var(--accent);color:var(--accent);border-radius:6px;background:rgba(217,164,65,0.05);cursor:pointer;" onclick="openAddExercisePage(${dayNumber}, '${day.day}')">
-          ➕ افزودن حرکت جدید به ${day.day.split('—')[0].trim()}
-        </button>
-      </div>`;
+        <div style="margin-top:14px;padding-top:10px;border-top:1px dashed var(--line);text-align:center;">
+          <button type="button" class="btn" style="width:auto;padding:7px 18px;font-size:12.5px;border:1px solid var(--accent);color:var(--accent);border-radius:6px;background:rgba(217,164,65,0.05);cursor:pointer;" onclick="openAddExercisePage(${currentSelectedDayIndex + 1}, '${currentDayInfo.title}')">
+            ➕ افزودن حرکت جدید به ${currentDayInfo.title}
+          </button>
+        </div>
+      </section>
+    `;
+  }
 
-    html += `</section>`;
-  });
-  html += `<section class="card"><div class="sectionhead">روزهای استراحت</div><div style="font-size:13px;color:var(--muted);line-height:1.8;">${RESTDAY_NOTE}</div></section>`;
   el.innerHTML = html;
-}
-
-function renderGymDay(day, dIdx){
-  const dayNumber = dIdx + 1;
-  const dayCustoms = customExercises.filter(c => c.programMode === 'gym' && Number(c.dayNumber) === dayNumber);
-
-  let html = `<section class="card"><div class="daytitle"><h2>${day.day}</h2><span class="daytag">${day.tag}</span></div>`;
-  day.slots.forEach(slot=>{
-    const supersetBadge = slot.type==='superset' ? '<span class="daytag" style="margin-inline-start:6px;">سوپرست</span>' : '';
-    html += `<div class="exercise">`;
-    html += `<div style="font-size:12.5px;color:var(--accent);font-weight:700;">حرکت ${faDigits(slot.number)}${supersetBadge}</div>`;
-    if(slot.note) html += `<div class="exmistake" style="color:var(--steel);margin-top:4px;">${slot.note}</div>`;
-    slot.items.forEach((it)=>{
-      const indent = slot.type==='superset' ? 'padding-inline-start:12px;border-inline-start:2px solid var(--accent-dim);margin-top:8px;' : 'margin-top:6px;';
-      html += `
-        <div style="${indent}">
-          <div class="exname"><a href="${ytLink(it.name)}" target="_blank" rel="noopener">${it.name}</a><span class="dbcount">${it.equip}</span></div>
-          <div class="exnamefa">${it.nameFa}</div>
-          <div class="exmeta">
-            <span><b>${it.sets}×${it.reps}</b></span>
-            <span>RIR <b>${it.rir}</b></span>
-            <span>استراحت <b>${it.rest}</b></span>
-          </div>
-          <div class="extech"><span class="lbl">تکنیک — </span>${it.tech}</div>
-          <div class="exmistake"><span class="lbl">اجتناب: </span>${it.mistake}</div>
-        </div>`;
-    });
-    html += `</div>`;
-  });
-  if(day.accessory && day.accessory.length){
-    html += `<div class="exercise"><div style="font-size:12.5px;color:var(--accent);font-weight:700;">حرکات کمکی</div>`;
-    day.accessory.forEach(a=>{
-      html += `<div style="margin-top:6px;font-size:13px;">${a.nameFa} <span style="color:var(--muted);font-size:11.5px;">(${a.name})</span> — <b>${a.sets}×${a.reps}</b></div>`;
-    });
-    html += `</div>`;
-  }
-
-  if(dayCustoms.length > 0){
-    dayCustoms.forEach(c => {
-      html += `
-        <div class="exercise" style="border-right:3px solid var(--accent);background:rgba(217,164,65,0.03);padding:10px 12px;border-radius:6px;margin-bottom:8px;">
-          <div class="exname">
-            <a href="${ytLink(c.name)}" target="_blank" rel="noopener">${c.name}</a>
-            <span class="dbcount">${c.equip}</span>
-            <span class="daytag" style="background:rgba(217,164,65,0.15);color:var(--accent);margin-inline-start:6px;">حرکت اختصاصی شما</span>
-          </div>
-          <div class="exnamefa">${c.nameFa}</div>
-          <div class="exmeta">
-            <span><b>${c.sets}×${c.reps}</b></span>
-            <span>وزن: <b>${c.weight}</b></span>
-            <span>RIR <b>${c.rir}</b></span>
-            <span>استراحت <b>${c.rest}</b></span>
-          </div>
-          ${c.tech ? `<div class="extech"><span class="lbl">تکنیک — </span>${c.tech}</div>` : ''}
-          ${c.mistake ? `<div class="exmistake"><span class="lbl">اجتناب: </span>${c.mistake}</div>` : ''}
-          <div style="margin-top:8px;text-align:left;">
-            <button class="delbtn" style="font-size:11px;padding:3px 10px;border-radius:4px;" onclick="deleteCustomExercise(${c.id})">حذف این حرکت</button>
-          </div>
-        </div>`;
-    });
-  }
-
-  html += `<div class="exercise" style="font-size:12.5px;color:var(--muted);">کاردیوی پایانی: ${day.cardio}</div>`;
-  html += `
-    <div style="margin-top:14px;padding-top:10px;border-top:1px dashed var(--line);text-align:center;">
-      <button type="button" class="btn" style="width:auto;padding:7px 18px;font-size:12.5px;border:1px solid var(--accent);color:var(--accent);border-radius:6px;background:rgba(217,164,65,0.05);cursor:pointer;" onclick="openAddExercisePage(${dayNumber}, '${day.day}')">
-        ➕ افزودن حرکت جدید به ${day.day.split('—')[0].trim()}
-      </button>
-    </div>`;
-
-  html += `</section>`;
-  return html;
 }
 
 /* ---------------- توابع صفحه اختصاصی افزودن و مدیریت حرکات ---------------- */
@@ -1990,6 +2504,9 @@ async function loadAll() {
 
 async function setMode(mode) {
   currentMode = mode;
+  currentSelectedDayIndex = 0;
+  currentCardStepIndex = 0;
+  window._lastAutoSavedSig = null;
   document.querySelectorAll('.modebtn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
   renderProgram();
   buildLogExerciseSelect();
@@ -2232,14 +2749,6 @@ function applyCalcToLog() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-/* ---------------- راهنمای استقرار روی سرورهای ابری رایگان ---------------- */
-function openDeployModal() {
-  document.getElementById('deployModal').style.display = 'flex';
-}
-function closeDeployModal() {
-  document.getElementById('deployModal').style.display = 'none';
-}
-
 /* ---------------- مانیتورینگ مقیاس‌پذیری و ظرفیت سرور ---------------- */
 function openScalabilityModal() {
   document.getElementById('scalabilityModal').style.display = 'flex';
@@ -2267,16 +2776,6 @@ async function loadSystemMetrics() {
   } catch (err) {
     el.textContent = 'خطا در ارتباط با سرور سنجش کارایی: ' + err.message;
   }
-}
-function copyDeployEnv() {
-  const envText = `DATABASE_URL=postgresql://postgres.fzjssseinyiuanwiqvwr:AyWNdPZpvwMfIdZk@aws-1-eu-west-1.pooler.supabase.com:6543/postgres\nJWT_ACCESS_SECRET=Vor+2vsL2CU4044U2w/hFkpwQ8mv5aWr5CH+pinxFRc=\nJWT_REFRESH_SECRET=K4Gtt5qyJsPB66zEh+KSGAoE26oTctQ2Rn7ASW1AKgI=\nPORT=3000`;
-  navigator.clipboard.writeText(envText).then(() => {
-    const notice = document.getElementById('deployCopyNotice');
-    if (notice) notice.textContent = '✅ تمام متغیرهای محیطی با موفقیت در کلیپ‌بورد کپی شد!';
-    setTimeout(() => { if (notice) notice.textContent = ''; }, 3500);
-  }).catch(() => {
-    alert('متغیرها:\n' + envText);
-  });
 }
 
 function renderHistory(){

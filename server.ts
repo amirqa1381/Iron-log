@@ -109,11 +109,16 @@ app.get('/api/system-metrics', (req: Request, res: Response) => {
   });
 });
 
-// Serve frontend static files with caching
+// Serve frontend static files with no-cache in development to ensure instant preview updates
 const frontendDir = path.join(__dirname, 'frontend');
 app.use(express.static(frontendDir, {
-  maxAge: '1h',
-  etag: true
+  maxAge: 0,
+  etag: false,
+  setHeaders: (res) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+  }
 }));
 
 // SPA fallback
