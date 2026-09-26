@@ -5,24 +5,35 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // In-memory data structures for mock mode
-let nextUserId = 2;
+let nextUserId = 3;
 let nextTokenId = 1;
 let nextWorkoutId = 10;
 let nextWeightId = 10;
+let nextResetTokenId = 1;
 
-// Pre-seed demo user
+// Pre-seed demo users (including amirghasemian1381@gmail.com and demo as admins)
 const demoPasswordHash = bcrypt.hashSync('123456', 10);
 const users = [
   {
     id: 1,
     email: 'demo@ironlog.app',
     password_hash: demoPasswordHash,
-    display_name: 'علی (دمو)',
-    created_at: new Date()
+    display_name: 'علی (مدیر)',
+    role: 'admin',
+    created_at: new Date('2026-09-01T08:00:00Z')
+  },
+  {
+    id: 2,
+    email: 'amirghasemian1381@gmail.com',
+    password_hash: demoPasswordHash,
+    display_name: 'امیر قاسمی (مدیر سیستم)',
+    role: 'admin',
+    created_at: new Date('2026-09-02T10:00:00Z')
   }
 ];
 
 const refreshTokens = [];
+const passwordResetTokens = [];
 
 const workoutLogs = [
   {
@@ -118,32 +129,94 @@ function executeInMemoryQuery(text, params = []) {
   }
 
   if (lower.startsWith('insert into users')) {
-    // INSERT INTO users (email, password_hash, display_name) VALUES ($1, $2, $3) RETURNING id, email, display_name
-    const [email, password_hash, display_name] = params;
+    // INSERT INTO users (email, password_hash, display_name) VALUES ($1, $2, $3) RETURNING id, email, display_name, role
+    const [email, password_hash, display_name, roleParam] = params;
+    const normalized = email.trim().toLowerCase();
+    const isAdmin = normalized === 'amirghasemian1381@gmail.com' || normalized === 'demo@ironlog.app' || roleParam === 'admin';
     const newUser = {
       id: nextUserId++,
       email: email.trim(),
       password_hash,
       display_name: display_name || null,
+      role: isAdmin ? 'admin' : (roleParam || 'user'),
       created_at: new Date()
     };
     users.push(newUser);
     return {
-      rows: [{ id: newUser.id, email: newUser.email, display_name: newUser.display_name }],
+      rows: [{ id: newUser.id, email: newUser.email, display_name: newUser.display_name, role: newUser.role }],
       rowCount: 1
     };
+  }
+
+  if (lower.startsWith('update users set password_hash = $1 where id = $2') || (lower.includes('update users set password_hash') && lower.includes('where id = $2'))) {
+    const [newHash, userId] = params;
+    const user = users.find(u => Number(u.id) === Number(userId));
+    if (user) {
+      user.password_hash = newHash;
+      return { rows: [{ id: user.id }], rowCount: 1 };
+    }
+    return { rows: [], rowCount: 0 };
+  }
+
+  if (lower.startsWith('update users set role = $1 where id = $2') || (lower.includes('update users set role') && lower.includes('where id = $2'))) {
+    const [newRole, userId] = params;
+    const user = users.find(u => Number(u.id) === Number(userId));
+    if (user) {
+      user.role = newRole;
+      return { rows: [{ id: user.id, role: user.role }], rowCount: 1 };
+    }
+    return { rows: [], rowCount: 0 };
+  }
+
+  if (lower.includes('select count(*) as count from users') || (lower.includes('count(*)') && lower.includes('from users') && !lower.includes('where'))) {
+    return { rows: [{ count: String(users.length) }], rowCount: 1 };
+  }
+
+  if (lower.includes('from users u') || (lower.includes('from users') && (lower.includes('workout_count') || lower.includes('order by u.created_at')))) {
+    const list = users.map(u => {
+      const userWorkouts = workoutLogs.filter(w => Number(w.user_id) === Number(u.id));
+      const userBw = bodyweightLogs.filter(b => Number(b.user_id) === Number(u.id));
+      const sortedW = userWorkouts.slice().sort((a,b) => String(b.log_date).localeCompare(String(a.log_date)));
+      const lastW = sortedW[0]?.log_date || null;
+      return {
+        id: u.id,
+        email: u.email,
+        display_name: u.display_name,
+        role: u.role || 'user',
+        created_at: u.created_at,
+        workout_count: userWorkouts.length,
+        bodyweight_count: userBw.length,
+        last_workout_date: lastW
+      };
+    });
+    return { rows: list, rowCount: list.length };
   }
 
   if (lower.startsWith('select * from users where email = $1') || lower.includes('select * from users where lower(email) = lower($1)')) {
     const email = params[0]?.toLowerCase().trim();
     const found = users.filter(u => u.email.toLowerCase().trim() === email);
-    return { rows: found, rowCount: found.length };
+    return { rows: found.map(u => ({ ...u, role: u.role || 'user' })), rowCount: found.length };
   }
 
   if (lower.startsWith('select * from users where id = $1')) {
     const userId = Number(params[0]);
     const found = users.filter(u => Number(u.id) === userId);
-    return { rows: found, rowCount: found.length };
+    return { rows: found.map(u => ({ ...u, role: u.role || 'user' })), rowCount: found.length };
+  }
+
+  if (lower.includes('display_name, role from users where id = $1') || lower.includes('role from users where id = $1')) {
+    const userId = Number(params[0]);
+    const found = users.filter(u => Number(u.id) === userId);
+    return {
+      rows: found.map(u => ({
+        id: u.id,
+        email: u.email,
+        display_name: u.display_name,
+        role: u.role || 'user',
+        created_at: u.created_at
+      })),
+      rowCount: found.length
+    };
   }
 
   if (lower.includes('from users where id = $1')) {
@@ -244,6 +317,55 @@ function executeInMemoryQuery(text, params = []) {
     const token = refreshTokens.find(t => t.token_hash === token_hash);
     if (token) token.revoked_at = new Date();
     return { rows: [], rowCount: token ? 1 : 0 };
+  }
+
+  if (lower.startsWith('update refresh_tokens set revoked_at = now() where user_id = $1')) {
+    const uid = Number(params[0]);
+    refreshTokens.filter(t => Number(t.user_id) === uid).forEach(t => t.revoked_at = new Date());
+    return { rows: [], rowCount: 1 };
+  }
+
+  // PASSWORD_RESET_TOKENS queries
+  if (lower.startsWith('insert into password_reset_tokens')) {
+    const [user_id, token_hash, code, expires_at] = params;
+    const item = {
+      id: nextResetTokenId++,
+      user_id: Number(user_id),
+      token_hash,
+      code: String(code),
+      expires_at: new Date(expires_at),
+      used_at: null,
+      created_at: new Date()
+    };
+    passwordResetTokens.push(item);
+    return { rows: [item], rowCount: 1 };
+  }
+
+  if (lower.includes('from password_reset_tokens where token_hash = $1') && lower.includes('used_at is null')) {
+    const token_hash = params[0];
+    const now = new Date();
+    const found = passwordResetTokens.filter(t => t.token_hash === token_hash && !t.used_at && t.expires_at > now);
+    return { rows: found, rowCount: found.length };
+  }
+
+  if (lower.includes('from password_reset_tokens where user_id = $1 and code = $2') && lower.includes('used_at is null')) {
+    const [user_id, code] = params;
+    const now = new Date();
+    const found = passwordResetTokens.filter(t => Number(t.user_id) === Number(user_id) && t.code === String(code) && !t.used_at && t.expires_at > now);
+    return { rows: found, rowCount: found.length };
+  }
+
+  if (lower.startsWith('update password_reset_tokens set used_at = now() where id = $1')) {
+    const id = Number(params[0]);
+    const item = passwordResetTokens.find(t => t.id === id);
+    if (item) item.used_at = new Date();
+    return { rows: [], rowCount: item ? 1 : 0 };
+  }
+
+  if (lower.startsWith('update password_reset_tokens set used_at = now() where user_id = $1')) {
+    const uid = Number(params[0]);
+    passwordResetTokens.filter(t => Number(t.user_id) === uid).forEach(t => t.used_at = new Date());
+    return { rows: [], rowCount: 1 };
   }
 
   // WORKOUT_LOGS queries
@@ -571,8 +693,13 @@ export async function initPostgresTables() {
           email VARCHAR(255) UNIQUE NOT NULL,
           password_hash VARCHAR(255) NOT NULL,
           display_name VARCHAR(100),
+          role VARCHAR(20) DEFAULT 'user',
           created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
         );
+
+        -- Ensure role column exists and promote admin emails
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(20) DEFAULT 'user';
+        UPDATE users SET role = 'admin' WHERE LOWER(email) IN ('amirghasemian1381@gmail.com', 'demo@ironlog.app');
 
         CREATE TABLE IF NOT EXISTS refresh_tokens (
           id SERIAL PRIMARY KEY,
@@ -580,6 +707,16 @@ export async function initPostgresTables() {
           token_hash VARCHAR(255) NOT NULL,
           expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
           revoked_at TIMESTAMP WITH TIME ZONE DEFAULT NULL,
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        );
+
+        CREATE TABLE IF NOT EXISTS password_reset_tokens (
+          id SERIAL PRIMARY KEY,
+          user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+          token_hash VARCHAR(255) NOT NULL,
+          code VARCHAR(10) NOT NULL,
+          expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+          used_at TIMESTAMP WITH TIME ZONE DEFAULT NULL,
           created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
         );
 

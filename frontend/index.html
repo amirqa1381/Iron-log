@@ -12,8 +12,16 @@
 <meta property="og:description" content="Smart workout log and progress tracker with home dumbbell and gym programs">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>
+  (function(){
+    try {
+      var saved = localStorage.getItem('iron_theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      document.documentElement.setAttribute('data-theme', saved);
+    } catch(e) {}
+  })();
+</script>
 <style>
-  :root{
+  :root, [data-theme="dark"]{
     --bg:#1c1e1f;
     --surface:#25282a;
     --surface-2:#2e3234;
@@ -24,8 +32,32 @@
     --accent-dim: rgba(217,164,65,0.15);
     --steel:#7a8b99;
     --success:#6fbf73;
+    --ok:#6fbf73;
     --warn:#e0793c;
     --danger:#d96c6c;
+    --nav-bg: rgba(28,30,31,0.97);
+    --timer-dock-bg: rgba(28,30,31,0.96);
+    --btn-primary-text: #1c1e1f;
+    --shadow-color: rgba(0,0,0,0.4);
+  }
+  [data-theme="light"]{
+    --bg:#f4f6f9;
+    --surface:#ffffff;
+    --surface-2:#eaedf1;
+    --line: rgba(0,0,0,0.09);
+    --text:#1c1f23;
+    --muted:#616e7c;
+    --accent:#b27a14;
+    --accent-dim: rgba(178,122,20,0.14);
+    --steel:#505d6b;
+    --success:#198754;
+    --ok:#198754;
+    --warn:#c25e00;
+    --danger:#dc3545;
+    --nav-bg: rgba(255,255,255,0.97);
+    --timer-dock-bg: rgba(255,255,255,0.98);
+    --btn-primary-text: #ffffff;
+    --shadow-color: rgba(0,0,0,0.08);
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Vazirmatn',system-ui,sans-serif;-webkit-font-smoothing:antialiased;}
@@ -42,7 +74,7 @@
   .subtitle{font-size:11.5px;color:var(--muted);margin-top:2px;}
   .modeToggle{display:flex;gap:8px;margin-top:12px;background:var(--surface-2);border-radius:8px;padding:4px;}
   .modebtn{flex:1;background:none;border:none;color:var(--muted);font-family:inherit;font-size:12.5px;padding:8px 4px;border-radius:6px;cursor:pointer;font-weight:600;}
-  .modebtn.active{background:var(--accent);color:#1c1e1f;}
+  .modebtn.active{background:var(--accent);color:var(--btn-primary-text);}
   .statrow{display:flex;gap:10px;margin-top:12px;}
   .statchip{flex:1;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:8px 10px;}
   .statchip .k{font-size:10.5px;color:var(--muted);}
@@ -52,6 +84,15 @@
     display:flex;align-items:center;justify-content:space-between;
     padding:8px 16px;background:var(--surface-2);border-bottom:1px solid var(--line);
     font-size:12px;color:var(--muted);
+  }
+  .theme-toggle-btn{
+    display:inline-flex;align-items:center;gap:6px;background:var(--surface);
+    border:1px solid var(--line);color:var(--text);border-radius:20px;
+    padding:4px 11px;font-size:11.5px;font-weight:600;cursor:pointer;
+    font-family:inherit;transition:all .15s ease;user-select:none;
+  }
+  .theme-toggle-btn:hover{
+    border-color:var(--accent);background:var(--accent-dim);color:var(--accent);
   }
   .logout-btn{background:none;border:none;color:var(--danger);cursor:pointer;font-size:12px;font-family:inherit;font-weight:600;}
 
@@ -91,7 +132,7 @@
   .row2{display:flex;gap:10px;}
   .row2 > div{flex:1;}
   button.primary{
-    margin-top:16px;width:100%;background:var(--accent);color:#1c1e1f;border:none;border-radius:6px;
+    margin-top:16px;width:100%;background:var(--accent);color:var(--btn-primary-text);border:none;border-radius:6px;
     padding:12px;font-size:14px;font-weight:700;font-family:'Vazirmatn',sans-serif;letter-spacing:0.2px;cursor:pointer;
   }
   button.primary:active{transform:scale(0.99);}
@@ -109,7 +150,7 @@
   .histdate{color:var(--muted);font-size:11px;direction:ltr;text-align:right;}
   .histsets{margin-top:3px;font-weight:600;font-size:14px;}
   .histnote{color:var(--muted);font-size:12px;margin-top:3px;font-style:italic;}
-  .pbtag{display:inline-block;font-size:9.5px;color:#1c1e1f;background:var(--accent);border-radius:10px;padding:1px 7px;margin-inline-start:6px;font-weight:700;vertical-align:middle;}
+  .pbtag{display:inline-block;font-size:9.5px;color:var(--btn-primary-text);background:var(--accent);border-radius:10px;padding:1px 7px;margin-inline-start:6px;font-weight:700;vertical-align:middle;}
   .empty{color:var(--muted);font-size:13px;text-align:center;padding:30px 10px;line-height:1.8;}
 
   svg.chart{width:100%;height:120px;display:block;}
@@ -216,7 +257,7 @@
     color:var(--muted);font-size:11px;font-weight:700;display:flex;align-items:center;
     justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s ease;
   }
-  .player-dot.active{background:var(--accent);color:#1c1e1f;border-color:var(--accent);box-shadow:0 0 8px rgba(217,164,65,0.4);}
+  .player-dot.active{background:var(--accent);color:var(--btn-primary-text);border-color:var(--accent);box-shadow:0 0 8px rgba(217,164,65,0.4);}
   .player-dot.completed{background:rgba(111,191,115,0.2);border-color:var(--ok);color:var(--ok);}
   .player-meta-grid{
     display:grid;grid-template-columns:repeat(2,1fr);gap:8px;background:var(--surface-2);
@@ -242,14 +283,14 @@
   }
   .player-prev-btn:disabled{opacity:0.4;cursor:not-allowed;}
   .player-next-btn{
-    flex:2;background:var(--accent);color:#1c1e1f;border:none;border-radius:6px;
+    flex:2;background:var(--accent);color:var(--btn-primary-text);border:none;border-radius:6px;
     padding:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;
     box-shadow:0 2px 10px rgba(217,164,65,0.3);transition:all .15s ease;
   }
   .player-next-btn:active{transform:scale(0.98);}
 
-  nav{position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:0 auto;background:rgba(28,30,31,0.97);backdrop-filter:blur(6px);
-      border-top:1px solid var(--line);display:flex;padding:6px 4px calc(6px + env(safe-area-inset-bottom));}
+  nav{position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:0 auto;background:var(--nav-bg);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+      border-top:1px solid var(--line);display:flex;padding:6px 4px calc(6px + env(safe-area-inset-bottom));box-shadow:0 -2px 10px var(--shadow-color);z-index:90;}
   nav button{flex:1;background:none;border:none;color:var(--muted);font-family:inherit;font-size:10.5px;padding:6px 2px;cursor:pointer;
       display:flex;flex-direction:column;align-items:center;gap:4px;}
   nav button svg{width:19px;height:19px;}
@@ -274,7 +315,8 @@
     border: 1px solid var(--line);
     border-radius: 12px;
     padding: 24px;
-    box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+    box-shadow: 0 12px 30px var(--shadow-color);
+    position: relative;
   }
   .auth-title {
     font-size: 22px;
@@ -312,7 +354,7 @@
   }
   .auth-nav button.active {
     background: var(--accent);
-    color: #1c1e1f;
+    color: var(--btn-primary-text);
   }
 
   /* نوار شناور تایمر استراحت بین ست‌ها */
@@ -323,16 +365,17 @@
     right: 0;
     max-width: 480px;
     margin: 0 auto;
-    background: rgba(28,30,31,0.96);
-    border-top: 1px solid rgba(217,164,65,0.3);
+    background: var(--timer-dock-bg);
+    border-top: 1px solid var(--accent);
     border-bottom: 1px solid var(--line);
     padding: 8px 14px;
     display: none;
     align-items: center;
     justify-content: space-between;
     z-index: 95;
-    box-shadow: 0 -4px 16px rgba(0,0,0,0.5);
+    box-shadow: 0 -4px 16px var(--shadow-color);
     backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
   }
   .timer-digit {
     font-family: 'Space Grotesk', monospace;
@@ -386,12 +429,136 @@
   .warmup-table td b {
     color: var(--accent);
   }
+
+  /* Admin Panel & Modals Styles */
+  .auth-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(0, 0, 0, 0.78);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+  }
+  .admin-modal-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    width: 100%;
+    max-width: 680px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 16px 40px var(--shadow-color);
+  }
+  .admin-modal-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--line);
+  }
+  .admin-modal-body {
+    padding: 18px;
+    overflow-y: auto;
+  }
+  .admin-tabs {
+    display: flex;
+    gap: 6px;
+    background: var(--surface-2);
+    padding: 4px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+  }
+  .admin-tab-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all .15s ease;
+    white-space: nowrap;
+  }
+  .admin-tab-btn.active {
+    background: var(--accent);
+    color: var(--btn-primary-text);
+  }
+  .admin-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .admin-metric-card {
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+  }
+  .admin-metric-card .val {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent);
+    font-family: 'Space Grotesk', monospace;
+  }
+  .admin-metric-card .lbl {
+    font-size: 11.5px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .admin-table th, .admin-table td {
+    padding: 8px 10px;
+    text-align: right;
+    border-bottom: 1px solid var(--line);
+  }
+  .admin-table th {
+    color: var(--muted);
+    font-weight: 600;
+    font-size: 11.5px;
+  }
+  .admin-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .admin-badge.admin {
+    background: rgba(217, 164, 65, 0.2);
+    color: var(--accent);
+    border: 1px solid var(--accent);
+  }
+  .admin-badge.user {
+    background: var(--surface-2);
+    color: var(--muted);
+    border: 1px solid var(--line);
+  }
 </style>
 </head>
 <body>
 
 <!-- فرم ورود / ثبت نام -->
 <div id="authOverlay">
+  <div style="position:fixed;top:16px;left:16px;z-index:1001;">
+    <button type="button" class="theme-toggle-btn" onclick="toggleTheme()" title="تغییر تم تاریک / روشن">
+      <span class="authThemeIcon">☀️</span>
+      <span class="authThemeText">تم روشن</span>
+    </button>
+  </div>
   <div class="auth-box">
     <div class="auth-title">IRON LOG</div>
     <div class="auth-sub">دفتر هوشمند تمرین و رکوردها</div>
@@ -414,9 +581,252 @@
 
       <label>رمز عبور</label>
       <input type="password" id="authPassword" required placeholder="حداقل ۶ کاراکتر" dir="ltr">
+      <div id="forgotPasswordLinkContainer" style="display:flex;justify-content:flex-end;margin-top:5px;">
+        <button type="button" style="background:none;border:none;color:var(--accent);font-size:11.5px;padding:0;cursor:pointer;font-family:inherit;" onclick="openForgotPasswordModal()">فراموشی رمز عبور؟</button>
+      </div>
 
-      <button type="submit" class="primary" id="authSubmitBtn" style="margin-top:20px;">ورود به حساب</button>
+      <button type="submit" class="primary" id="authSubmitBtn" style="margin-top:16px;">ورود به حساب</button>
     </form>
+  </div>
+</div>
+
+<!-- مودال بازیابی رمز عبور (Forgot / Reset Password) -->
+<div id="forgotPasswordModal" class="auth-modal" style="display:none;">
+  <div class="auth-box" style="max-width:420px;text-align:right;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;border-bottom:1px solid var(--line);padding-bottom:10px;">
+      <h3 style="margin:0;font-size:16px;color:var(--text);font-weight:700;">🔑 بازیابی رمز عبور</h3>
+      <button type="button" onclick="closeForgotPasswordModal()" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:0 4px;">✕</button>
+    </div>
+
+    <!-- گام اول: ارسال کد تایید -->
+    <div id="forgotStep1">
+      <div style="font-size:12.5px;color:var(--muted);line-height:1.7;margin-bottom:14px;">
+        ایمیل حساب کاربری خود را وارد کنید. کد ۶ رقمی و لینک بازنشانی رمز به این آدرس ارسال خواهد شد:
+      </div>
+      <label>ایمیل حساب کاربری</label>
+      <input type="email" id="forgotEmail" placeholder="user@example.com" dir="ltr">
+
+      <div id="forgotStep1Feedback" style="margin-top:10px;"></div>
+
+      <button type="button" class="primary" id="btnSendResetCode" style="margin-top:14px;" onclick="requestResetCode()">ارسال کد تایید به ایمیل</button>
+
+      <div style="text-align:center;margin-top:12px;">
+        <button type="button" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;" onclick="closeForgotPasswordModal()">بازگشت به صفحه ورود</button>
+      </div>
+    </div>
+
+    <!-- گام دوم: ثبت رمز عبور جدید با کد یا توکن -->
+    <div id="forgotStep2" style="display:none;">
+      <div style="font-size:12.5px;color:var(--muted);line-height:1.7;margin-bottom:14px;">
+        کد تایید ۶ رقمی دریافت شده را به همراه رمز عبور جدید وارد کنید:
+      </div>
+
+      <label>کد تایید ۶ رقمی</label>
+      <input type="text" id="forgotCode" placeholder="123456" maxlength="6" dir="ltr" style="font-family:monospace;font-size:20px;letter-spacing:6px;text-align:center;color:var(--accent);font-weight:700;">
+
+      <label>رمز عبور جدید</label>
+      <input type="password" id="forgotNewPassword" placeholder="حداقل ۶ کاراکتر" dir="ltr">
+
+      <label>تکرار رمز عبور جدید</label>
+      <input type="password" id="forgotConfirmPassword" placeholder="تکرار رمز عبور جدید" dir="ltr">
+
+      <div id="forgotStep2Feedback" style="margin-top:10px;"></div>
+
+      <button type="button" class="primary" id="btnSubmitNewPassword" style="margin-top:14px;" onclick="submitResetPassword()">ثبت رمز عبور جدید</button>
+
+      <div style="display:flex;justify-content:space-between;margin-top:12px;">
+        <button type="button" style="background:none;border:none;color:var(--muted);font-size:11.5px;cursor:pointer;" onclick="switchForgotStep(1)">درخواست مجدد کد</button>
+        <button type="button" style="background:none;border:none;color:var(--muted);font-size:11.5px;cursor:pointer;" onclick="closeForgotPasswordModal()">انصراف و بستن</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- مودال تغییر رمز عبور کاربران لاگین شده -->
+<div id="changePasswordModal" class="auth-modal" style="display:none;">
+  <div class="auth-box" style="max-width:380px;text-align:right;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;border-bottom:1px solid var(--line);padding-bottom:10px;">
+      <h3 style="margin:0;font-size:16px;color:var(--text);font-weight:700;">🔐 تغییر رمز عبور</h3>
+      <button type="button" onclick="closeChangePasswordModal()" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:0 4px;">✕</button>
+    </div>
+
+    <label>رمز عبور فعلی</label>
+    <input type="password" id="changeCurrentPassword" placeholder="رمز عبور فعلی خود را وارد کنید" dir="ltr">
+
+    <label>رمز عبور جدید</label>
+    <input type="password" id="changeNewPassword" placeholder="حداقل ۶ کاراکتر" dir="ltr">
+
+    <label>تکرار رمز عبور جدید</label>
+    <input type="password" id="changeConfirmPassword" placeholder="تکرار رمز جدید" dir="ltr">
+
+    <div id="changePasswordFeedback" style="margin-top:10px;"></div>
+
+    <div style="display:flex;gap:8px;margin-top:16px;">
+      <button type="button" class="primary" style="flex:2;" onclick="submitChangePassword()">ذخیره رمز جدید</button>
+      <button type="button" class="btn" style="flex:1;" onclick="closeChangePasswordModal()">انصراف</button>
+    </div>
+  </div>
+</div>
+
+<!-- مودال پنل مدیریت سامانه (Admin Panel) -->
+<div id="adminPanelModal" class="auth-modal" style="display:none;">
+  <div class="admin-modal-card">
+    <div class="admin-modal-head">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:20px;">👑</span>
+        <div>
+          <h2 style="font-size:16px;margin:0;color:var(--accent);font-weight:800;">پنل مدیریت سامانه (Admin Panel)</h2>
+          <div style="font-size:11px;color:var(--muted);">مدیریت کاربران، مانیتورینگ منابع و تنظیمات سرویس ایمیل</div>
+        </div>
+      </div>
+      <button type="button" onclick="closeAdminPanelModal()" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:0 4px;">✕</button>
+    </div>
+
+    <div class="admin-modal-body">
+      <!-- تب‌های پنل مدیریت -->
+      <div class="admin-tabs">
+        <button type="button" class="admin-tab-btn active" data-atab="metrics" onclick="switchAdminTab('metrics')">📊 داشبورد و آمار</button>
+        <button type="button" class="admin-tab-btn" data-atab="users" onclick="switchAdminTab('users')">👥 مدیریت کاربران</button>
+        <button type="button" class="admin-tab-btn" data-atab="email" onclick="switchAdminTab('email')">📧 سرویس ایمیل و گوگل</button>
+      </div>
+
+      <!-- تب ۱: داشبورد و آمار سیستم -->
+      <div id="adminTabMetrics">
+        <div class="admin-metrics-grid">
+          <div class="admin-metric-card">
+            <div class="val" id="admMetricUsers">—</div>
+            <div class="lbl">کاربران ثبت‌شده</div>
+          </div>
+          <div class="admin-metric-card">
+            <div class="val" id="admMetricWorkouts">—</div>
+            <div class="lbl">تمرینات ثبت‌شده</div>
+          </div>
+          <div class="admin-metric-card">
+            <div class="val" id="admMetricWeights">—</div>
+            <div class="lbl">رکوردهای وزن بدن</div>
+          </div>
+          <div class="admin-metric-card">
+            <div class="val" id="admMetricCustoms">—</div>
+            <div class="lbl">حرکات اختصاصی</div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px;">
+          <!-- وضعیت سرور و حافظه -->
+          <div style="background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:12px 14px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-weight:600;font-size:12.5px;color:var(--text);">⚡ وضعیت سرور و مصرف RAM</span>
+              <span id="admSystemUptime" style="font-size:11px;color:var(--accent);direction:ltr;font-family:monospace;">—</span>
+            </div>
+            <div id="admMemoryText" style="font-size:11.5px;color:var(--muted);margin-top:6px;">در حال بارگذاری...</div>
+          </div>
+
+          <!-- وضعیت دیتابیس -->
+          <div style="background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:12px 14px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-weight:600;font-size:12.5px;color:var(--text);">🗄️ وضعیت پایگاه داده</span>
+              <span id="admDbBadge" class="admin-badge admin">در حال بررسی</span>
+            </div>
+            <div id="admDbDesc" style="font-size:11.5px;color:var(--muted);margin-top:6px;">—</div>
+          </div>
+
+          <!-- وضعیت ارائه‌دهنده ایمیل -->
+          <div style="background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:12px 14px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-weight:600;font-size:12.5px;color:var(--text);">📨 سرویس ارسال ایمیل</span>
+              <span id="admEmailBadge" class="admin-badge user">در حال بررسی</span>
+            </div>
+            <div id="admEmailDesc" style="font-size:11.5px;color:var(--muted);margin-top:6px;">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- تب ۲: مدیریت کاربران -->
+      <div id="adminTabUsers" style="display:none;">
+        <div style="display:flex;gap:8px;margin-bottom:12px;">
+          <input type="text" id="adminUserSearchInput" placeholder="جستجوی کاربر با ایمیل یا نام..." oninput="debounceAdminSearch()" style="margin:0;font-size:12px;">
+          <button type="button" class="btn" style="padding:6px 14px;font-size:12px;color:var(--accent);" onclick="loadAdminUsers()">🔄 تازه</button>
+        </div>
+
+        <div id="adminUsersFeedback" style="margin-bottom:8px;"></div>
+
+        <div style="overflow-x:auto;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>نام و ایمیل کاربر</th>
+                <th>نقش</th>
+                <th>تمرینات</th>
+                <th>عضویت</th>
+                <th>عملیات</th>
+              </tr>
+            </thead>
+            <tbody id="adminUsersTableBody">
+              <tr><td colspan="5" style="text-align:center;color:var(--muted);padding:18px;">در حال دریافت کاربران...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- تب ۳: تنظیمات ایمیل و گوگل -->
+      <div id="adminTabEmail" style="display:none;">
+        <div style="background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:14px;margin-bottom:14px;">
+          <h3 style="font-size:14px;margin:0 0 8px 0;color:var(--accent);">راهنمای اتصال ارسال ایمیل با Google Gmail</h3>
+          <div style="font-size:12px;color:var(--muted);line-height:1.9;">
+            برای ارسال ایمیل‌های واقعی بازیابی رمز عبور از طریق حساب جیمیل (Google Workspace یا @gmail.com):
+            <ol style="margin:6px 0;padding-right:20px;">
+              <li>به صفحه <b style="color:var(--text);">Google Account Security</b> (myaccount.google.com/security) بروید.</li>
+              <li>گزینه <b>تایید دو مرحله‌ای (2-Step Verification)</b> را فعال کنید.</li>
+              <li>در انتهای صفحه بخش <b>رمزهای برنامه (App Passwords)</b> را باز کنید.</li>
+              <li>یک رمز جدید بسازید؛ گوگل یک رمز ۱۶ رقمی (مثلاً <code>abcd efgh ijkl mnop</code>) به شما می‌دهد.</li>
+              <li>این مقادیر را در فایل <code>.env</code> تعریف کنید:
+                <div style="background:var(--bg);padding:8px;border-radius:6px;direction:ltr;font-family:monospace;font-size:11.5px;color:var(--accent);margin-top:6px;">
+                  GMAIL_USER=your-email@gmail.com<br>
+                  GMAIL_APP_PASS=abcdefghijklmnop
+                </div>
+              </li>
+            </ol>
+            <div style="font-size:11.5px;color:var(--success);margin-top:6px;">
+              💡 <b>نکته:</b> حتی اگر جیمیل هنوز متصل نشده باشد، سیستم در حالت پیش‌نمایش (Mock Preview) کد بازیابی را در کنسول و فرم به شما نشان می‌دهد تا روند بازیابی رمز بدون مانع تست شود!
+            </div>
+          </div>
+        </div>
+
+        <!-- فرم تست ارسال ایمیل -->
+        <div style="background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:14px;">
+          <h3 style="font-size:13.5px;margin:0 0 10px 0;color:var(--text);">ارسال ایمیل آزمایشی (Test Email)</h3>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <input type="email" id="admTestEmailTarget" placeholder="ایمیل مقصد برای دریافت تست" dir="ltr" style="margin:0;font-size:12.5px;flex:1;">
+            <button type="button" class="primary" style="width:auto;padding:8px 16px;white-space:nowrap;font-size:12px;" onclick="submitTestEmail()">ارسال تست</button>
+          </div>
+          <div id="admTestEmailResult" style="margin-top:10px;"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- مودال تغییر رمز عبور کاربر توسط ادمین -->
+<div id="adminUserResetModal" class="auth-modal" style="display:none;z-index:10001;">
+  <div class="auth-box" style="max-width:380px;text-align:right;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;border-bottom:1px solid var(--line);padding-bottom:10px;">
+      <h3 style="margin:0;font-size:15px;color:var(--text);font-weight:700;">تنظیم رمز عبور جدید توسط مدیر</h3>
+      <button type="button" onclick="closeAdminUserResetModal()" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:0 4px;">✕</button>
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">
+      کاربر: <b id="admResetTargetLabel" style="color:var(--accent);"></b>
+    </div>
+    <input type="hidden" id="admResetTargetUserId">
+    <label>رمز عبور جدید (حداقل ۶ کاراکتر)</label>
+    <input type="password" id="admResetTargetNewPassword" placeholder="رمز عبور جدید" dir="ltr">
+
+    <div id="admResetFeedback" style="margin-top:8px;"></div>
+
+    <div style="display:flex;gap:8px;margin-top:14px;">
+      <button type="button" class="primary" style="flex:2;" onclick="submitAdminUserReset()">ثبت رمز جدید</button>
+      <button type="button" class="btn" style="flex:1;" onclick="closeAdminUserResetModal()">انصراف</button>
+    </div>
   </div>
 </div>
 
@@ -464,12 +874,12 @@
       </div>
 
       <!-- وضعیت زنده سرور فعلی -->
-      <div style="background:#141617;border-radius:6px;padding:10px 14px;border:1px solid rgba(255,255,255,0.08);">
+      <div style="background:var(--surface-2);border-radius:6px;padding:10px 14px;border:1px solid var(--line);">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
           <span style="font-size:12px;color:var(--muted);">وضعیت آنلاین رم و منابع سرور:</span>
           <button type="button" class="btn" style="padding:2px 8px;font-size:11px;color:var(--accent);" onclick="loadSystemMetrics()">🔄 به‌روزرسانی</button>
         </div>
-        <div id="liveMetricsOutput" style="font-size:11.5px;color:#d5c4a1;direction:ltr;font-family:monospace;">در حال دریافت اطلاعات...</div>
+        <div id="liveMetricsOutput" style="font-size:11.5px;color:var(--accent);direction:ltr;font-family:monospace;">در حال دریافت اطلاعات...</div>
       </div>
     </div>
 
@@ -487,7 +897,17 @@
       <span style="font-size:15px;">👤</span>
       <span id="userGreeting" style="font-weight:600;color:var(--text);">در حال اتصال...</span>
     </div>
-    <div style="display:flex;gap:8px;align-items:center;">
+    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+      <button type="button" class="btn" id="adminPanelBtn" style="display:none;background:rgba(217,164,65,0.15);border:1px solid var(--accent);color:var(--accent);padding:5px 12px;font-size:11.5px;border-radius:20px;font-weight:700;cursor:pointer;" onclick="openAdminPanelModal()" title="پنل مدیریت سامانه">
+        👑 پنل مدیریت
+      </button>
+      <button type="button" class="btn" style="background:var(--surface-2);border:1px solid var(--line);color:var(--text);padding:5px 10px;font-size:11px;border-radius:20px;cursor:pointer;" onclick="openChangePasswordModal()" title="تغییر رمز عبور حساب">
+        🔑 تغییر رمز
+      </button>
+      <button type="button" class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="تغییر تم تاریک / روشن">
+        <span id="themeToggleIcon">☀️</span>
+        <span id="themeToggleText">تم روشن</span>
+      </button>
       <button class="logout-btn" onclick="logoutUser()">خروج از حساب</button>
     </div>
   </div>
@@ -917,12 +1337,69 @@
 
 <!-- شروع بخش اسکریپت‌ها (Scripts Part) -->
 <script>
-/* ---------------- ۱. اتصال به Auth Service و مدیریت توکن‌ها ---------------- */
+/* ---------------- متغیرهای سراسری برنامه (Global Application State) ---------------- */
 const AUTH_API_URL = '';
 let currentAccessToken = null;
 let currentAuthMode = 'login';
 let currentUser = null;
+let currentMode = 'dumbbell';
+let workoutLogs = [];
+let bodyWeightLogs = [];
+let customExercises = [];
+let START_WEIGHT = null, TARGET_WEIGHT = null;
 
+/* ---------------- ۰. مدیریت سراسری تم تاریک و روشن (Global Theme Management) ---------------- */
+function getSavedTheme() {
+  try {
+    const saved = localStorage.getItem('iron_theme');
+    if (saved === 'light' || saved === 'dark') return saved;
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+      return 'light';
+    }
+  } catch(e) {}
+  return 'dark';
+}
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  try {
+    localStorage.setItem('iron_theme', theme);
+  } catch(e) {}
+
+  const isDark = theme === 'dark';
+  const icon = document.getElementById('themeToggleIcon');
+  const text = document.getElementById('themeToggleText');
+  if (icon) icon.textContent = isDark ? '☀️' : '🌙';
+  if (text) text.textContent = isDark ? 'تم روشن' : 'تم تاریک';
+
+  document.querySelectorAll('.authThemeIcon').forEach(el => el.textContent = isDark ? '☀️' : '🌙');
+  document.querySelectorAll('.authThemeText').forEach(el => el.textContent = isDark ? 'تم روشن' : 'تم تاریک');
+
+  // Redraw charts if visible so colors match theme
+  try {
+    if (Array.isArray(workoutLogs) && workoutLogs.length > 0) {
+      if (typeof renderHistory === 'function' && document.getElementById('histChartCard')?.style.display !== 'none') {
+        renderHistory();
+      }
+      if (typeof renderWeightTab === 'function' && document.getElementById('bwChartCard')?.style.display !== 'none') {
+        renderWeightTab();
+      }
+    }
+  } catch (e) {
+    console.warn('Theme chart redraw deferred:', e);
+  }
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') || 'dark';
+  const next = current === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+}
+
+// Initial theme sync
+applyTheme(getSavedTheme());
+
+/* ---------------- ۱. اتصال به Auth Service و مدیریت توکن‌ها ---------------- */
 function switchAuthTab(mode){
   currentAuthMode = mode;
   document.getElementById('btnTabLogin').classList.toggle('active', mode==='login');
@@ -969,6 +1446,9 @@ async function handleAuthSubmit(e){
     updateUserBar();
     document.getElementById('authOverlay').style.display = 'none';
     await loadAll();
+    if ((window.location.pathname.startsWith('/admin') || window.location.hash === '#admin') && currentUser && currentUser.role === 'admin') {
+      openAdminPanelModal(false);
+    }
   } catch(err) {
     errBox.textContent = err.message;
     errBox.style.display = 'block';
@@ -1032,7 +1512,485 @@ async function logoutUser(){
 
 function updateUserBar(){
   if (currentUser) {
-    document.getElementById('userGreeting').textContent = `${currentUser.displayName || currentUser.email} خوش آمدید`;
+    const roleBadge = currentUser.role === 'admin' 
+      ? ' <span style="background:rgba(217,164,65,0.18);color:var(--accent);font-size:10px;padding:2px 7px;border-radius:12px;border:1px solid var(--accent);font-weight:700;">مدیر</span>' 
+      : '';
+    document.getElementById('userGreeting').innerHTML = `${currentUser.displayName || currentUser.email} خوش آمدید${roleBadge}`;
+    
+    const adminBtn = document.getElementById('adminPanelBtn');
+    if (adminBtn) {
+      adminBtn.style.display = currentUser.role === 'admin' ? 'inline-flex' : 'none';
+    }
+  }
+}
+
+/* ---------------- ۱.۱. بازیابی و تغییر رمز عبور و ایمیل (Password Management & Email) ---------------- */
+let activeUrlResetToken = null;
+
+function openForgotPasswordModal() {
+  document.getElementById('forgotPasswordModal').style.display = 'flex';
+  switchForgotStep(1);
+  const emailInput = document.getElementById('authEmail').value;
+  if (emailInput && !document.getElementById('forgotEmail').value) {
+    document.getElementById('forgotEmail').value = emailInput;
+  }
+}
+
+function closeForgotPasswordModal() {
+  document.getElementById('forgotPasswordModal').style.display = 'none';
+  document.getElementById('forgotStep1Feedback').innerHTML = '';
+  document.getElementById('forgotStep2Feedback').innerHTML = '';
+  activeUrlResetToken = null;
+}
+
+function switchForgotStep(step) {
+  document.getElementById('forgotStep1').style.display = step === 1 ? 'block' : 'none';
+  document.getElementById('forgotStep2').style.display = step === 2 ? 'block' : 'none';
+}
+
+async function requestResetCode() {
+  const email = document.getElementById('forgotEmail').value.trim();
+  const fb = document.getElementById('forgotStep1Feedback');
+  const btn = document.getElementById('btnSendResetCode');
+
+  if (!email) {
+    fb.innerHTML = '<div class="feedback down">لطفاً ایمیل حساب خود را وارد کنید.</div>';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'در حال ارسال...';
+  fb.innerHTML = '<div class="feedback" style="color:var(--muted)">در حال اتصال به سرویس ارسال ایمیل...</div>';
+
+  try {
+    const res = await fetch(`${AUTH_API_URL}/auth/forgot-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'خطا در ارسال درخواست');
+
+    let previewHtml = '';
+    if (data.previewCode) {
+      previewHtml = `
+        <div style="background:rgba(217,164,65,0.12);border:1px dashed var(--accent);border-radius:8px;padding:10px;margin-top:10px;font-size:12px;color:var(--text);text-align:right;">
+          <div style="font-weight:700;color:var(--accent);margin-bottom:4px;">🔑 کد شبیه‌سازی‌شده (حالت تستی پیش‌نمایش):</div>
+          <div>کد تایید ۶ رقمی: <b style="font-family:monospace;font-size:16px;color:var(--accent);">${data.previewCode}</b></div>
+          <button type="button" class="btn" style="margin-top:6px;padding:4px 10px;font-size:11px;color:var(--accent);background:var(--surface);" onclick="applyPreviewCode('${data.previewCode}', '${email}')">
+            ⚡ انتقال خودکار کد به گام بعدی
+          </button>
+        </div>
+      `;
+    }
+
+    fb.innerHTML = `
+      <div class="feedback up">
+        ${data.message}
+        ${previewHtml}
+      </div>`;
+
+    setTimeout(() => {
+      switchForgotStep(2);
+      if (data.previewCode) {
+        document.getElementById('forgotCode').value = data.previewCode;
+      }
+    }, data.previewCode ? 3500 : 1500);
+
+  } catch (err) {
+    fb.innerHTML = `<div class="feedback down">${err.message}</div>`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'ارسال مجدد کد تایید';
+  }
+}
+
+function applyPreviewCode(code, email) {
+  switchForgotStep(2);
+  document.getElementById('forgotCode').value = code;
+  if (email && !document.getElementById('forgotEmail').value) {
+    document.getElementById('forgotEmail').value = email;
+  }
+}
+
+async function submitResetPassword() {
+  const code = document.getElementById('forgotCode').value.trim();
+  const email = document.getElementById('forgotEmail').value.trim();
+  const newPassword = document.getElementById('forgotNewPassword').value;
+  const confirmPassword = document.getElementById('forgotConfirmPassword').value;
+  const fb = document.getElementById('forgotStep2Feedback');
+  const btn = document.getElementById('btnSubmitNewPassword');
+
+  if (!code && !activeUrlResetToken) {
+    fb.innerHTML = '<div class="feedback down">لطفاً کد تایید ۶ رقمی را وارد کنید.</div>';
+    return;
+  }
+  if (!newPassword || newPassword.length < 6) {
+    fb.innerHTML = '<div class="feedback down">رمز عبور جدید باید حداقل ۶ کاراکتر باشد.</div>';
+    return;
+  }
+  if (newPassword !== confirmPassword) {
+    fb.innerHTML = '<div class="feedback down">رمز عبور جدید و تکرار آن یکسان نیستند.</div>';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'در حال ذخیره...';
+
+  try {
+    const payload = {
+      newPassword,
+      token: activeUrlResetToken || undefined,
+      email: email || undefined,
+      code: code || undefined
+    };
+
+    const res = await fetch(`${AUTH_API_URL}/auth/reset-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'خطا در بازنشانی رمز عبور');
+
+    fb.innerHTML = `<div class="feedback up">${data.message}</div>`;
+    setTimeout(() => {
+      closeForgotPasswordModal();
+      switchAuthTab('login');
+      document.getElementById('authPassword').value = newPassword;
+      document.getElementById('authEmail').value = email;
+    }, 1800);
+  } catch (err) {
+    fb.innerHTML = `<div class="feedback down">${err.message}</div>`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'ثبت رمز عبور جدید';
+  }
+}
+
+/* ---------------- تغییر رمز عبور در حالت لاگین (Logged-in Change Password) ---------------- */
+function openChangePasswordModal() {
+  document.getElementById('changeCurrentPassword').value = '';
+  document.getElementById('changeNewPassword').value = '';
+  document.getElementById('changeConfirmPassword').value = '';
+  document.getElementById('changePasswordFeedback').innerHTML = '';
+  document.getElementById('changePasswordModal').style.display = 'flex';
+}
+
+function closeChangePasswordModal() {
+  document.getElementById('changePasswordModal').style.display = 'none';
+}
+
+async function submitChangePassword() {
+  const currentPassword = document.getElementById('changeCurrentPassword').value;
+  const newPassword = document.getElementById('changeNewPassword').value;
+  const confirmPassword = document.getElementById('changeConfirmPassword').value;
+  const fb = document.getElementById('changePasswordFeedback');
+
+  if (!currentPassword) {
+    fb.innerHTML = '<div class="feedback down">رمز عبور فعلی را وارد کنید.</div>';
+    return;
+  }
+  if (!newPassword || newPassword.length < 6) {
+    fb.innerHTML = '<div class="feedback down">رمز عبور جدید باید حداقل ۶ کاراکتر باشد.</div>';
+    return;
+  }
+  if (newPassword !== confirmPassword) {
+    fb.innerHTML = '<div class="feedback down">رمز جدید و تکرار آن یکسان نیستند.</div>';
+    return;
+  }
+
+  fb.innerHTML = '<div class="feedback" style="color:var(--muted)">در حال به‌روزرسانی...</div>';
+
+  try {
+    const res = await apiFetch('/auth/change-password', {
+      method: 'POST',
+      body: JSON.stringify({ currentPassword, newPassword })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'خطا در تغییر رمز عبور');
+
+    fb.innerHTML = `<div class="feedback up">${data.message}</div>`;
+    setTimeout(() => {
+      closeChangePasswordModal();
+    }, 1600);
+  } catch (err) {
+    fb.innerHTML = `<div class="feedback down">${err.message}</div>`;
+  }
+}
+
+/* ---------------- ۱.۲. توابع پنل مدیریت سیستم (Admin Panel Logic) ---------------- */
+let currentAdminTab = 'metrics';
+let adminUsersCache = [];
+let adminSearchTimer = null;
+
+function openAdminPanelModal(updateUrl = true) {
+  if (!currentUser) {
+    document.getElementById('authOverlay').style.display = 'flex';
+    document.getElementById('authError').style.display = 'block';
+    document.getElementById('authError').textContent = 'لطفاً ابتدا با حساب کاربری مدیر وارد شوید.';
+    return;
+  }
+  if (currentUser.role !== 'admin') {
+    alert('دسترسی غیرمجاز: حساب کاربری شما سطح مدیر ندارد.');
+    if (window.location.pathname.startsWith('/admin')) {
+      try { history.pushState(null, '', '/'); } catch(e){}
+    }
+    return;
+  }
+  document.getElementById('adminPanelModal').style.display = 'flex';
+  if (updateUrl && !window.location.pathname.startsWith('/admin')) {
+    try { history.pushState({ admin: true }, '', '/admin'); } catch(e){}
+  }
+  switchAdminTab(currentAdminTab);
+}
+
+function closeAdminPanelModal() {
+  document.getElementById('adminPanelModal').style.display = 'none';
+  if (window.location.pathname.startsWith('/admin') || window.location.hash === '#admin') {
+    try { history.pushState(null, '', '/'); } catch(e){}
+  }
+}
+
+function switchAdminTab(tab) {
+  currentAdminTab = tab;
+  document.querySelectorAll('.admin-tab-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.atab === tab);
+  });
+  document.getElementById('adminTabMetrics').style.display = tab === 'metrics' ? 'block' : 'none';
+  document.getElementById('adminTabUsers').style.display = tab === 'users' ? 'block' : 'none';
+  document.getElementById('adminTabEmail').style.display = tab === 'email' ? 'block' : 'none';
+
+  if (tab === 'metrics') loadAdminMetrics();
+  if (tab === 'users') loadAdminUsers();
+  if (tab === 'email') loadEmailConfig();
+}
+
+async function loadAdminMetrics() {
+  try {
+    const res = await apiFetch('/admin/metrics');
+    if (!res.ok) throw new Error('خطا در دریافت آمار');
+    const data = await res.json();
+
+    document.getElementById('admMetricUsers').textContent = faDigits(data.metrics.totalUsers);
+    document.getElementById('admMetricWorkouts').textContent = faDigits(data.metrics.totalWorkouts);
+    document.getElementById('admMetricWeights').textContent = faDigits(data.metrics.totalBodyweights);
+    document.getElementById('admMetricCustoms').textContent = faDigits(data.metrics.totalCustomExercises);
+
+    const uptimeMin = Math.round(data.system.uptimeSeconds / 60);
+    document.getElementById('admSystemUptime').textContent = `Uptime: ${uptimeMin} min`;
+    document.getElementById('admMemoryText').textContent = `مصرف حافظه RAM سرور: ${data.system.memoryUsedMB} MB از ${data.system.memoryTotalMB} MB`;
+
+    const dbBadge = document.getElementById('admDbBadge');
+    const dbDesc = document.getElementById('admDbDesc');
+    if (data.dbStatus.isPostgresConnected) {
+      dbBadge.textContent = 'PostgreSQL متصل';
+      dbBadge.className = 'admin-badge admin';
+      dbDesc.textContent = 'دیتابیس ابری Supabase PostgreSQL فعال است و اطلاعات ماندگار ذخیره می‌شوند.';
+    } else {
+      dbBadge.textContent = 'حافظه موقت (In-Memory)';
+      dbBadge.className = 'admin-badge user';
+      dbDesc.textContent = 'در حال اجرا بر روی موتور سریع حافظه داخلی با پایداری نشست.';
+    }
+
+    const emailBadge = document.getElementById('admEmailBadge');
+    const emailDesc = document.getElementById('admEmailDesc');
+    if (data.emailStatus.isConfigured) {
+      emailBadge.textContent = 'سرویس زنده ' + (data.emailStatus.provider === 'google_gmail' ? 'جیمیل' : 'SMTP');
+      emailBadge.className = 'admin-badge admin';
+      emailDesc.textContent = `ارسال ایمیل‌های بازیابی از طریق ${data.emailStatus.senderEmail} فعال است.`;
+    } else {
+      emailBadge.textContent = 'شبیه‌ساز پیش‌نمایش (Mock)';
+      emailBadge.className = 'admin-badge user';
+      emailDesc.textContent = 'سرویس ایمیل در حالت پیش‌نمایش است؛ کدها در کنسول و فرم بازیابی به صورت خودکار نمایش داده می‌شوند.';
+    }
+  } catch (err) {
+    console.warn('Admin metrics load error:', err);
+  }
+}
+
+async function loadAdminUsers() {
+  const q = document.getElementById('adminUserSearchInput')?.value.trim() || '';
+  const tbody = document.getElementById('adminUsersTableBody');
+  tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:16px;color:var(--muted)">در حال دریافت کاربران...</td></tr>';
+
+  try {
+    const res = await apiFetch(`/admin/users?q=${encodeURIComponent(q)}`);
+    if (!res.ok) throw new Error('خطا در دریافت کاربران');
+    const data = await res.json();
+    adminUsersCache = data.users || [];
+
+    if (adminUsersCache.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:16px;color:var(--muted)">هیچ کاربری یافت نشد.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = adminUsersCache.map(u => {
+      const isAdmin = u.role === 'admin';
+      const isSelf = currentUser && currentUser.id === u.id;
+      const joinDate = new Date(u.createdAt).toLocaleDateString('fa-IR', { year: 'numeric', month: 'short', day: 'numeric' });
+      return `
+        <tr>
+          <td>
+            <div style="font-weight:700;color:var(--text);">${u.displayName || 'بی‌نام'} ${isSelf ? '<span style="font-size:10px;color:var(--accent);">(شما)</span>' : ''}</div>
+            <div style="font-size:11px;color:var(--muted);direction:ltr;text-align:right;font-family:monospace;">${u.email}</div>
+          </td>
+          <td>
+            <span class="admin-badge ${isAdmin ? 'admin' : 'user'}">${isAdmin ? '👑 مدیر' : 'کاربر'}</span>
+          </td>
+          <td>
+            <span style="font-weight:700;color:var(--accent);">${faDigits(u.workoutCount)}</span> ست
+          </td>
+          <td style="font-size:11px;color:var(--muted);white-space:nowrap;">
+            ${joinDate}
+          </td>
+          <td>
+            <div style="display:flex;gap:4px;flex-wrap:wrap;">
+              ${!isSelf ? `
+                <button type="button" class="btn" style="padding:3px 7px;font-size:10.5px;color:var(--accent);" onclick="changeUserRole(${u.id}, '${isAdmin ? 'user' : 'admin'}')">
+                  ${isAdmin ? 'عزل مدیر' : 'ارتقا به مدیر'}
+                </button>
+              ` : ''}
+              <button type="button" class="btn" style="padding:3px 7px;font-size:10.5px;color:var(--text);" onclick="openAdminUserResetModal(${u.id}, '${u.email}')">
+                🔑 تغییر رمز
+              </button>
+              ${!isSelf ? `
+                <button type="button" class="delbtn" style="padding:3px 7px;font-size:10.5px;" onclick="deleteUserByAdminConfirm(${u.id}, '${u.email}')">
+                  حذف
+                </button>
+              ` : ''}
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:16px;color:var(--danger)">${err.message}</td></tr>`;
+  }
+}
+
+function debounceAdminSearch() {
+  if (adminSearchTimer) clearTimeout(adminSearchTimer);
+  adminSearchTimer = setTimeout(() => {
+    loadAdminUsers();
+  }, 350);
+}
+
+async function changeUserRole(userId, newRole) {
+  const confirmMsg = newRole === 'admin' 
+    ? 'آیا از ارتقای این کاربر به سطح مدیر اطمینان دارید؟'
+    : 'آیا از تبدیل این کاربر به کاربر عادی اطمینان دارید؟';
+  if (!confirm(confirmMsg)) return;
+
+  try {
+    const res = await apiFetch(`/admin/users/${userId}/role`, {
+      method: 'PUT',
+      body: JSON.stringify({ role: newRole })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'خطا در تغییر نقش');
+    alert(data.message);
+    loadAdminUsers();
+    loadAdminMetrics();
+  } catch (err) {
+    alert('خطا: ' + err.message);
+  }
+}
+
+async function deleteUserByAdminConfirm(userId, userEmail) {
+  if (!confirm(`آیا از حذف کامل کاربر "${userEmail}" و تمام اطلاعات تمرینی و وزن‌های او اطمینان دارید؟ این عمل غیرقابل بازگشت است.`)) {
+    return;
+  }
+
+  try {
+    const res = await apiFetch(`/admin/users/${userId}`, {
+      method: 'DELETE'
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'خطا در حذف کاربر');
+    alert(data.message);
+    loadAdminUsers();
+    loadAdminMetrics();
+  } catch (err) {
+    alert('خطا: ' + err.message);
+  }
+}
+
+function openAdminUserResetModal(userId, userEmail) {
+  document.getElementById('admResetTargetUserId').value = userId;
+  document.getElementById('admResetTargetLabel').textContent = userEmail;
+  document.getElementById('admResetTargetNewPassword').value = '';
+  document.getElementById('admResetFeedback').innerHTML = '';
+  document.getElementById('adminUserResetModal').style.display = 'flex';
+}
+
+function closeAdminUserResetModal() {
+  document.getElementById('adminUserResetModal').style.display = 'none';
+}
+
+async function submitAdminUserReset() {
+  const userId = document.getElementById('admResetTargetUserId').value;
+  const newPassword = document.getElementById('admResetTargetNewPassword').value;
+  const fb = document.getElementById('admResetFeedback');
+
+  if (!newPassword || newPassword.length < 6) {
+    fb.innerHTML = '<div class="feedback down">رمز عبور جدید باید حداقل ۶ کاراکتر باشد.</div>';
+    return;
+  }
+
+  fb.innerHTML = '<div class="feedback" style="color:var(--muted)">در حال تنظیم رمز...</div>';
+
+  try {
+    const res = await apiFetch(`/admin/users/${userId}/reset-password`, {
+      method: 'PUT',
+      body: JSON.stringify({ newPassword })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'خطا در تغییر رمز');
+
+    fb.innerHTML = `<div class="feedback up">${data.message}</div>`;
+    setTimeout(() => {
+      closeAdminUserResetModal();
+    }, 1500);
+  } catch (err) {
+    fb.innerHTML = `<div class="feedback down">${err.message}</div>`;
+  }
+}
+
+async function loadEmailConfig() {
+  try {
+    const res = await apiFetch('/admin/email-config');
+    if (res.ok) {
+      const data = await res.json();
+      if (!document.getElementById('admTestEmailTarget').value && currentUser) {
+        document.getElementById('admTestEmailTarget').value = currentUser.email;
+      }
+    }
+  } catch (e) {}
+}
+
+async function submitTestEmail() {
+  const targetEmail = document.getElementById('admTestEmailTarget').value.trim();
+  const resultBox = document.getElementById('admTestEmailResult');
+
+  if (!targetEmail) {
+    resultBox.innerHTML = '<div class="feedback down">لطفاً ایمیل مقصد را وارد کنید.</div>';
+    return;
+  }
+
+  resultBox.innerHTML = '<div class="feedback" style="color:var(--muted)">در حال ارسال ایمیل تستی...</div>';
+
+  try {
+    const res = await apiFetch('/admin/test-email', {
+      method: 'POST',
+      body: JSON.stringify({ targetEmail })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'خطا در ارسال ایمیل');
+
+    resultBox.innerHTML = `<div class="feedback up">${data.message}</div>`;
+  } catch (err) {
+    resultBox.innerHTML = `<div class="feedback down">${err.message}</div>`;
   }
 }
 
@@ -1095,15 +2053,21 @@ const PROGRAM = [
     {name:"Dumbbell Flat Bench Fly", nameFa:"فلای سینه با دمبل (تخت)", dbs:"دو دمبل", weight:"۷.۵ کیلوگرم (هر دست)", sets:3, reps:"۱۰ تا ۱۵", rest:"۹۰ ثانیه", rir:2,
      tech:"روی نیمکت دراز بکش، آرنج‌ها کمی خم، دمبل‌ها رو مثل بغل کردن یه درخت باز و بسته کن.",
      mistake:"صاف نگه داشتن کامل آرنج‌ها که فشار زیادی روی مفصل آرنج و شونه می‌ذاره."},
-    {name:"Dumbbell Front Raise", nameFa:"نشر جلو با دمبل", dbs:"دو دمبل", weight:"۵ کیلوگرم (هر دست)", sets:2, reps:"۱۲ تا ۱۵", rest:"۶۰ ثانیه", rir:1,
-     tech:"دمبل‌ها رو تا ارتفاع شونه جلو بیار، بدون تاب دادن کمر.",
-     mistake:"استفاده از تاب کمر و شونه برای بالا بردن وزنه."},
     {name:"Dumbbell Skull Crusher", nameFa:"اسکال کراشر با دمبل (پرس سه‌سر خوابیده)", dbs:"دو دمبل", weight:"۷.۵ کیلوگرم (هر دست)", sets:3, reps:"۱۰ تا ۱۲", rest:"۹۰ ثانیه", rir:2,
      tech:"روی نیمکت دراز بکش، فقط از آرنج خم و باز کن، دمبل‌ها رو نزدیک پیشانی پایین بیار.",
      mistake:"حرکت دادن شونه‌ها در طول ست — فقط آرنج باید حرکت کنه."},
     {name:"Dumbbell Concentration Curl", nameFa:"جلو بازو تمرکزی با دمبل", dbs:"یک دمبل", weight:"۷.۵ کیلوگرم", sets:2, reps:"۱۰ تا ۱۵ هر دست", rest:"۶۰ ثانیه", rir:1,
      tech:"بشین، آرنج رو به داخل ران تکیه بده، تمام تمرکز رو روی انقباض بالای حرکت بذار.",
-     mistake:"سریع پایین انداختن وزنه به‌جای کنترل فاز پایین‌رونده."}
+     mistake:"سریع پایین انداختن وزنه به‌جای کنترل فاز پایین‌رونده."},
+    {name:"Standard Push-Up", nameFa:"شنا سوئدی استاندارد (فینیشر سینه و سه‌سر)", dbs:"وزن بدن", weight:"وزن بدن", sets:3, reps:"۱۲ تا ۱۵", rest:"۶۰ ثانیه", rir:1,
+     tech:"دست‌ها کمی بازتر از عرض شانه، سینه تا نزدیکی زمین پایین برود و بدن در یک خط مستقیم بماند؛ فینیشر عالی برای پمپ پایانی عضلات سینه و سه‌سر.",
+     mistake:"افتادن لگن به سمت پایین یا قوس دادن کمر."},
+    {name:"Forearm Plank Hold", nameFa:"پلانک روی ساعد (ثبات عضلات مرکزی)", dbs:"وزن بدن", weight:"وزن بدن", sets:3, reps:"۴۵ ثانیه", rest:"۴۵ ثانیه", rir:1,
+     tech:"روی ساعدها قرار بگیر، باسن و شکم را سفت منقبض کن و ستون فقرات را صاف نگه دار.",
+     mistake:"بالا دادن بیش از حد باسن یا شل کردن شکم."},
+    {name:"Six-Pack Toe Touch Crunch", nameFa:"کرانچ لمس مچ پا (تفکیک سیکس‌پک)", dbs:"وزن بدن", weight:"وزن بدن", sets:3, reps:"۱۵ تا ۲۰", rest:"۴۵ ثانیه", rir:1,
+     tech:"پاها را عمود رو به بالا ببر و با جمع کردن عضلات بالای شکم، دست‌ها را به سمت نوک پاها بکش.",
+     mistake:"کشیدن گردن با دست به جای انقباض شکم."}
   ]},
   { day:"روز ۲ — پایین‌تنه (تمرکز چهارسر ران)", tag:"پایین‌تنه A", exercises:[
     {name:"Dumbbell Goblet Squat", nameFa:"اسکوات گابلت با دمبل", dbs:"یک دمبل", weight:"۱۵ کیلوگرم", sets:4, reps:"۸ تا ۱۲", rest:"۲ دقیقه", rir:2,
@@ -1121,21 +2085,24 @@ const PROGRAM = [
     {name:"Dumbbell Glute Bridge", nameFa:"پل باسن با دمبل", dbs:"یک دمبل", weight:"۱۵ کیلوگرم", sets:3, reps:"۱۰ تا ۱۵", rest:"۶۰ ثانیه", rir:1,
      tech:"دمبل رو روی لگن بذار. با پاشنه فشار بده و بالای حرکت باسن رو محکم منقبض کن.",
      mistake:"قوس دادن کمر به‌جای منقبض کردن باسن برای تکمیل حرکت."},
-    {name:"Dumbbell Russian Twist", nameFa:"چرخش روسی با دمبل", dbs:"یک دمبل", weight:"۵ تا ۱۰ کیلوگرم", sets:3, reps:"۱۲ تا ۱۶ هر طرف", rest:"۴۵ ثانیه", rir:1,
-     tech:"به عقب حدود ۴۵ درجه تکیه بده، از تنه بچرخ، دمبل رو هر طرف روی زمین بزن.",
-     mistake:"چرخش سریع و کم‌دامنه به‌جای چرخش کامل و کنترل‌شده."},
     {name:"Dumbbell Bulgarian Split Squat", nameFa:"اسکوات بلغاری با دمبل", dbs:"دو دمبل", weight:"۷.۵ تا ۱۰ کیلوگرم (هر دست)", sets:3, reps:"۸ تا ۱۰ هر پا", rest:"۲ دقیقه", rir:2,
      tech:"روی پشت پا نیمکت رو بذار، پای جلو تنها نیرو رو تحمل کنه، پایین برو تا زانوی عقب نزدیک زمین بشه.",
      mistake:"وزن زیادی روی پای عقب انداختن به‌جای کار اصلی روی پای جلو."},
     {name:"Dumbbell Reverse Lunge", nameFa:"لانج معکوس با دمبل", dbs:"دو دمبل", weight:"۱۰ کیلوگرم (هر دست)", sets:3, reps:"۱۰ تا ۱۲ هر پا", rest:"۹۰ ثانیه", rir:2,
      tech:"یه قدم به عقب بردار، زانوی عقب رو نزدیک زمین ببر، از پاشنه‌ی پای جلو برگرد بالا.",
      mistake:"افتادن تنه به جلو به‌جای عمودی نگه داشتنش."},
-    {name:"Dumbbell Seated Calf Raise", nameFa:"ساق پا نشسته با دمبل", dbs:"یک دمبل", weight:"۱۰ کیلوگرم", sets:3, reps:"۱۵ تا ۲۰", rest:"۶۰ ثانیه", rir:1,
-     tech:"روی لبه‌ی نیمکت بشین، دمبل رو عمودی روی زانو نگه دار، پاشنه رو کامل بالا و پایین ببر.",
-     mistake:"دامنه‌ی حرکتی کوچیک که کشش کامل ساق پا رو از بین می‌بره."},
-    {name:"Dumbbell Weighted Sit Up", nameFa:"دراز و نشست وزنه‌دار با دمبل", dbs:"یک دمبل", weight:"۵ تا ۷.۵ کیلوگرم", sets:3, reps:"۱۲ تا ۱۵", rest:"۴۵ ثانیه", rir:1,
-     tech:"دمبل رو روی سینه نگه دار، از شکم بلند شو نه با کشیدن گردن.",
-     mistake:"قلاب کردن پاها زیر مبل و کشیدن با گردن به‌جای شکم."}
+    {name:"Decline Push-Up", nameFa:"شنا سوئدی با پای بالا (فینیشر)", dbs:"وزن بدن", weight:"وزن بدن", sets:3, reps:"۱۰ تا ۱۲", rest:"۶۰ ثانیه", rir:1,
+     tech:"پاها را روی مبل یا نیمکت قرار بده و شنا بزن تا فشار بیشتری روی بالاسینه و سرشانه متمرکز شود.",
+     mistake:"قوس دادن کمر در پایین حرکت."},
+    {name:"High Plank Knee to Elbow", nameFa:"پلانک شنا زانو به آرنج (میان‌تنه)", dbs:"وزن بدن", weight:"وزن بدن", sets:3, reps:"۱۲ هر طرف", rest:"۴۵ ثانیه", rir:1,
+     tech:"در وضعیت شنا، زانو را از بیرون به آرنج هم‌سمت نزدیک کن و عضلات شکم را محکم منقبض کن.",
+     mistake:"چرخش بیش از حد بالاتنه."},
+    {name:"Six-Pack Flutter Kicks", nameFa:"قیچی پا برای زیر شکم (سیکس‌پک)", dbs:"وزن بدن", weight:"وزن بدن", sets:3, reps:"۲۰ هر طرف", rest:"۴۵ ثانیه", rir:1,
+     tech:"روی مت بخواب، دست‌ها زیر باسن، پاها کمی بالاتر از زمین و متناوب به بالا و پایین حرکت کنند.",
+     mistake:"جدا شدن گودی کمر از زمین."},
+    {name:"Six-Pack Russian Twist", nameFa:"چرخش روسی سیکس‌پک با دمبل", dbs:"یک دمبل", weight:"۵ تا ۱۰ کیلوگرم", sets:3, reps:"۱۲ تا ۱۶ هر طرف", rest:"۴۵ ثانیه", rir:1,
+     tech:"به عقب حدود ۴۵ درجه تکیه بده، از تنه بچرخ، دمبل رو هر طرف روی زمین بزن.",
+     mistake:"چرخش سریع و کم‌دامنه به‌جای چرخش کامل و کنترل‌شده."}
   ]},
   { day:"روز ۳ — بالاتنه (تمرکز کششی)", tag:"بالاتنه B", exercises:[
     {name:"Dumbbell Bent Over Row", nameFa:"رو خم با دمبل", dbs:"دو دمبل", weight:"۱۲.۵ تا ۱۵ کیلوگرم (هر دست)", sets:4, reps:"۸ تا ۱۲", rest:"۹۰ ثانیه", rir:2,
@@ -1153,21 +2120,21 @@ const PROGRAM = [
     {name:"Dumbbell Close Grip Bench Press", nameFa:"پرس سینه دست‌جمع با دمبل", dbs:"دو دمبل", weight:"۱۰ کیلوگرم (هر دست)", sets:3, reps:"۸ تا ۱۲", rest:"۹۰ ثانیه", rir:2,
      tech:"دمبل‌ها رو نزدیک هم نگه دار و آرنج‌ها رو نزدیک دنده‌ها جمع کن تا فشار روی سه‌سر باشه.",
      mistake:"باز شدن آرنج‌ها که حرکت رو دوباره به پرس سینه تبدیل می‌کنه."},
-    {name:"Dumbbell Side Plank", nameFa:"پلانک پهلو", dbs:"وزن بدن", weight:"وزن بدن", sets:3, reps:"۲۰ تا ۳۰ ثانیه هر طرف", rest:"۴۵ ثانیه", rir:1,
-     tech:"باسن و شونه‌ها رو در یک خط صاف نگه دار، عضلات پهلو رو محکم منقبض کن.",
-     mistake:"افتادن باسن به سمت زمین."},
     {name:"Dumbbell Chest Supported Row", nameFa:"رو با تکیه‌ی سینه روی نیمکت", dbs:"دو دمبل", weight:"۱۰ تا ۱۲.۵ کیلوگرم (هر دست)", sets:3, reps:"۱۰ تا ۱۲", rest:"۹۰ ثانیه", rir:2,
      tech:"روی نیمکت با شیب کم رو به پایین دراز بکش، آرنج‌ها رو به عقب بکش.",
      mistake:"بلند کردن سر برای دیدن آینه که فشار رو از کتف‌ها برمی‌داره."},
     {name:"Dumbbell Pullover", nameFa:"پول‌اوور با دمبل", dbs:"یک دمبل", weight:"۱۰ کیلوگرم", sets:3, reps:"۱۰ تا ۱۵", rest:"۹۰ ثانیه", rir:2,
      tech:"روی نیمکت دراز بکش، دمبل رو با هر دو دست بالای سینه بگیر، با آرنج کمی خم به پشت سر پایین ببر.",
      mistake:"خم کردن بیش‌ازحد آرنج که حرکت رو به پرس سه‌سر تبدیل می‌کنه."},
-    {name:"Dumbbell Preacher Curl", nameFa:"جلو بازو روی نیمکت (پریچر) با دمبل", dbs:"یک دمبل", weight:"۷.۵ کیلوگرم", sets:2, reps:"۱۰ تا ۱۵ هر دست", rest:"۶۰ ثانیه", rir:1,
-     tech:"پشت بازو رو روی پشتی نیمکت یا زانو تکیه بده تا امکان تقلب با شونه از بین بره.",
-     mistake:"بلند کردن شونه در بالای حرکت برای کمک به بالا بردن وزنه."},
-    {name:"Dumbbell Tricep Kickback", nameFa:"پشت بازو دمبل (کیک‌بک)", dbs:"دو دمبل", weight:"۵ کیلوگرم (هر دست)", sets:2, reps:"۱۲ تا ۱۵", rest:"۶۰ ثانیه", rir:1,
-     tech:"از باسن خم شو، آرنج رو ثابت و بالا نگه دار، فقط ساعد رو به عقب صاف کن.",
-     mistake:"پایین انداختن آرنج در طول حرکت که کار رو از سه‌سر می‌گیره."}
+    {name:"Wide Grip Push-Up", nameFa:"شنا سوئدی دست باز (فینیشر سینه)", dbs:"وزن بدن", weight:"وزن بدن", sets:3, reps:"۱۲ تا ۱۵", rest:"۶۰ ثانیه", rir:1,
+     tech:"دست‌ها بازتر از عرض شانه، سینه تا ۲ سانتی‌متری زمین، انقباض عمیق پهنای عضلات سینه.",
+     mistake:"قفل کردن خشن آرنج در بالای حرکت."},
+    {name:"Side Plank with Hip Lift", nameFa:"پلانک پهلو با لیفت لگن", dbs:"وزن بدن", weight:"وزن بدن", sets:3, reps:"۱۲ هر طرف", rest:"۴۵ ثانیه", rir:1,
+     tech:"روی ساعد جانبی قرار بگیر و لگن را کنترل‌شده بالا و پایین ببر تا عضلات مورب شکم آتش بگیرند.",
+     mistake:"افتادن شانه و بالاتنه به جلو."},
+    {name:"Six-Pack Bicycle Crunch", nameFa:"کرانچ دوچرخه تخصصی سیکس‌پک", dbs:"وزن بدن", weight:"وزن بدن", sets:3, reps:"۱۵ تا ۲۰ هر طرف", rest:"۴۵ ثانیه", rir:1,
+     tech:"آرنج دست راست را به سمت زانوی چپ ببر و پای دیگر را کامل بکش، چرخش را از شکم هدایت کن.",
+     mistake:"کشیدن گردن با دست‌ها به جای انقباض شکم."}
   ]},
   { day:"روز ۴ — پایین‌تنه (تمرکز همسترینگ و باسن)", tag:"پایین‌تنه B", exercises:[
     {name:"Dumbbell Sumo Squat", nameFa:"اسکوات سومو با دمبل", dbs:"یک دمبل", weight:"۱۵ کیلوگرم", sets:4, reps:"۱۰ تا ۱۲", rest:"۲ دقیقه", rir:2,
@@ -1185,25 +2152,66 @@ const PROGRAM = [
     {name:"Dumbbell Hip Thrust", nameFa:"هیپ تراست با دمبل", dbs:"یک دمبل", weight:"۱۵ کیلوگرم", sets:3, reps:"۱۰ تا ۱۵", rest:"۹۰ ثانیه", rir:1,
      tech:"پشت بالاتنه رو به نیمکت تکیه بده، دمبل روی لگن، با پاشنه فشار بده.",
      mistake:"بیش‌ازحد قوس دادن کمر به‌جای توقف در نقطه‌ی کامل باز شدن لگن."},
-    {name:"Dumbbell Weighted Dead Bug", nameFa:"دد باگ وزنه‌دار", dbs:"یک دمبل", weight:"۵ کیلوگرم", sets:3, reps:"۱۰ هر طرف", rest:"۴۵ ثانیه", rir:1,
-     tech:"دمبل رو مستقیم بالای سینه نگه دار، کمر رو در کل حرکت به زمین فشار بده.",
-     mistake:"قوس گرفتن کمر از زمین موقع باز کردن پا."},
     {name:"Dumbbell Curtsy Lunge", nameFa:"لانج کرتسی با دمبل", dbs:"دو دمبل", weight:"۷.۵ تا ۱۰ کیلوگرم (هر دست)", sets:3, reps:"۱۰ تا ۱۲ هر پا", rest:"۹۰ ثانیه", rir:2,
      tech:"پای عقب رو به‌صورت مورب پشت پای دیگه ببر تا کشش خوبی در باسن حس کنی.",
      mistake:"چرخوندن زانوی جلو به‌جای حرکت کنترل‌شده‌ی مورب."},
     {name:"Dumbbell Frog Pump", nameFa:"فراگ پامپ با دمبل", dbs:"یک دمبل", weight:"۱۰ کیلوگرم", sets:3, reps:"۱۵ تا ۲۰", rest:"۶۰ ثانیه", rir:1,
      tech:"دراز بکش، کف پاها رو به هم بچسبون و زانوها رو باز کن، دمبل روی لگن، باسن رو بالا و پایین ببر.",
      mistake:"استفاده از دامنه‌ی حرکتی خیلی کوچیک به‌جای انقباض کامل بالای حرکت."},
-    {name:"Dumbbell Donkey Calf Raise", nameFa:"ساق پا خم (دانکی) با دمبل", dbs:"یک دمبل", weight:"۱۰ کیلوگرم", sets:3, reps:"۱۵ تا ۲۰", rest:"۶۰ ثانیه", rir:1,
-     tech:"از باسن خم شو و به نیمکت تکیه بده، دمبل رو پشت زانو نگه دار، پاشنه رو کامل بالا و پایین ببر.",
-     mistake:"صاف نگه داشتن بیش‌ازحد کمر."},
-    {name:"Dumbbell Weighted Bicycle Crunch", nameFa:"کرانچ دوچرخه وزنه‌دار", dbs:"یک دمبل", weight:"۵ کیلوگرم", sets:3, reps:"۱۲ تا ۱۵ هر طرف", rest:"۴۵ ثانیه", rir:1,
-     tech:"دمبل رو با هر دو دست بگیر، آرنج رو به سمت زانوی مخالف بچرخون و کنترل‌شده برگرد.",
-     mistake:"کشیدن گردن با دست‌ها به‌جای چرخش واقعی از شکم."}
+    {name:"Push-Up to Pike", nameFa:"شنا سوئدی به پایک (تمرکز شانه و میان‌تنه)", dbs:"وزن بدن", weight:"وزن بدن", sets:3, reps:"۱۰ تا ۱۲", rest:"۶۰ ثانیه", rir:1,
+     tech:"بعد از اجرای هر شنا سوئدی، باسن را بالا بده و فرم مثلثی پایک بگیر تا شانه و شکم کشیده شوند.",
+     mistake:"خم کردن بیش از حد زانوها."},
+    {name:"Extended Plank Hold", nameFa:"پلانک کشیده بلند (استقامت عمیق شکم)", dbs:"وزن بدن", weight:"وزن بدن", sets:3, reps:"۴۰ ثانیه", rest:"۴۵ ثانیه", rir:1,
+     tech:"دست‌ها کمی جلوتر از شانه روی زمین قرار گیرند تا کشش شدید روی هسته بدن ایجاد شود.",
+     mistake:"پایین افتادن شکم."},
+    {name:"Six-Pack Lying Leg Raise", nameFa:"بالا آوردن پا خوابیده (زیر شکم سیکس‌پک)", dbs:"وزن بدن", weight:"وزن بدن", sets:3, reps:"۱۲ تا ۱۵", rest:"۴۵ ثانیه", rir:1,
+     tech:"کمر کاملاً چسبیده به زمین، پاها کنترل‌شده بالا بیایند و با انقباض شکم متوقف شوند.",
+     mistake:"تاب دادن پاها با شتاب لگن."},
+    {name:"Six-Pack Weighted Dead Bug", nameFa:"دد باگ وزنه‌دار سیکس‌پک", dbs:"یک دمبل", weight:"۵ کیلوگرم", sets:3, reps:"۱۰ هر طرف", rest:"۴۵ ثانیه", rir:1,
+     tech:"دمبل رو مستقیم بالای سینه نگه دار، کمر رو در کل حرکت به زمین فشار بده.",
+     mistake:"قوس گرفتن کمر از زمین موقع باز کردن پا."}
+  ]},
+  { day:"روز ۵ — عضلات مرکزی (سیکس‌پک)، شنا و استقامت بالاتنه", tag:"سیکس‌پک و استقامت", exercises:[
+    {name:"Dumbbell Thruster", nameFa:"ترستر ترکیبی با دمبل (فول‌بادی انفجاری)", dbs:"دو دمبل", weight:"۷.۵ تا ۱۰ کیلوگرم (هر دست)", sets:3, reps:"۱۰ تا ۱۲", rest:"۹۰ ثانیه", rir:2,
+     tech:"دمبل‌ها را جلوی شانه نگه دار، اسکوات کامل بزن و هنگام برخاستن با شتاب دمبل‌ها را به بالای سر پرس کن.",
+     mistake:"جدا کردن اسکوات از پرس به‌جای انتقال پیوسته نیروی پاها به دست‌ها."},
+    {name:"Dumbbell Renegade Row", nameFa:"رنگید رو با دمبل (رو در پلانک شنا)", dbs:"دو دمبل", weight:"۱۰ کیلوگرم (هر دست)", sets:3, reps:"۸ تا ۱۰ هر دست", rest:"۹۰ ثانیه", rir:2,
+     tech:"در وضعیت شنا با دمبل‌ها قرار بگیر، باسن را کاملاً ثابت نگه دار و به نوبت یک دمبل را به سمت پهلو بکش.",
+     mistake:"چرخش بیش‌ازحد لگن و تکان دادن باسن به طرفین."},
+    {name:"Dumbbell Floor Press", nameFa:"پرس سینه روی زمین با دمبل", dbs:"دو دمبل", weight:"۱۲.۵ تا ۱۵ کیلوگرم (هر دست)", sets:3, reps:"۱۰ تا ۱۲", rest:"۹۰ ثانیه", rir:2,
+     tech:"به پشت روی زمین بخواب، بازوها در زاویه ۴۵ درجه، به محض تماس آرام پشت بازو با زمین وزنه را بالا ببر.",
+     mistake:"کوبیدن محکم آرنج‌ها به کف زمین."},
+    {name:"Dumbbell Standing Woodchopper", nameFa:"وودچاپ ایستاده با دمبل (تفکیک مورب شکم)", dbs:"یک دمبل", weight:"۵ تا ۷.۵ کیلوگرم", sets:3, reps:"۱۲ هر طرف", rest:"۴۵ ثانیه", rir:1,
+     tech:"دمبل را با دو دست بگیر و از کنار زانو با چرخش تنه به بالای سر مخالف هدایت کن.",
+     mistake:"استفاده صرف از دست‌ها بدون چرخش تنه و مهار هسته بدن."},
+    {name:"Standard Push-Up", nameFa:"شنا سوئدی استاندارد", dbs:"وزن بدن", weight:"وزن بدن", sets:3, reps:"۱۵ تا ۲۰", rest:"۶۰ ثانیه", rir:1,
+     tech:"دست‌ها کمی بازتر از عرض شانه، سینه تا ۲ سانتی‌متری زمین پایین برود، تمام بدن در یک خط صاف مانند چوب کشیده باشد.",
+     mistake:"قوس دادن به کمر یا پایین افتادن شکم و لگن."},
+    {name:"Diamond Close-Grip Push-Up", nameFa:"شنا الماسی (دست‌جمع فینیشر سه‌سر و سینه)", dbs:"وزن بدن", weight:"وزن بدن", sets:3, reps:"۱۰ تا ۱۵", rest:"۶۰ ثانیه", rir:1,
+     tech:"شست و سبابه دو دست را به شکل لوزی کنار هم بگذار، سینه را به سمت مرکز دست‌ها پایین ببر.",
+     mistake:"دور شدن آرنج‌ها از بدن که فشار را از پشت‌بازو برمی‌دارد."},
+    {name:"Forearm Plank Hold", nameFa:"پلانک استاندارد روی ساعد", dbs:"وزن بدن", weight:"وزن بدن", sets:3, reps:"۴۵ تا ۶۰ ثانیه", rest:"۴۵ ثانیه", rir:1,
+     tech:"روی ساعدها قرار بگیر، شکم و باسن را محکم منقبض کن و نفس‌های عمیق بکش.",
+     mistake:"بالا دادن باسن یا شل کردن عضلات شکم."},
+    {name:"Plank to Push-Up", nameFa:"پلانک متحرک به شنا (آپ اند داون)", dbs:"وزن بدن", weight:"وزن بدن", sets:3, reps:"۱۰ تا ۱۲ تکرار", rest:"۶۰ ثانیه", rir:1,
+     tech:"از حالت پلانک روی ساعد، تک‌تک دست‌ها را صاف کن و به حالت شنا برو و دوباره روی ساعد برگرد.",
+     mistake:"تاب دادن شدید بالاتنه به طرفین."},
+    {name:"Six-Pack Mountain Climbers", nameFa:"کوهنورد سرعتی سیکس‌پک و چربی‌سوزی", dbs:"وزن بدن", weight:"وزن بدن", sets:3, reps:"۲۰ تا ۳۰ ثانیه", rest:"۴۵ ثانیه", rir:1,
+     tech:"در وضعیت شنا قرار بگیر، زانوها را به نوبت با سرعت و کنترل به سمت سینه پرتاب کن.",
+     mistake:"بالا پریدن باسن از خط مستقیم بدن."},
+    {name:"Six-Pack Lying Leg Raise", nameFa:"بالا آوردن مستقیم پاها (زیر شکم سیکس‌پک)", dbs:"وزن بدن", weight:"وزن بدن", sets:3, reps:"۱۲ تا ۱۵", rest:"۴۵ ثانیه", rir:1,
+     tech:"روی مت بخواب، کمر را محکم به زمین بچسبان، پاها را صاف تا زاویه ۹۰ درجه بالا بیاور و آرام پایین ببر.",
+     mistake:"جدا شدن و قوس برداشتن گودی کمر از زمین هنگام پایین آوردن پاها."},
+    {name:"Six-Pack Bicycle Crunch", nameFa:"کرانچ دوچرخه تخصصی سیکس‌پک", dbs:"وزن بدن", weight:"وزن بدن", sets:3, reps:"۱۵ تا ۲۰ هر طرف", rest:"۴۵ ثانیه", rir:1,
+     tech:"آرنج دست راست را به سمت زانوی چپ ببر و پای دیگر را کامل بکش، چرخش را از شکم هدایت کن نه گردن.",
+     mistake:"کشیدن سر و گردن با دست‌ها به جای پیچش عضلات شکم."},
+    {name:"Six-Pack Hollow Body Hold", nameFa:"نگه‌داشتن هالو بادی (سفت‌کننده عمقی شکم)", dbs:"وزن بدن", weight:"وزن بدن", sets:3, reps:"۳۰ تا ۴۵ ثانیه", rest:"۴۵ ثانیه", rir:1,
+     tech:"روی کمر بخواب، دست‌ها بالای سر و پاها کمی از زمین بلند شده، کل شکم را مانند کاسه منقبض نگه دار.",
+     mistake:"بلند شدن گودی کمر از روی زمین."}
   ]}
 ];
 
-const RESTDAY_NOTE = "روزهای ۵ تا ۷: استراحت یا پیاده‌روی سبک. ریکاوری همون جاییه که عضله‌ای که تمرین دادی واقعاً رشد می‌کنه — برای اضافه کردن تمرین بیشتر ازش نگذر.";
+const RESTDAY_NOTE = "روزهای ۶ و ۷: استراحت کامل یا ریکاوری فعال (پیاده‌روی سبک و کشش). ریکاوری همان جایی است که عضلات شما در پاسخ به ۵ روز تمرین سخت ترمیم شده و رشد می‌کنند — هرگز از خواب کافی و تغذیه پروتئینی غافل نشوید.";
 
 /* ---------------- ۴. داده‌های کامل برنامه باشگاه ---------------- */
 const GYM_PROGRAM = [
@@ -1479,11 +2487,6 @@ const GYM_PROGRAM = [
 ];
 
 /* ---------------- ۵. وضعیت و توابع عمومی برنامه ---------------- */
-let currentMode = 'dumbbell';
-let workoutLogs = [];
-let bodyWeightLogs = [];
-let customExercises = [];
-let START_WEIGHT = null, TARGET_WEIGHT = null;
 
 function ytLink(name){ return "https://www.youtube.com/results?search_query=" + encodeURIComponent(name); }
 function todayISO(){
@@ -1623,7 +2626,7 @@ function buildHistExerciseSelect(){
 }
 
 /* ---------------- ۶. سیستم نوین مدیریت روزها و کارت گام‌به‌گام تمرین ---------------- */
-let currentSelectedDayIndex = 0; // 0..3: روزهای تمرین، 4: استراحت
+let currentSelectedDayIndex = 0; // 0..4: روزهای تمرین، 5: استراحت
 let currentProgramView = 'card'; // 'card': کارت تک‌حرکته گام‌به‌گام، 'list': فهرست کامل روز
 let currentCardStepIndex = 0;    // شماره حرکت فعال در کارت تمرین
 let autoSaveTimer = null;
@@ -1642,7 +2645,7 @@ function setProgramView(view) {
 }
 
 function getDayExercises(mode, dIdx) {
-  if (dIdx >= 4) return [];
+  if (dIdx >= 5) return [];
   const list = [];
   const dayNumber = dIdx + 1;
   const dayCustoms = customExercises.filter(c => c.programMode === mode && Number(c.dayNumber) === dayNumber);
@@ -1904,20 +2907,22 @@ function renderProgram() {
   const el = document.getElementById('tab-program');
   if (!el) return;
 
-  const modeName = currentMode === 'gym' ? 'برنامه باشگاه (تمرکز هایپرتروفی)' : 'برنامه دمبل خانگی (۴ روزه)';
+  const modeName = currentMode === 'gym' ? 'برنامه باشگاه (تمرکز هایپرتروفی - ۵ روزه)' : 'برنامه دمبل خانگی (۵ روزه)';
 
   // نوار انتخاب روزها (Minimized Day Selector Bar)
   const daysMeta = currentMode === 'dumbbell' ? [
-    { title: 'روز ۱ (بالاتنه فشاری)', sub: 'سینه، شانه، پشت‌بازو', dayObj: PROGRAM[0] },
-    { title: 'روز ۲ (پایین‌تنه A)', sub: 'چهارسر، همسترینگ، شکم', dayObj: PROGRAM[1] },
-    { title: 'روز ۳ (بالاتنه کششی)', sub: 'زیربغل، جلوبازو، شانه خلفی', dayObj: PROGRAM[2] },
-    { title: 'روز ۴ (فول‌بادی)', sub: 'کل بدن و تقویت میان‌تنه', dayObj: PROGRAM[3] },
+    { title: 'روز ۱ (بالاتنه فشاری)', sub: 'سینه، شانه، شنا و سیکس‌پک', dayObj: PROGRAM[0] },
+    { title: 'روز ۲ (پایین‌تنه A)', sub: 'چهارسر، باسن، پلانک و شکم', dayObj: PROGRAM[1] },
+    { title: 'روز ۳ (بالاتنه کششی)', sub: 'زیربغل، جلوبازو، شنا و سیکس‌پک', dayObj: PROGRAM[2] },
+    { title: 'روز ۴ (پایین‌تنه B)', sub: 'همسترینگ، باسن، پلانک و شکم', dayObj: PROGRAM[3] },
+    { title: 'روز ۵ (سیکس‌پک و استقامت)', sub: 'شنا، انواع پلانک و سیکس‌پک', dayObj: PROGRAM[4] },
     { title: 'استراحت و ریکاوری 💤', sub: 'بازیابی عضلات و تغذیه', isRest: true }
   ] : [
     { title: 'روز ۱ (سینه + جلو بازو)', sub: 'فشاری سینه و ایزوله بازو', dayObj: GYM_PROGRAM[0] },
     { title: 'روز ۲ (پشت + پشت بازو)', sub: 'لت، قایقی، زیربغل، سه‌سر', dayObj: GYM_PROGRAM[1] },
     { title: 'روز ۳ (پا + سرشانه)', sub: 'اسکوات، پرس پا، نشرها', dayObj: GYM_PROGRAM[2] },
     { title: 'روز ۴ (سینه + پشت)', sub: 'هایپرتروفی بالاتنه', dayObj: GYM_PROGRAM[3] },
+    { title: 'روز ۵ (پا + سرشانه B)', sub: 'ددلیفت رومانیایی و نشرها', dayObj: GYM_PROGRAM[4] },
     { title: 'استراحت و ریکاوری 💤', sub: 'بازیابی عضلات و تغذیه', isRest: true }
   ];
 
@@ -1926,7 +2931,7 @@ function renderProgram() {
       <div>
         <span style="font-size:13px;color:var(--muted);font-weight:600;">${modeName}</span>
       </div>
-      <button type="button" class="btn" style="width:auto;padding:6px 14px;font-size:12px;border:1px solid var(--accent);color:var(--accent);background:rgba(217,164,65,0.08);border-radius:6px;cursor:pointer;font-weight:600;" onclick="openAddExercisePage(${currentSelectedDayIndex < 4 ? currentSelectedDayIndex + 1 : 1}, '${daysMeta[currentSelectedDayIndex].title}')">
+      <button type="button" class="btn" style="width:auto;padding:6px 14px;font-size:12px;border:1px solid var(--accent);color:var(--accent);background:rgba(217,164,65,0.08);border-radius:6px;cursor:pointer;font-weight:600;" onclick="openAddExercisePage(${currentSelectedDayIndex < 5 ? currentSelectedDayIndex + 1 : 1}, '${daysMeta[currentSelectedDayIndex].title}')">
         ➕ افزودن و مدیریت حرکات
       </button>
     </div>
@@ -1946,7 +2951,7 @@ function renderProgram() {
   `;
 
   // اگر روز استراحت انتخاب شده باشد
-  if (currentSelectedDayIndex === 4) {
+  if (currentSelectedDayIndex === 5) {
     html += `
       <section class="card" style="border-inline-start:4px solid var(--accent);">
         <div class="daytitle">
@@ -2975,12 +3980,12 @@ function drawLineChart(svgId, values, labels, refLineHigh=null, refLineLow=null)
   let refLines = '';
   if(refLineHigh!==null){
     const y = H - pad - ((refLineHigh-min)/range)*(H-2*pad);
-    refLines += `<line x1="${pad}" y1="${y}" x2="${W-pad}" y2="${y}" stroke="#d9a441" stroke-width="1" stroke-dasharray="3,3" opacity="0.6"/>`;
+    refLines += `<line x1="${pad}" y1="${y}" x2="${W-pad}" y2="${y}" stroke="var(--accent)" stroke-width="1" stroke-dasharray="3,3" opacity="0.6"/>`;
   }
   const path = pts.map((p,i)=> (i===0?'M':'L')+p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
-  const dots = pts.map(p=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.6" fill="#d9a441"/>`).join('');
+  const dots = pts.map(p=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.6" fill="var(--accent)"/>`).join('');
   svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
-  svg.innerHTML = `${refLines}<path d="${path}" fill="none" stroke="#d9a441" stroke-width="2"/>${dots}`;
+  svg.innerHTML = `${refLines}<path d="${path}" fill="none" stroke="var(--accent)" stroke-width="2"/>${dots}`;
 }
 
 /* ---------------- توابع کمکی و کنترل‌های ارزیابی (Assessment Helpers) ---------------- */
@@ -3664,11 +4669,41 @@ document.getElementById('logDate').value = todayISO();
 document.getElementById('bwDate').value = todayISO();
 
 window.addEventListener('DOMContentLoaded', async () => {
+  // Handle URL reset_token parameter for direct 1-click password reset links
+  const urlParams = new URLSearchParams(window.location.search);
+  const resetToken = urlParams.get('reset_token');
+  const resetEmail = urlParams.get('email');
+  if (resetToken) {
+    activeUrlResetToken = resetToken;
+    openForgotPasswordModal();
+    switchForgotStep(2);
+    if (resetEmail) {
+      document.getElementById('forgotEmail').value = resetEmail;
+    }
+  }
+
   const isSessionValid = await tryRefreshToken();
   if (isSessionValid) {
     await loadAll();
+    if ((window.location.pathname.startsWith('/admin') || window.location.hash === '#admin') && currentUser && currentUser.role === 'admin') {
+      openAdminPanelModal(false);
+    }
   } else {
     document.getElementById('authOverlay').style.display = 'flex';
+    if (window.location.pathname.startsWith('/admin') || window.location.hash === '#admin') {
+      document.getElementById('authError').style.display = 'block';
+      document.getElementById('authError').textContent = 'برای ورود به پنل مدیریت، ابتدا وارد حساب خود شوید.';
+    }
+  }
+});
+
+window.addEventListener('popstate', () => {
+  if (window.location.pathname.startsWith('/admin') || window.location.hash === '#admin') {
+    if (currentUser && currentUser.role === 'admin') {
+      openAdminPanelModal(false);
+    }
+  } else {
+    document.getElementById('adminPanelModal').style.display = 'none';
   }
 });
 </script>

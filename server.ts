@@ -7,8 +7,27 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { register, login, refresh, logout, me, deleteAccount } from './services/auth-service/src/controllers/auth.controller.js';
-import { verifyAccessToken } from './services/auth-service/src/middlewares/auth.middleware.js';
+import {
+  register,
+  login,
+  refresh,
+  logout,
+  me,
+  deleteAccount,
+  changePassword,
+  forgotPassword,
+  resetPassword
+} from './services/auth-service/src/controllers/auth.controller.js';
+import { verifyAccessToken, requireAdmin } from './services/auth-service/src/middlewares/auth.middleware.js';
+import {
+  getAdminMetrics,
+  getAdminUsers,
+  updateUserRole,
+  adminResetUserPassword,
+  deleteUserByAdmin,
+  getEmailConfig,
+  testEmailSending
+} from './services/admin-service/src/controllers/admin.controller.js';
 
 import { requireAuth } from './services/workout-service/src/middlewares/auth.middleware.js';
 import { getWorkouts, createWorkout, deleteWorkout } from './services/workout-service/src/controllers/workout.controller.js';
@@ -55,6 +74,20 @@ app.post('/auth/refresh', refresh);
 app.post('/auth/logout', logout);
 app.get('/auth/me', verifyAccessToken, me);
 app.delete('/auth/me', verifyAccessToken, deleteAccount);
+
+// Password Management Routes
+app.post('/auth/change-password', verifyAccessToken, changePassword);
+app.post('/auth/forgot-password', authLimiter, forgotPassword);
+app.post('/auth/reset-password', authLimiter, resetPassword);
+
+// Admin Service Routes (Protected with Admin Role)
+app.get('/admin/metrics', verifyAccessToken, requireAdmin, getAdminMetrics);
+app.get('/admin/users', verifyAccessToken, requireAdmin, getAdminUsers);
+app.put('/admin/users/:id/role', verifyAccessToken, requireAdmin, updateUserRole);
+app.put('/admin/users/:id/reset-password', verifyAccessToken, requireAdmin, adminResetUserPassword);
+app.delete('/admin/users/:id', verifyAccessToken, requireAdmin, deleteUserByAdmin);
+app.get('/admin/email-config', verifyAccessToken, requireAdmin, getEmailConfig);
+app.post('/admin/test-email', verifyAccessToken, requireAdmin, testEmailSending);
 
 // Workout Service Routes (Protected)
 app.get('/workouts', requireAuth, getWorkouts);

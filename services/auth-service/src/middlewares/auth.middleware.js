@@ -15,7 +15,7 @@ export const verifyAccessToken = (req, res, next) => {
     }
     
     try {
-      const userCheck = await pool.query('SELECT id, email, display_name FROM users WHERE id = $1', [decoded.userId]);
+      const userCheck = await pool.query('SELECT id, email, display_name, role FROM users WHERE id = $1', [decoded.userId]);
       if (userCheck.rows.length === 0) {
         return res.status(401).json({ message: 'حساب کاربری یافت نشد یا حذف شده است' });
       }
@@ -26,4 +26,11 @@ export const verifyAccessToken = (req, res, next) => {
       return res.status(500).json({ message: 'خطا در بررسی وضعیت حساب کاربری' });
     }
   });
+};
+
+export const requireAdmin = (req, res, next) => {
+  if (!req.user || req.user.role !== 'admin') {
+    return res.status(403).json({ message: 'دسترسی غیرمجاز: این بخش فقط مخصوص مدیران سیستم است.' });
+  }
+  next();
 };
