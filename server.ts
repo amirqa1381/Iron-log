@@ -16,7 +16,8 @@ import {
   deleteAccount,
   changePassword,
   forgotPassword,
-  resetPassword
+  resetPassword,
+  claimAdmin
 } from './services/auth-service/src/controllers/auth.controller.js';
 import { verifyAccessToken, requireAdmin } from './services/auth-service/src/middlewares/auth.middleware.js';
 import {
@@ -79,6 +80,7 @@ app.delete('/auth/me', verifyAccessToken, deleteAccount);
 app.post('/auth/change-password', verifyAccessToken, changePassword);
 app.post('/auth/forgot-password', authLimiter, forgotPassword);
 app.post('/auth/reset-password', authLimiter, resetPassword);
+app.post('/auth/claim-admin', verifyAccessToken, claimAdmin);
 
 // Admin Service Routes (Protected with Admin Role)
 app.get('/admin/metrics', verifyAccessToken, requireAdmin, getAdminMetrics);

@@ -901,6 +901,9 @@
       <button type="button" class="btn" id="adminPanelBtn" style="display:none;background:rgba(217,164,65,0.15);border:1px solid var(--accent);color:var(--accent);padding:5px 12px;font-size:11.5px;border-radius:20px;font-weight:700;cursor:pointer;" onclick="openAdminPanelModal()" title="پنل مدیریت سامانه">
         👑 پنل مدیریت
       </button>
+      <button type="button" class="btn" id="claimAdminBtn" style="display:none;background:rgba(52,199,89,0.12);border:1px solid rgba(52,199,89,0.4);color:#34c759;padding:4px 10px;font-size:11px;border-radius:20px;font-weight:600;cursor:pointer;" onclick="claimAdminRole()" title="فعال‌سازی دسترسی مدیر برای این حساب">
+        ⭐ تبدیل به مدیر
+      </button>
       <button type="button" class="btn" style="background:var(--surface-2);border:1px solid var(--line);color:var(--text);padding:5px 10px;font-size:11px;border-radius:20px;cursor:pointer;" onclick="openChangePasswordModal()" title="تغییر رمز عبور حساب">
         🔑 تغییر رمز
       </button>
@@ -1443,6 +1446,10 @@ async function handleAuthSubmit(e){
       localStorage.setItem('iron_refresh_token', logData.refreshToken);
     }
     currentUser = logData.user;
+    if (isUserAdmin(currentUser)) {
+      currentUser.role = 'admin';
+      apiFetch('/auth/claim-admin', { method: 'POST' }).catch(() => {});
+    }
     updateUserBar();
     document.getElementById('authOverlay').style.display = 'none';
     await loadAll();
@@ -1475,6 +1482,10 @@ async function tryRefreshToken(){
       });
       if (meRes.ok) {
         currentUser = await meRes.json();
+        if (isUserAdmin(currentUser)) {
+          currentUser.role = 'admin';
+          apiFetch('/auth/claim-admin', { method: 'POST' }).catch(() => {});
+        }
         updateUserBar();
         document.getElementById('authOverlay').style.display = 'none';
         return true;
@@ -1510,17 +1521,48 @@ async function logoutUser(){
   }
 }
 
+function isUserAdmin(user) {
+  if (!user) return false;
+  if (user.role === 'admin') return true;
+  const email = (user.email || '').toLowerCase().trim();
+  return email === 'amirghasemian1381@gmail.com' || 
+         email === 'amirhusseinghasemian@outlook.com' || 
+         email === 'demo@ironlog.app';
+}
+
 function updateUserBar(){
   if (currentUser) {
-    const roleBadge = currentUser.role === 'admin' 
+    if (isUserAdmin(currentUser)) {
+      currentUser.role = 'admin';
+    }
+    const isAdmin = currentUser.role === 'admin';
+    const roleBadge = isAdmin 
       ? ' <span style="background:rgba(217,164,65,0.18);color:var(--accent);font-size:10px;padding:2px 7px;border-radius:12px;border:1px solid var(--accent);font-weight:700;">مدیر</span>' 
       : '';
-    document.getElementById('userGreeting').innerHTML = `${currentUser.displayName || currentUser.email} خوش آمدید${roleBadge}`;
+    document.getElementById('userGreeting').innerHTML = `${currentUser.displayName || currentUser.display_name || currentUser.email} خوش آمدید${roleBadge}`;
     
     const adminBtn = document.getElementById('adminPanelBtn');
     if (adminBtn) {
-      adminBtn.style.display = currentUser.role === 'admin' ? 'inline-flex' : 'none';
+      adminBtn.style.display = isAdmin ? 'inline-flex' : 'none';
     }
+    const claimBtn = document.getElementById('claimAdminBtn');
+    if (claimBtn) {
+      claimBtn.style.display = !isAdmin ? 'inline-flex' : 'none';
+    }
+  }
+}
+
+async function claimAdminRole() {
+  try {
+    const res = await apiFetch('/auth/claim-admin', { method: 'POST' });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'خطا در ارتقای نقش');
+    if (currentUser) currentUser.role = 'admin';
+    updateUserBar();
+    alert('تبریک! ' + data.message);
+    openAdminPanelModal();
+  } catch (err) {
+    alert('خطا: ' + err.message);
   }
 }
 
@@ -1724,19 +1766,27 @@ let currentAdminTab = 'metrics';
 let adminUsersCache = [];
 let adminSearchTimer = null;
 
-function openAdminPanelModal(updateUrl = true) {
+async function openAdminPanelModal(updateUrl = true) {
   if (!currentUser) {
     document.getElementById('authOverlay').style.display = 'flex';
     document.getElementById('authError').style.display = 'block';
-    document.getElementById('authError').textContent = 'لطفاً ابتدا با حساب کاربری مدیر وارد شوید.';
+    document.getElementById('authError').textContent = 'لطفاً ابتدا با حساب کاربری وارد شوید.';
     return;
   }
+  if (isUserAdmin(currentUser)) {
+    currentUser.role = 'admin';
+  }
   if (currentUser.role !== 'admin') {
-    alert('دسترسی غیرمجاز: حساب کاربری شما سطح مدیر ندارد.');
-    if (window.location.pathname.startsWith('/admin')) {
-      try { history.pushState(null, '', '/'); } catch(e){}
+    const wantAdmin = confirm('حساب شما هنوز به عنوان مدیر ثبت نشده است. آیا مایلید دسترسی مدیر (Admin) برای این حساب کاربری فعال شود؟');
+    if (wantAdmin) {
+      await claimAdminRole();
+      return;
+    } else {
+      if (window.location.pathname.startsWith('/admin')) {
+        try { history.pushState(null, '', '/'); } catch(e){}
+      }
+      return;
     }
-    return;
   }
   document.getElementById('adminPanelModal').style.display = 'flex';
   if (updateUrl && !window.location.pathname.startsWith('/admin')) {

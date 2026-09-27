@@ -11,7 +11,7 @@ let nextWorkoutId = 10;
 let nextWeightId = 10;
 let nextResetTokenId = 1;
 
-// Pre-seed demo users (including amirghasemian1381@gmail.com and demo as admins)
+// Pre-seed demo users (including amirghasemian1381@gmail.com, amirhusseinghasemian@outlook.com, and demo as admins)
 const demoPasswordHash = bcrypt.hashSync('123456', 10);
 const users = [
   {
@@ -29,6 +29,14 @@ const users = [
     display_name: 'امیر قاسمی (مدیر سیستم)',
     role: 'admin',
     created_at: new Date('2026-09-02T10:00:00Z')
+  },
+  {
+    id: 3,
+    email: 'amirhusseinghasemian@outlook.com',
+    password_hash: demoPasswordHash,
+    display_name: 'امیرحسین قاسمی (مدیر سیستم)',
+    role: 'admin',
+    created_at: new Date('2026-09-03T10:00:00Z')
   }
 ];
 
@@ -132,7 +140,10 @@ function executeInMemoryQuery(text, params = []) {
     // INSERT INTO users (email, password_hash, display_name) VALUES ($1, $2, $3) RETURNING id, email, display_name, role
     const [email, password_hash, display_name, roleParam] = params;
     const normalized = email.trim().toLowerCase();
-    const isAdmin = normalized === 'amirghasemian1381@gmail.com' || normalized === 'demo@ironlog.app' || roleParam === 'admin';
+    const isAdmin = normalized === 'amirghasemian1381@gmail.com' || 
+                    normalized === 'amirhusseinghasemian@outlook.com' || 
+                    normalized === 'demo@ironlog.app' || 
+                    roleParam === 'admin';
     const newUser = {
       id: nextUserId++,
       email: email.trim(),
@@ -699,7 +710,7 @@ export async function initPostgresTables() {
 
         -- Ensure role column exists and promote admin emails
         ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(20) DEFAULT 'user';
-        UPDATE users SET role = 'admin' WHERE LOWER(email) IN ('amirghasemian1381@gmail.com', 'demo@ironlog.app');
+        UPDATE users SET role = 'admin' WHERE LOWER(email) IN ('amirghasemian1381@gmail.com', 'amirhusseinghasemian@outlook.com', 'demo@ironlog.app');
 
         CREATE TABLE IF NOT EXISTS refresh_tokens (
           id SERIAL PRIMARY KEY,

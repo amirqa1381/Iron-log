@@ -7,8 +7,17 @@ import { sendPasswordResetEmail } from '../../../shared/email.service.js';
 
 const hashToken = (token) => crypto.createHash('sha256').update(token).digest('hex');
 
+export const isAdminEmail = (email) => {
+  if (!email) return false;
+  const normalized = email.toLowerCase().trim();
+  return normalized === 'amirghasemian1381@gmail.com' || 
+         normalized === 'amirhusseinghasemian@outlook.com' || 
+         normalized === 'demo@ironlog.app';
+};
+
 const generateTokens = (user) => {
-  const payload = { userId: user.id, email: user.email, role: user.role || 'user' };
+  const role = (user.role === 'admin' || isAdminEmail(user.email)) ? 'admin' : (user.role || 'user');
+  const payload = { userId: user.id, email: user.email, role };
   
   const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_SECRET, { expiresIn: '15m' });
   const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET, { expiresIn: '30d' });
@@ -33,11 +42,12 @@ export const register = async (req, res) => {
 
     const salt = await bcrypt.genSalt(12);
     const passwordHash = await bcrypt.hash(password, salt);
+    const role = isAdminEmail(normalizedEmail) ? 'admin' : 'user';
 
     const newUser = await pool.query(
-      `INSERT INTO users (email, password_hash, display_name) 
-       VALUES ($1, $2, $3) RETURNING id, email, display_name, role`,
-      [normalizedEmail, passwordHash, displayName || null]
+      `INSERT INTO users (email, password_hash, display_name, role) 
+       VALUES ($1, $2, $3, $4) RETURNING id, email, display_name, role`,
+      [normalizedEmail, passwordHash, displayName || null, role]
     );
 
     return res.status(201).json({
@@ -71,6 +81,11 @@ export const login = async (req, res) => {
       return res.status(401).json({ message: 'ایمیل یا رمز عبور اشتباه است' });
     }
 
+    if (isAdminEmail(user.email)) {
+      user.role = 'admin';
+      pool.query("UPDATE users SET role = 'admin' WHERE id = $1", [user.id]).catch(() => {});
+    }
+
     const { accessToken, refreshToken } = generateTokens(user);
     const refreshTokenHash = hashToken(refreshToken);
     const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
@@ -97,6 +112,7 @@ export const login = async (req, res) => {
         id: user.id,
         email: user.email,
         displayName: user.display_name,
+        display_name: user.display_name,
         role: user.role || 'user'
       }
     });
@@ -186,10 +202,41 @@ export const me = async (req, res) => {
     if (result.rows.length === 0) {
       return res.status(404).json({ message: 'کاربر یافت نشد' });
     }
-    return res.json(result.rows[0]);
+    const user = result.rows[0];
+    if (isAdminEmail(user.email)) {
+      user.role = 'admin';
+      pool.query("UPDATE users SET role = 'admin' WHERE id = $1", [user.id]).catch(() => {});
+    }
+    return res.json({
+      id: user.id,
+      email: user.email,
+      displayName: user.display_name,
+      display_name: user.display_name,
+      role: user.role || 'user',
+      createdAt: user.created_at,
+      created_at: user.created_at
+    });
   } catch (err) {
     console.error('Me error:', err);
     return res.status(500).json({ message: 'خطای سرور رخ داده است' });
+  }
+};
+
+export const claimAdmin = async (req, res) => {
+  try {
+    const userId = req.user?.id || req.user?.userId;
+    if (!userId) {
+      return res.status(401).json({ message: 'کاربر شناسایی نشد' });
+    }
+    await pool.query("UPDATE users SET role = 'admin' WHERE id = $1", [userId]);
+    if (req.user) req.user.role = 'admin';
+    return res.json({
+      message: 'حساب کاربری شما با موفقیت به سطح مدیر (Admin) ارتقا یافت',
+      role: 'admin'
+    });
+  } catch (err) {
+    console.error('Claim admin error:', err);
+    return res.status(500).json({ message: 'خطای سرور در ارتقای نقش' });
   }
 };
 
