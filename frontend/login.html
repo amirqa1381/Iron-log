@@ -41,13 +41,13 @@
     <div id="authCardLogin">
       <div>
         <label>ایمیل</label>
-        <input type="email" id="loginEmail" placeholder="your-email@example.com" dir="ltr" value="amirghasemian1381@gmail.com">
+        <input type="email" id="loginEmail" placeholder="your-email@example.com" dir="ltr" value="amirghasemian1381@gmail.com" onkeydown="if(event.key==='Enter') submitLogin()">
       </div>
       <div>
         <label>رمز عبور</label>
-        <input type="password" id="loginPassword" placeholder="••••••••" dir="ltr" value="123456">
+        <input type="password" id="loginPassword" placeholder="••••••••" dir="ltr" value="123456" onkeydown="if(event.key==='Enter') submitLogin()">
       </div>
-      <button type="button" class="primary" onclick="submitLogin()">ورود به حساب</button>
+      <button type="button" id="btnLoginSubmit" class="primary" onclick="submitLogin()">ورود به حساب</button>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;font-size:12px;">
         <a href="javascript:void(0)" onclick="openForgotPassword()" style="color:var(--accent);text-decoration:none;">🔑 رمز عبور را فراموش کرده‌اید؟</a>
       </div>
@@ -57,21 +57,21 @@
     <div id="authCardRegister" style="display:none;">
       <div>
         <label>نام و نام خانوادگی (اختیاری)</label>
-        <input type="text" id="regName" placeholder="مثلاً: سهراب مرادی">
+        <input type="text" id="regName" placeholder="مثلاً: سهراب مرادی" onkeydown="if(event.key==='Enter') submitRegister()">
       </div>
       <div>
         <label>ایمیل</label>
-        <input type="email" id="regEmail" placeholder="your-email@example.com" dir="ltr">
+        <input type="email" id="regEmail" placeholder="your-email@example.com" dir="ltr" onkeydown="if(event.key==='Enter') submitRegister()">
       </div>
       <div>
         <label>رمز عبور (حداقل ۶ کاراکتر)</label>
-        <input type="password" id="regPassword" placeholder="••••••••" dir="ltr">
+        <input type="password" id="regPassword" placeholder="••••••••" dir="ltr" onkeydown="if(event.key==='Enter') submitRegister()">
       </div>
       <div>
         <label>تکرار رمز عبور</label>
-        <input type="password" id="regConfirmPassword" placeholder="••••••••" dir="ltr">
+        <input type="password" id="regConfirmPassword" placeholder="••••••••" dir="ltr" onkeydown="if(event.key==='Enter') submitRegister()">
       </div>
-      <button type="button" class="primary" onclick="submitRegister()">ایجاد حساب کاربری</button>
+      <button type="button" id="btnRegisterSubmit" class="primary" onclick="submitRegister()">ایجاد حساب کاربری</button>
     </div>
 
     <!-- فرم بازیابی رمز عبور -->

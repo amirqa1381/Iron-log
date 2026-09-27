@@ -4,7 +4,7 @@ export const exportData = async (req, res) => {
   try {
     const settings = await pool.query('SELECT active_mode FROM user_settings WHERE user_id = $1', [req.userId]);
     const workouts = await pool.query(
-      `SELECT program_mode, exercise_name, TO_CHAR(log_date, 'YYYY-MM-DD') as log_date, weight_kg, reps, rir, notes 
+      `SELECT program_mode, exercise_name, TO_CHAR(log_date, 'YYYY-MM-DD') as log_date, weight_kg, reps, rir, rpe, notes 
        FROM workout_logs WHERE user_id = $1 ORDER BY log_date ASC`, 
       [req.userId]
     );
@@ -35,8 +35,8 @@ export const importData = async (req, res) => {
     let addedWorkouts = 0;
     for (const w of workoutLogs) {
       await client.query(
-        `INSERT INTO workout_logs (user_id, program_mode, exercise_name, log_date, weight_kg, reps, rir, notes)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+        `INSERT INTO workout_logs (user_id, program_mode, exercise_name, log_date, weight_kg, reps, rir, rpe, notes)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
         [
           req.userId,
           w.program_mode || w.programMode || 'dumbbell',
@@ -45,6 +45,7 @@ export const importData = async (req, res) => {
           w.weight_kg || w.weightKg || w.weight,
           JSON.stringify(w.reps || []),
           JSON.stringify(w.rir || []),
+          JSON.stringify(w.rpe || []),
           w.notes || null
         ]
       );

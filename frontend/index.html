@@ -304,6 +304,56 @@
   </div>
 </div>
 
+<!-- مودال راهنمای علمی مقیاس RPE و شدت تمرین -->
+<div id="rpeGuideModal" class="auth-modal" style="display:none;z-index:10003;">
+  <div class="auth-box" style="max-width:500px;text-align:right;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;border-bottom:1px solid var(--line);padding-bottom:10px;">
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span style="font-size:20px;">⚡</span>
+        <h3 style="margin:0;font-size:15px;color:var(--text);font-weight:700;">راهنمای مقیاس RPE (درک سختی تمرین)</h3>
+      </div>
+      <button type="button" onclick="closeRpeGuideModal()" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:0 4px;">✕</button>
+    </div>
+
+    <div style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.6;">
+      <strong>RPE (Rate of Perceived Exertion)</strong> معیاری علمی بین ۱ تا ۱۰ برای سنجش شدت واقعی هر ست تمرینی بر اساس توان روزانه شماست و برعکس تعداد تکرارهای باقی‌مانده در ذخیره (RIR) عمل می‌کند:
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px;font-size:11.5px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(217,108,108,0.15);border:1px solid var(--danger);border-radius:6px;padding:7px 10px;">
+        <div style="font-weight:700;color:var(--danger);">RPE 10 (۰ تکرار در ذخیره / RIR 0)</div>
+        <div style="color:var(--text);">نهایت توان مطلق؛ حتی ۱ تکرار دیگر ممکن نبود.</div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(217,108,108,0.08);border:1px solid rgba(217,108,108,0.4);border-radius:6px;padding:7px 10px;">
+        <div style="font-weight:700;color:var(--danger);">RPE 9.5 (مرز ناتوانی)</div>
+        <div style="color:var(--text);">تکرار دیگر مقدور نبود، شاید وزنه اندکی بیشتر.</div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(217,164,65,0.15);border:1px solid var(--accent);border-radius:6px;padding:7px 10px;">
+        <div style="font-weight:700;color:var(--accent);">RPE 9 (۱ تکرار در ذخیره / RIR 1)</div>
+        <div style="color:var(--text);">دقیقاً ۱ تکرار دیگر تا ناتوانی عضلانی باقی بود.</div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(217,164,65,0.08);border:1px solid var(--accent-dim);border-radius:6px;padding:7px 10px;">
+        <div style="font-weight:700;color:var(--accent);">RPE 8 (۲ تکرار در ذخیره / RIR 2)</div>
+        <div style="color:var(--text);">محبوب‌ترین شدت هایپرتروفی؛ ۲ تکرار ذخیره.</div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(111,191,115,0.12);border:1px solid var(--ok);border-radius:6px;padding:7px 10px;">
+        <div style="font-weight:700;color:var(--ok);">RPE 7 (۳ تکرار در ذخیره / RIR 3)</div>
+        <div style="color:var(--text);">سرعت میله تند و روان؛ ۳ تکرار ذخیره.</div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:7px 10px;">
+        <div style="font-weight:700;color:var(--muted);">RPE 6 و کمتر (RIR 4+)</div>
+        <div style="color:var(--text);">ست‌های گرم‌کردن یا تمرینات ریکاوری سبک.</div>
+      </div>
+    </div>
+
+    <div style="font-size:11.5px;color:var(--text);background:var(--surface-2);border-radius:6px;padding:8px 10px;line-height:1.6;margin-bottom:12px;">
+      💡 <strong>نکته مربیگری:</strong> برای رشد حداکثری عضلات بدون تمرین‌زدگی، بیشتر ست‌ها را بین <strong>RPE 7.5 تا RPE 9</strong> اجرا کنید و RPE 10 را فقط برای ست‌های پایانی یا آزمون رکورد نگه دارید.
+    </div>
+
+    <button type="button" class="primary" style="width:100%;margin:0;" onclick="closeRpeGuideModal()">متوجه شدم 👍</button>
+  </div>
+</div>
+
 <script src="/js/shared.js"></script>
 <script src="/js/app.js"></script>
 </body>

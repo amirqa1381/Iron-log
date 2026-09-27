@@ -7,6 +7,7 @@ export const workoutLogSchema = z.object({
   weightKg: z.number().positive(),
   reps: z.array(z.number().int().nonnegative()).nonempty(),
   rir: z.array(z.number().nonnegative()).optional(),
+  rpe: z.array(z.number().min(1).max(10)).optional(),
   notes: z.string().optional()
 });
 

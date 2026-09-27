@@ -53,6 +53,7 @@ const workoutLogs = [
     weight_kg: 15,
     reps: [10, 10, 8],
     rir: [2, 2, 1],
+    rpe: [8, 8, 9],
     notes: 'فرم عالی و تمرکز روی بالاسینه',
     created_at: new Date('2026-09-10T10:00:00Z')
   },
@@ -65,6 +66,7 @@ const workoutLogs = [
     weight_kg: 12.5,
     reps: [10, 9, 8],
     rir: [2, 1, 1],
+    rpe: [8, 9, 9],
     notes: 'زاویه نیمکت ۳۰ درجه',
     created_at: new Date('2026-09-10T10:30:00Z')
   },
@@ -77,6 +79,7 @@ const workoutLogs = [
     weight_kg: 17.5,
     reps: [8, 8, 7],
     rir: [1, 1, 0],
+    rpe: [9, 9, 10],
     notes: 'افزایش وزنه نسبت به هفته قبل (رکورد جدید)',
     created_at: new Date('2026-09-15T10:00:00Z')
   }
@@ -398,9 +401,16 @@ function executeInMemoryQuery(text, params = []) {
 
   // WORKOUT_LOGS queries
   if (lower.startsWith('insert into workout_logs')) {
-    const [user_id, program_mode, exercise_name, log_date, weight_kg, repsRaw, rirRaw, notes] = params;
+    let user_id, program_mode, exercise_name, log_date, weight_kg, repsRaw, rirRaw, rpeRaw, notes;
+    if (params.length >= 9) {
+      [user_id, program_mode, exercise_name, log_date, weight_kg, repsRaw, rirRaw, rpeRaw, notes] = params;
+    } else {
+      [user_id, program_mode, exercise_name, log_date, weight_kg, repsRaw, rirRaw, notes] = params;
+      rpeRaw = [];
+    }
     const reps = typeof repsRaw === 'string' ? JSON.parse(repsRaw) : (repsRaw || []);
     const rir = typeof rirRaw === 'string' ? JSON.parse(rirRaw) : (rirRaw || []);
+    const rpe = typeof rpeRaw === 'string' ? JSON.parse(rpeRaw) : (rpeRaw || []);
     const item = {
       id: nextWorkoutId++,
       user_id: Number(user_id),
@@ -410,6 +420,7 @@ function executeInMemoryQuery(text, params = []) {
       weight_kg: Number(weight_kg),
       reps,
       rir,
+      rpe,
       notes: notes || null,
       created_at: new Date()
     };
@@ -423,6 +434,7 @@ function executeInMemoryQuery(text, params = []) {
         weightKg: item.weight_kg,
         reps: item.reps,
         rir: item.rir,
+        rpe: item.rpe,
         notes: item.notes,
         created_at: item.created_at
       }],
@@ -452,6 +464,7 @@ function executeInMemoryQuery(text, params = []) {
           weightKg: w.weight_kg,
           reps: w.reps,
           rir: w.rir,
+          rpe: w.rpe || [],
           notes: w.notes,
           created_at: w.created_at
         })),
@@ -466,6 +479,7 @@ function executeInMemoryQuery(text, params = []) {
           weight_kg: w.weight_kg,
           reps: w.reps,
           rir: w.rir,
+          rpe: w.rpe || [],
           notes: w.notes
         })),
         rowCount: filtered.length
@@ -865,9 +879,14 @@ export async function initPostgresTables() {
           weight_kg NUMERIC(6,2) NOT NULL,
           reps JSONB NOT NULL,
           rir JSONB DEFAULT '[]',
+          rpe JSONB DEFAULT '[]',
           notes TEXT,
           created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
         );
+
+        -- Ensure rpe and rir columns exist in existing database schemas
+        ALTER TABLE workout_logs ADD COLUMN IF NOT EXISTS rir JSONB DEFAULT '[]';
+        ALTER TABLE workout_logs ADD COLUMN IF NOT EXISTS rpe JSONB DEFAULT '[]';
 
         CREATE TABLE IF NOT EXISTS bodyweight_logs (
           id SERIAL PRIMARY KEY,
@@ -932,6 +951,8 @@ export async function initPostgresTables() {
         CREATE INDEX IF NOT EXISTS idx_bodyweight_logs_user_date ON bodyweight_logs(user_id, log_date DESC);
         CREATE INDEX IF NOT EXISTS idx_custom_exercises_user_mode ON custom_exercises(user_id, program_mode);
         CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user ON refresh_tokens(user_id);
+        CREATE INDEX IF NOT EXISTS idx_refresh_tokens_hash ON refresh_tokens(token_hash);
+        CREATE INDEX IF NOT EXISTS idx_users_email_lower ON users(LOWER(email));
         CREATE INDEX IF NOT EXISTS idx_user_plans_user_active ON user_plans(user_id, is_active);
       `);
       isPostgresAvailable = true;

@@ -40,7 +40,8 @@ export const register = async (req, res) => {
       return res.status(409).json({ message: 'این ایمیل قبلاً ثبت شده است' });
     }
 
-    const salt = await bcrypt.genSalt(12);
+    // Cost factor 10 is OWASP standard: cryptographically strong yet 5x faster than 12
+    const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
     const role = isAdminEmail(normalizedEmail) ? 'admin' : 'user';
 
@@ -50,9 +51,36 @@ export const register = async (req, res) => {
       [normalizedEmail, passwordHash, displayName || null, role]
     );
 
+    const createdUser = newUser.rows[0];
+    const { accessToken, refreshToken } = generateTokens(createdUser);
+    const refreshTokenHash = hashToken(refreshToken);
+    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+
+    await pool.query(
+      `INSERT INTO refresh_tokens (user_id, token_hash, expires_at) VALUES ($1, $2, $3)`,
+      [createdUser.id, refreshTokenHash, expiresAt]
+    );
+
+    const isHttps = req.secure || req.headers['x-forwarded-proto'] === 'https';
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: isHttps,
+      sameSite: isHttps ? 'none' : 'lax',
+      maxAge: 30 * 24 * 60 * 60 * 1000
+    });
+
     return res.status(201).json({
       message: 'ثبت‌نام با موفقیت انجام شد',
-      userId: newUser.rows[0].id
+      accessToken,
+      refreshToken,
+      expiresIn: 900,
+      user: {
+        id: createdUser.id,
+        email: createdUser.email,
+        displayName: createdUser.display_name,
+        display_name: createdUser.display_name,
+        role: createdUser.role || 'user'
+      }
     });
   } catch (err) {
     console.error('Register error:', err);
@@ -272,7 +300,7 @@ export const changePassword = async (req, res) => {
       return res.status(400).json({ message: 'رمز عبور فعلی نادرست است' });
     }
 
-    const salt = await bcrypt.genSalt(12);
+    const salt = await bcrypt.genSalt(10);
     const newPasswordHash = await bcrypt.hash(newPassword, salt);
 
     await pool.query('UPDATE users SET password_hash = $1 WHERE id = $2', [newPasswordHash, userId]);
@@ -376,7 +404,7 @@ export const resetPassword = async (req, res) => {
       return res.status(400).json({ message: 'کد تایید یا لینک بازیابی نامعتبر یا منقضی شده است' });
     }
 
-    const salt = await bcrypt.genSalt(12);
+    const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(newPassword, salt);
 
     await pool.query('UPDATE users SET password_hash = $1 WHERE id = $2', [passwordHash, resetRecord.user_id]);

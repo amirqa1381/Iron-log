@@ -28,7 +28,17 @@ async function loadReviewData() {
 
     if (wRes.ok) {
       const data = await wRes.json();
-      workoutLogs = data.workouts || [];
+      const raw = Array.isArray(data) ? data : (data.workouts || data.logs || []);
+      workoutLogs = raw.map(w => ({
+        id: w.id,
+        exercise: w.exerciseName || w.exercise_name || w.exercise,
+        date: w.logDate || w.log_date || w.date,
+        weight: w.weightKg !== undefined ? Number(w.weightKg) : (w.weight_kg !== undefined ? Number(w.weight_kg) : Number(w.weight || 0)),
+        reps: Array.isArray(w.reps) ? w.reps : [w.reps || 0],
+        rir: Array.isArray(w.rir) ? w.rir : [],
+        rpe: Array.isArray(w.rpe) ? w.rpe : [],
+        notes: w.notes || ''
+      }));
     }
     if (bRes.ok) {
       const data = await bRes.json();
@@ -158,21 +168,28 @@ function renderReview() {
   let totalVolumeKg = 0;
   let totalSetsCount = 0;
   let allRirList = [];
+  let allRpeList = [];
   const exerciseMap = {};
 
   periodWorkouts.forEach(w => {
     const repsArr = Array.isArray(w.reps) ? w.reps : [];
     const rirArr = Array.isArray(w.rir) ? w.rir : [];
+    const rpeArr = Array.isArray(w.rpe) ? w.rpe : [];
     const setSum = repsArr.reduce((s, r) => s + Number(r), 0);
     totalVolumeKg += w.weight * setSum;
     totalSetsCount += repsArr.length;
     rirArr.forEach(r => allRirList.push(Number(r)));
+    rpeArr.forEach(r => {
+      const num = Number(r);
+      if (!isNaN(num)) allRpeList.push(num);
+    });
 
     if (!exerciseMap[w.exercise]) exerciseMap[w.exercise] = [];
     exerciseMap[w.exercise].push(w);
   });
 
   const avgRir = allRirList.length ? (allRirList.reduce((s, r) => s + r, 0) / allRirList.length).toFixed(1) : null;
+  const avgRpe = allRpeList.length ? (allRpeList.reduce((s, r) => s + r, 0) / allRpeList.length).toFixed(1) : (avgRir ? (10 - avgRir).toFixed(1) : null);
   const failureSets = allRirList.filter(r => r === 0).length;
   const failurePercent = allRirList.length ? Math.round((failureSets / allRirList.length) * 100) : 0;
 
@@ -197,8 +214,8 @@ function renderReview() {
           <div class="v">${faDigits((totalVolumeKg / 1000).toFixed(1))} <small>تُن وزنه</small></div>
         </div>
         <div class="scorebox">
-          <div class="k">میانگین RIR ذخیره</div>
-          <div class="v">${avgRir ? faDigits(avgRir) : '—'} <small>${failurePercent > 0 ? `(${faDigits(failurePercent)}٪ ناتوانی)` : ''}</small></div>
+          <div class="k">میانگین شدت RPE</div>
+          <div class="v">${avgRpe ? faDigits(avgRpe) : '—'} <small>${failurePercent > 0 ? `(${faDigits(failurePercent)}٪ ناتوانی)` : (avgRir ? `(RIR ${faDigits(avgRir)})` : '')}</small></div>
         </div>
       </div>
       ${latestW ? `<div style="font-size:12px;color:var(--text);margin-top:6px;">⚖️ آخرین وزن ثبت‌شده: <b>${latestW} kg</b> ${TARGET_WEIGHT ? `(هدف: <b>${TARGET_WEIGHT} kg</b>)` : ''}</div>` : ''}

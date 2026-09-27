@@ -111,7 +111,7 @@ async function loadStatsData() {
 
     if (woRes.ok) {
       const woData = await parseResponseJson(woRes);
-      workoutLogs = woData.logs || [];
+      workoutLogs = Array.isArray(woData) ? woData : (woData.logs || woData.workouts || []);
       const el = document.getElementById('statSessions');
       if (el) el.textContent = faDigits(workoutLogs.length);
     }
@@ -724,22 +724,54 @@ function renderExerciseCardHtml(ex, exIndex) {
 
   const loggedReps = (existingLog && existingLog.reps) || [];
   const loggedWeight = (existingLog && (existingLog.weightKg || existingLog.weight_kg)) || '';
+  const loggedRpe = (existingLog && existingLog.rpe) || [];
+
+  // Check if average RPE is available for today's log
+  let avgRpeBadgeHtml = '';
+  if (loggedRpe && loggedRpe.length > 0) {
+    const validRpes = loggedRpe.filter(v => typeof v === 'number' && !isNaN(v));
+    if (validRpes.length > 0) {
+      const avg = (validRpes.reduce((a, b) => a + b, 0) / validRpes.length).toFixed(1);
+      avgRpeBadgeHtml = `<span class="rpe-tag-badge ${getRpeClass(avg)}" title="میانگین شدت RPE ست‌های ثبت‌شده امروز">شدت: RPE ${faDigits(avg)}</span>`;
+    }
+  }
 
   let setsRowsHtml = '';
   for (let s = 1; s <= setsCount; s++) {
     const repVal = loggedReps[s - 1] !== undefined ? loggedReps[s - 1] : '';
+    const rpeVal = loggedRpe[s - 1] !== undefined ? loggedRpe[s - 1] : '';
+
     setsRowsHtml += `
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px solid var(--line);">
-        <span style="font-size:12px;font-weight:700;color:var(--muted);width:45px;">ست ${faDigits(s)}</span>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;padding:6px 0;border-top:1px solid var(--line);">
+        <span style="font-size:12px;font-weight:700;color:var(--muted);width:42px;">ست ${faDigits(s)}</span>
         <div style="display:flex;align-items:center;gap:6px;flex:1;">
           <input type="text" inputmode="decimal" placeholder="وزنه (ک‌گ)" value="${s === 1 ? loggedWeight : ''}" 
             id="weight_${exIndex}_${s}" 
+            oninput="debouncedAutoSaveSet(${exIndex})" 
             onchange="autoSaveSet(${exIndex})" 
-            style="font-size:11.5px;padding:5px 6px;margin:0;width:80px;text-align:center;">
+            style="font-size:11.5px;padding:5px 6px;margin:0;width:75px;text-align:center;">
           <input type="number" placeholder="تکرار (${escapeHtml(ex.reps || '۸-۱۲')})" value="${repVal}" 
             id="reps_${exIndex}_${s}" 
+            oninput="debouncedAutoSaveSet(${exIndex})" 
             onchange="autoSaveSet(${exIndex})" 
-            style="font-size:11.5px;padding:5px 6px;margin:0;width:80px;text-align:center;">
+            style="font-size:11.5px;padding:5px 6px;margin:0;width:75px;text-align:center;">
+          <select id="rpe_${exIndex}_${s}" 
+            onchange="onRpeSelectChange(${exIndex}, ${s})" 
+            class="rpe-select ${getRpeClass(rpeVal)}"
+            style="font-size:11px;padding:5px 3px;margin:0;width:105px;text-align:center;"
+            title="میزان درک سختی (RPE) ست ${s}">
+            <option value="">RPE —</option>
+            <option value="10" ${rpeVal == 10 ? 'selected' : ''}>۱۰ (نهایت توان)</option>
+            <option value="9.5" ${rpeVal == 9.5 ? 'selected' : ''}>۹.۵ (مرز شکست)</option>
+            <option value="9" ${rpeVal == 9 ? 'selected' : ''}>۹ (۱ تکرار ذخیره)</option>
+            <option value="8.5" ${rpeVal == 8.5 ? 'selected' : ''}>۸.۵ (۱-۲ ذخیره)</option>
+            <option value="8" ${rpeVal == 8 ? 'selected' : ''}>۸ (۲ تکرار ذخیره)</option>
+            <option value="7.5" ${rpeVal == 7.5 ? 'selected' : ''}>۷.۵ (۲-۳ ذخیره)</option>
+            <option value="7" ${rpeVal == 7 ? 'selected' : ''}>۷ (۳ تکرار ذخیره)</option>
+            <option value="6.5" ${rpeVal == 6.5 ? 'selected' : ''}>۶.۵ (۳-۴ ذخیره)</option>
+            <option value="6" ${rpeVal == 6 ? 'selected' : ''}>۶ (گرم‌کردن / سبک)</option>
+            <option value="5" ${rpeVal == 5 ? 'selected' : ''}>۵ (بسیار سبک)</option>
+          </select>
         </div>
         <button type="button" class="btn" style="width:auto;margin:0;padding:4px 8px;font-size:11px;" onclick="triggerRestTimerFromExercise('${escapeHtml(ex.rest || '۹۰ ثانیه')}')" title="شروع استراحت">
           ⏱️ استراحت
@@ -769,6 +801,7 @@ function renderExerciseCardHtml(ex, exIndex) {
             <span class="tag-badge accent">${faDigits(ex.sets || 3)} ست × ${escapeHtml(ex.reps || '۸ تا ۱۲')}</span>
             <span class="tag-badge">استراحت: ${escapeHtml(ex.rest || '۹۰ ثانیه')}</span>
             ${ex.rir !== undefined ? `<span class="tag-badge">RIR: ${faDigits(ex.rir)}</span>` : ''}
+            ${avgRpeBadgeHtml}
             ${ex.target ? `<span class="tag-badge">${escapeHtml(ex.target)}</span>` : ''}
           </div>
         </div>
@@ -787,16 +820,66 @@ function renderExerciseCardHtml(ex, exIndex) {
         </div>
       ` : ''}
 
-      <!-- جدول ثبت ست‌ها و رکوردها -->
+      <!-- جدول ثبت ست‌ها و رکوردها همراه با RPE -->
       <div style="margin-top:10px;">
+        <div class="sets-table-header">
+          <span style="width:42px;text-align:right;">ست</span>
+          <div style="display:flex;align-items:center;gap:6px;flex:1;">
+            <span style="width:75px;text-align:center;">وزنه (kg)</span>
+            <span style="width:75px;text-align:center;">تکرار</span>
+            <span style="width:105px;text-align:center;display:flex;align-items:center;justify-content:center;gap:3px;">
+              شدت RPE
+              <span onclick="openRpeGuideModal()" style="cursor:pointer;color:var(--accent);font-size:12px;" title="راهنمای مقیاس RPE">ℹ️</span>
+            </span>
+          </div>
+          <span style="width:70px;text-align:center;">استراحت</span>
+        </div>
         ${setsRowsHtml}
       </div>
     </div>
   `;
 }
 
+function getRpeClass(rpe) {
+  const num = parseFloat(rpe);
+  if (isNaN(num)) return '';
+  if (num >= 9.5) return 'rpe-extreme';
+  if (num >= 8.5) return 'rpe-hard';
+  if (num >= 7.5) return 'rpe-optimal';
+  if (num >= 6.5) return 'rpe-moderate';
+  return 'rpe-light';
+}
+
+function onRpeSelectChange(exIndex, s) {
+  const sel = document.getElementById(`rpe_${exIndex}_${s}`);
+  if (sel) {
+    sel.className = 'rpe-select ' + getRpeClass(sel.value);
+  }
+  autoSaveSet(exIndex);
+}
+
+function openRpeGuideModal() {
+  const m = document.getElementById('rpeGuideModal');
+  if (m) m.style.display = 'flex';
+}
+
+function closeRpeGuideModal() {
+  const m = document.getElementById('rpeGuideModal');
+  if (m) m.style.display = 'none';
+}
+
+let autoSaveDebounceTimers = {};
+function debouncedAutoSaveSet(exIndex, delay = 400) {
+  if (autoSaveDebounceTimers[exIndex]) {
+    clearTimeout(autoSaveDebounceTimers[exIndex]);
+  }
+  autoSaveDebounceTimers[exIndex] = setTimeout(() => {
+    autoSaveSet(exIndex);
+  }, delay);
+}
+
 /**
- * Auto-Save set log to database
+ * Auto-Save set log to database with RPE support
  */
 async function autoSaveSet(exIndex) {
   const day = activeUserPlan?.days?.[currentSelectedDayIndex];
@@ -806,35 +889,66 @@ async function autoSaveSet(exIndex) {
 
   const setsCount = Number(ex.sets) || 3;
   const reps = [];
+  const rir = [];
+  const rpe = [];
   let weightKg = null;
 
   for (let s = 1; s <= setsCount; s++) {
     const wInput = document.getElementById(`weight_${exIndex}_${s}`);
     const rInput = document.getElementById(`reps_${exIndex}_${s}`);
+    const rpeSelect = document.getElementById(`rpe_${exIndex}_${s}`);
+
     if (wInput && wInput.value && !weightKg) {
       weightKg = parseUserNumber(wInput.value);
     }
     if (rInput && rInput.value) {
       reps.push(Number(rInput.value));
     }
+    if (rpeSelect && rpeSelect.value) {
+      const val = parseFloat(rpeSelect.value);
+      if (!isNaN(val)) {
+        rpe.push(val);
+        // Corresponding RIR calculation: max(0, 10 - RPE)
+        rir.push(Math.max(0, Math.round((10 - val) * 2) / 2));
+      }
+    }
   }
 
-  if (reps.length === 0 && !weightKg) return;
+  if (reps.length === 0 && !weightKg && rpe.length === 0) return;
 
   try {
-    await apiFetch('/workouts', {
+    const payload = {
+      programMode: activeUserPlan.source || 'custom',
+      exerciseName: ex.nameFa || ex.name,
+      logDate: todayISO(),
+      weightKg: weightKg || 0,
+      reps: reps.length > 0 ? reps : [10],
+      rir: rir.length > 0 ? rir : [ex.rir !== undefined ? ex.rir : 2],
+      notes: `برنامه: ${activeUserPlan.planName || ''}`
+    };
+    if (rpe.length > 0) {
+      payload.rpe = rpe;
+    }
+
+    const res = await apiFetch('/workouts', {
       method: 'POST',
-      body: JSON.stringify({
-        programMode: activeUserPlan.source || 'custom',
-        exerciseName: ex.nameFa || ex.name,
-        logDate: todayISO(),
-        weightKg: weightKg || 0,
-        reps: reps.length > 0 ? reps : [10],
-        rir: [ex.rir || 2],
-        notes: `برنامه: ${activeUserPlan.planName || ''}`
-      })
+      body: JSON.stringify(payload)
     });
-    showToast(`ثبت شد: ${ex.nameFa}`, 'success');
+
+    if (res.ok) {
+      const saved = await parseResponseJson(res);
+      const exIdx = workoutLogs.findIndex(l => 
+        (l.exerciseName === ex.name || l.exerciseName === ex.nameFa || l.exercise_name === ex.name || l.exercise_name === ex.nameFa) &&
+        (l.logDate === todayISO() || l.log_date === todayISO())
+      );
+      if (exIdx !== -1) {
+        workoutLogs[exIdx] = saved;
+      } else {
+        workoutLogs.push(saved);
+      }
+      const rpeSummary = rpe.length > 0 ? ` (RPE: ${rpe.join('/')})` : '';
+      showToast(`ثبت شد: ${ex.nameFa}${rpeSummary}`, 'success');
+    }
   } catch (err) {
     console.warn('[autoSaveSet warning]:', err.message);
   }

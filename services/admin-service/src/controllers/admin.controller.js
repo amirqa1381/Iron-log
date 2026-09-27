@@ -264,7 +264,7 @@ export const createUserByAdmin = async (req, res) => {
     const validRoles = ['admin', 'coach', 'vip', 'user'];
     const assignedRole = validRoles.includes(role) ? role : 'user';
 
-    const salt = await bcrypt.genSalt(12);
+    const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
 
     const insertRes = await pool.query(
@@ -308,7 +308,7 @@ export const getUserDetails = async (req, res) => {
 
     // Fetch user workouts (last 15)
     const workoutsRes = await pool.query(
-      'SELECT id, program_mode, exercise_name, log_date, weight_kg, reps, rir, notes, created_at FROM workout_logs WHERE user_id = $1 ORDER BY log_date DESC LIMIT 15',
+      'SELECT id, program_mode, exercise_name, log_date, weight_kg, reps, rir, rpe, notes, created_at FROM workout_logs WHERE user_id = $1 ORDER BY log_date DESC LIMIT 15',
       [targetUserId]
     );
 

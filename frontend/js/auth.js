@@ -65,6 +65,7 @@ async function submitLogin() {
   const password = document.getElementById('loginPassword').value;
   const errEl = document.getElementById('authError');
   const succEl = document.getElementById('authSuccess');
+  const btn = document.getElementById('btnLoginSubmit');
   errEl.style.display = 'none';
   succEl.style.display = 'none';
 
@@ -72,6 +73,11 @@ async function submitLogin() {
     errEl.textContent = 'لطفاً ایمیل و رمز عبور را وارد کنید.';
     errEl.style.display = 'block';
     return;
+  }
+
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'در حال احراز هویت... ⏳';
   }
 
   try {
@@ -101,10 +107,14 @@ async function submitLogin() {
       } else {
         window.location.href = '/';
       }
-    }, 700);
+    }, 400);
   } catch (err) {
     errEl.textContent = err.message;
     errEl.style.display = 'block';
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = 'ورود به حساب';
+    }
   }
 }
 
@@ -115,6 +125,7 @@ async function submitRegister() {
   const confirmPassword = document.getElementById('regConfirmPassword').value;
   const errEl = document.getElementById('authError');
   const succEl = document.getElementById('authSuccess');
+  const btn = document.getElementById('btnRegisterSubmit');
   errEl.style.display = 'none';
   succEl.style.display = 'none';
 
@@ -134,6 +145,11 @@ async function submitRegister() {
     return;
   }
 
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'در حال ایجاد حساب کاربری... ⏳';
+  }
+
   try {
     const res = await fetch(`${AUTH_API_URL}/auth/register`, {
       method: 'POST',
@@ -150,15 +166,19 @@ async function submitRegister() {
       localStorage.setItem('iron_refresh_token', data.refreshToken);
     }
 
-    succEl.textContent = 'ثبت نام با موفقیت انجام شد! در حال انتقال...';
+    succEl.textContent = 'حساب کاربری با موفقیت ساخته شد! در حال انتقال...';
     succEl.style.display = 'block';
 
     setTimeout(() => {
       window.location.href = '/';
-    }, 800);
+    }, 400);
   } catch (err) {
     errEl.textContent = err.message;
     errEl.style.display = 'block';
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = 'ایجاد حساب کاربری';
+    }
   }
 }
 

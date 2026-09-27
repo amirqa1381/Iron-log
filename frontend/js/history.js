@@ -19,7 +19,17 @@ async function loadHistoryData() {
     const res = await apiFetch('/workouts');
     if (res.ok) {
       const data = await res.json();
-      workoutLogs = data.workouts || [];
+      const raw = Array.isArray(data) ? data : (data.workouts || data.logs || []);
+      workoutLogs = raw.map(w => ({
+        id: w.id,
+        exercise: w.exerciseName || w.exercise_name || w.exercise,
+        date: w.logDate || w.log_date || w.date,
+        weight: w.weightKg !== undefined ? Number(w.weightKg) : (w.weight_kg !== undefined ? Number(w.weight_kg) : Number(w.weight || 0)),
+        reps: Array.isArray(w.reps) ? w.reps : [w.reps || 0],
+        rir: Array.isArray(w.rir) ? w.rir : [],
+        rpe: Array.isArray(w.rpe) ? w.rpe : [],
+        notes: w.notes || ''
+      }));
       buildExerciseSelect();
       renderHistory();
     }
@@ -105,11 +115,13 @@ function renderHistory() {
   if (query) {
     filteredEntries = entries.filter(e => {
       const repsArr = Array.isArray(e.reps) ? e.reps : [e.reps];
+      const rpeArr = Array.isArray(e.rpe) ? e.rpe : [];
       const dateMatch = e.date && e.date.includes(query);
       const weightMatch = String(e.weight).includes(query);
       const repsMatch = repsArr.join(' ').includes(query);
+      const rpeMatch = rpeArr.join(' ').includes(query) || (query.includes('rpe') && rpeArr.length > 0);
       const notesMatch = e.notes ? e.notes.toLowerCase().includes(query) : false;
-      return dateMatch || weightMatch || repsMatch || notesMatch;
+      return dateMatch || weightMatch || repsMatch || rpeMatch || notesMatch;
     });
   }
 
@@ -125,7 +137,14 @@ function renderHistory() {
       const repsArr = Array.isArray(e.reps) ? e.reps : [e.reps];
       const maxRep = Math.max(...repsArr, 1);
       const itemEst1RM = (e.weight * (1 + maxRep / 30)).toFixed(1);
-      const rirStr = Array.isArray(e.rir) && e.rir.length ? ` (RIR ${e.rir.join('/')})` : '';
+
+      let intensityHtml = '';
+      if (Array.isArray(e.rpe) && e.rpe.length > 0) {
+        const avgRpe = (e.rpe.reduce((a, b) => a + b, 0) / e.rpe.length).toFixed(1);
+        intensityHtml = `<span class="rpe-tag-badge ${getRpeClass(avgRpe)}" style="margin-inline-start:6px;" title="شدت ادراک‌شده ست‌ها (RPE)">RPE: ${e.rpe.join(' / ')}</span>`;
+      } else if (Array.isArray(e.rir) && e.rir.length > 0) {
+        intensityHtml = `<span style="font-size:11px;color:var(--muted);margin-inline-start:4px;">(RIR ${e.rir.join('/')})</span>`;
+      }
 
       return `
         <div class="histentry">
@@ -136,7 +155,10 @@ function renderHistory() {
               <button class="delbtn" onclick="deleteWorkoutLog(${e.id})" title="حذف این ثبت">×</button>
             </div>
           </div>
-          <div class="histsets">${e.weight} کیلوگرم — ${repsArr.join(' / ')}${rirStr}</div>
+          <div class="histsets" style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;">
+            <span>${e.weight} کیلوگرم — ${repsArr.join(' / ')}</span>
+            ${intensityHtml}
+          </div>
           ${e.notes ? `<div class="histnote">${e.notes}</div>` : ''}
         </div>
       `;
@@ -167,4 +189,13 @@ async function deleteWorkoutLog(id) {
   } catch (err) {
     showToast('خطا در حذف ثبت: ' + err.message, 'error');
   }
+}
+
+function getRpeClass(rpe) {
+  const num = parseFloat(rpe);
+  if (isNaN(num)) return '';
+  if (num >= 9.5) return 'extreme';
+  if (num >= 8.5) return 'hard';
+  if (num >= 7.5) return 'optimal';
+  return '';
 }

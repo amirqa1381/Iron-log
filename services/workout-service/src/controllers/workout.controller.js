@@ -6,7 +6,7 @@ export const getWorkouts = async (req, res) => {
     const { exercise, from, to } = req.query;
     let query = `SELECT id, program_mode as "programMode", exercise_name as "exerciseName", 
                         TO_CHAR(log_date, 'YYYY-MM-DD') as "logDate", 
-                        weight_kg as "weightKg", reps, rir, notes, created_at 
+                        weight_kg as "weightKg", reps, rir, rpe, notes, created_at 
                  FROM workout_logs WHERE user_id = $1`;
     const params = [req.userId];
 
@@ -39,15 +39,15 @@ export const createWorkout = async (req, res) => {
       return res.status(400).json({ errors: parsed.error.flatten().fieldErrors });
     }
 
-    const { programMode, exerciseName, logDate, weightKg, reps, rir, notes } = parsed.data;
+    const { programMode, exerciseName, logDate, weightKg, reps, rir, rpe, notes } = parsed.data;
 
     const result = await pool.query(
-      `INSERT INTO workout_logs (user_id, program_mode, exercise_name, log_date, weight_kg, reps, rir, notes)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      `INSERT INTO workout_logs (user_id, program_mode, exercise_name, log_date, weight_kg, reps, rir, rpe, notes)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
        RETURNING id, program_mode as "programMode", exercise_name as "exerciseName", 
                  TO_CHAR(log_date, 'YYYY-MM-DD') as "logDate", weight_kg as "weightKg", 
-                 reps, rir, notes, created_at`,
-      [req.userId, programMode, exerciseName, logDate, weightKg, JSON.stringify(reps), JSON.stringify(rir || []), notes || null]
+                 reps, rir, rpe, notes, created_at`,
+      [req.userId, programMode, exerciseName, logDate, weightKg, JSON.stringify(reps), JSON.stringify(rir || []), JSON.stringify(rpe || []), notes || null]
     );
 
     return res.status(201).json(result.rows[0]);

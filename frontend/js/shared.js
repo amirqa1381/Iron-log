@@ -2,6 +2,8 @@
 const AUTH_API_URL = '';
 let currentAccessToken = null;
 let currentUser = null;
+let tokenExpiresAt = 0;
+let refreshPromise = null;
 
 function parseUserNumber(val) {
   if (val === null || val === undefined) return null;
@@ -67,6 +69,10 @@ async function apiFetch(url, options = {}) {
 }
 
 async function checkAuth() {
+  if (currentAccessToken && currentUser && Date.now() < tokenExpiresAt - 15000) {
+    updateUserBar();
+    return true;
+  }
   const ok = await tryRefreshToken();
   if (!ok) {
     window.location.href = '/login.html';
@@ -76,36 +82,55 @@ async function checkAuth() {
 }
 
 async function tryRefreshToken() {
-  try {
-    const savedRt = localStorage.getItem('iron_refresh_token');
-    const res = await fetch(`${AUTH_API_URL}/auth/refresh`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: savedRt ? JSON.stringify({ refreshToken: savedRt }) : undefined
-    });
-
-    if (res.ok) {
-      const data = await parseResponseJson(res);
-      currentAccessToken = data.accessToken;
-      currentUser = data.user;
-      if (data.refreshToken) {
-        localStorage.setItem('iron_refresh_token', data.refreshToken);
-      }
-      updateUserBar();
-      return true;
-    }
-
-    localStorage.removeItem('iron_refresh_token');
-    currentAccessToken = null;
-    currentUser = null;
-  } catch(e) {
-    console.warn('Authentication refresh needed:', e.message);
-    localStorage.removeItem('iron_refresh_token');
-    currentAccessToken = null;
-    currentUser = null;
+  // If token is still fresh, avoid unnecessary network request
+  if (currentAccessToken && currentUser && Date.now() < tokenExpiresAt - 30000) {
+    return true;
   }
-  return false;
+
+  // Deduplicate concurrent refresh calls
+  if (refreshPromise) {
+    return refreshPromise;
+  }
+
+  refreshPromise = (async () => {
+    try {
+      const savedRt = localStorage.getItem('iron_refresh_token');
+      const res = await fetch(`${AUTH_API_URL}/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: savedRt ? JSON.stringify({ refreshToken: savedRt }) : undefined
+      });
+
+      if (res.ok) {
+        const data = await parseResponseJson(res);
+        currentAccessToken = data.accessToken;
+        currentUser = data.user;
+        tokenExpiresAt = Date.now() + (data.expiresIn || 900) * 1000;
+        if (data.refreshToken) {
+          localStorage.setItem('iron_refresh_token', data.refreshToken);
+        }
+        updateUserBar();
+        return true;
+      }
+
+      localStorage.removeItem('iron_refresh_token');
+      currentAccessToken = null;
+      currentUser = null;
+      tokenExpiresAt = 0;
+    } catch(e) {
+      console.warn('Authentication refresh needed:', e.message);
+      localStorage.removeItem('iron_refresh_token');
+      currentAccessToken = null;
+      currentUser = null;
+      tokenExpiresAt = 0;
+    } finally {
+      refreshPromise = null;
+    }
+    return false;
+  })();
+
+  return refreshPromise;
 }
 
 async function logoutUser() {
