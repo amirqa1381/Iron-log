@@ -76,7 +76,8 @@ async function initApp() {
   }
 
   // Check auth and update top bar
-  await checkAuth();
+  const isAuthenticated = await checkAuth();
+  if (!isAuthenticated) return;
   updateUserBar();
   fetchPublicAnnouncement();
 

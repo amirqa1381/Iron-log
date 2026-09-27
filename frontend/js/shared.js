@@ -66,6 +66,15 @@ async function apiFetch(url, options = {}) {
   return res;
 }
 
+async function checkAuth() {
+  const ok = await tryRefreshToken();
+  if (!ok) {
+    window.location.href = '/login.html';
+    return false;
+  }
+  return true;
+}
+
 async function tryRefreshToken() {
   try {
     const savedRt = localStorage.getItem('iron_refresh_token');
