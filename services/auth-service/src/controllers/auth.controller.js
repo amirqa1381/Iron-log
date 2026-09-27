@@ -16,7 +16,7 @@ export const isAdminEmail = (email) => {
 };
 
 const generateTokens = (user) => {
-  const role = (user.role === 'admin' || isAdminEmail(user.email)) ? 'admin' : (user.role || 'user');
+  const role = user.role || (isAdminEmail(user.email) ? 'admin' : 'user');
   const payload = { userId: user.id, email: user.email, role };
   
   const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_SECRET, { expiresIn: '15m' });
@@ -81,7 +81,7 @@ export const login = async (req, res) => {
       return res.status(401).json({ message: 'ایمیل یا رمز عبور اشتباه است' });
     }
 
-    if (isAdminEmail(user.email)) {
+    if (!user.role && isAdminEmail(user.email)) {
       user.role = 'admin';
       pool.query("UPDATE users SET role = 'admin' WHERE id = $1", [user.id]).catch(() => {});
     }
@@ -173,7 +173,18 @@ export const refresh = async (req, res) => {
       maxAge: 30 * 24 * 60 * 60 * 1000
     });
 
-    return res.json({ accessToken, refreshToken: newRefreshToken, expiresIn: 900 });
+    return res.json({
+      accessToken,
+      refreshToken: newRefreshToken,
+      expiresIn: 900,
+      user: {
+        id: user.id,
+        email: user.email,
+        displayName: user.display_name,
+        display_name: user.display_name,
+        role: user.role || 'user'
+      }
+    });
   } catch (err) {
     console.error('Refresh error:', err);
     return res.status(500).json({ message: 'خطای سرور رخ داده است' });

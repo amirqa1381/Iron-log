@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تاریخچه و رکوردهای تمرینی | Iron Log</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+<script>
+  (function(){
+    try {
+      var saved = localStorage.getItem('iron_theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      document.documentElement.setAttribute('data-theme', saved);
+    } catch(e) {}
+  })();
+</script>
+</head>
+<body>
+
+<div id="app">
+  <!-- نوار اعلان سراسری -->
+  <div id="globalAnnouncementBanner" style="display:none;margin:8px 14px;padding:10px 14px;border-radius:8px;font-size:12.5px;font-weight:600;align-items:center;justify-content:space-between;">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span id="announcementIcon">📢</span>
+      <span id="announcementText"></span>
+    </div>
+    <button type="button" onclick="dismissAnnouncement()" style="background:none;border:none;color:inherit;cursor:pointer;font-size:16px;">✕</button>
+  </div>
+
+  <!-- نوار کاربر -->
+  <div class="user-bar">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span style="font-size:15px;">👤</span>
+      <span id="userGreeting" style="font-weight:600;color:var(--text);">در حال بارگذاری...</span>
+    </div>
+    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+      <a href="/admin.html" id="adminPanelBtn" class="btn" style="display:none;background:rgba(217,164,65,0.15);border:1px solid var(--accent);color:var(--accent);padding:4px 10px;font-size:11px;border-radius:20px;text-decoration:none;">
+        👑 پنل مدیریت
+      </a>
+      <button type="button" class="theme-toggle-btn" onclick="toggleTheme()" title="تغییر تم">
+        <span class="themeIcon">☀️</span>
+      </button>
+      <button type="button" class="logout-btn" onclick="logoutUser()">خروج</button>
+    </div>
+  </div>
+
+  <header>
+    <div class="brand">
+      <h1>تاریخچه <span>رکوردهای تمرینی</span></h1>
+      <span class="datebadge">پایش پیشرفت</span>
+    </div>
+    <div class="subtitle">مشاهده سوابق وزنه‌ها، محاسبه ۱RM و نمودار روند حجم تمرین</div>
+  </header>
+
+  <main>
+    <section class="card">
+      <label>انتخاب حرکت جهت مشاهده سوابق</label>
+      <select id="histExercise" onchange="renderHistory()"></select>
+
+      <div style="margin-top:10px;">
+        <input type="text" id="histSearchInput" placeholder="🔍 فیلتر در تاریخ، یادداشت‌ها یا تکرارها..." oninput="renderHistory()" style="font-size:12.5px;padding:8px 10px;">
+      </div>
+
+      <div id="histSummaryBanner" style="display:none;margin-top:12px;background:var(--surface-2);border-radius:8px;padding:12px;border:1px solid var(--line);font-size:12px;">
+        <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:6px;text-align:center;">
+          <div>
+            <div style="color:var(--muted);font-size:11px;">بهترین رکورد ۱RM</div>
+            <b style="color:var(--accent);font-size:14px;" id="histStatBest1RM">—</b>
+          </div>
+          <div>
+            <div style="color:var(--muted);font-size:11px;">سنگین‌ترین وزنه</div>
+            <b style="color:var(--text);font-size:14px;" id="histStatMaxWeight">—</b>
+          </div>
+          <div>
+            <div style="color:var(--muted);font-size:11px;">تعداد جلسات</div>
+            <b style="color:var(--text);font-size:14px;" id="histStatTotalLogs">—</b>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" id="histChartCard" style="display:none;">
+      <div class="sectionhead">روند تخمینی حجم تمرین (وزن × میانگین تکرار)</div>
+      <svg class="chart" id="histChart"></svg>
+    </section>
+
+    <section class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <div class="sectionhead" style="margin-bottom:0;">جلسات ثبت‌شده</div>
+        <span id="histCountBadge" style="font-size:11px;color:var(--muted);"></span>
+      </div>
+      <div id="histList"></div>
+    </section>
+  </main>
+
+  <!-- نوار پایین برنامه -->
+  <nav>
+    <a href="/" class="navbtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.5 6.5l11 11M4 9l3-3 3 3M17 15l3 3-3 3M2 12h4M18 12h4M6 6l-2-2M18 18l2 2"/></svg>
+      تمرین و برنامه
+    </a>
+    <a href="/history.html" class="navbtn active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18M7 15l4-5 3 3 5-7"/></svg>
+      تاریخچه و رکوردها
+    </a>
+    <a href="/weight.html" class="navbtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      وزن بدن
+    </a>
+    <a href="/review.html" class="navbtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4M5 3h14a2 2 0 012 2v16l-4-3-4 3-4-3-4 3V5a2 2 0 012-2z"/></svg>
+      ارزیابی جامع
+    </a>
+  </nav>
+</div>
+
+<script src="/js/shared.js"></script>
+<script src="/js/history.js"></script>
+</body>
+</html>

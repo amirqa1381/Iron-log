@@ -43,6 +43,14 @@ import { getBodyweights, upsertBodyweight, deleteBodyweight } from './services/w
 import { getSettings, updateSettings } from './services/workout-service/src/controllers/settings.controller.js';
 import { exportData, importData } from './services/workout-service/src/controllers/sync.controller.js';
 import { getCustomExercises, createCustomExercise, deleteCustomExercise } from './services/workout-service/src/controllers/custom-exercise.controller.js';
+import { 
+  getCurrentPlan, 
+  getExerciseCatalog, 
+  generateAiPlan, 
+  saveCustomPlan, 
+  updateCurrentPlan, 
+  resetCurrentPlan 
+} from './services/workout-service/src/controllers/plan.controller.js';
 import { initPostgresTables, getDatabaseStatus } from './services/shared/db.js';
 
 dotenv.config();
@@ -121,6 +129,14 @@ app.get('/custom-exercises', requireAuth, getCustomExercises);
 app.post('/custom-exercises', requireAuth, createCustomExercise);
 app.delete('/custom-exercises/:id', requireAuth, deleteCustomExercise);
 
+// Plan & Exercise Catalog routes
+app.get('/api/plan/current', requireAuth, getCurrentPlan);
+app.get('/api/exercises', getExerciseCatalog);
+app.post('/api/plan/generate-ai', requireAuth, generateAiPlan);
+app.post('/api/plan/save-custom', requireAuth, saveCustomPlan);
+app.put('/api/plan/current', requireAuth, updateCurrentPlan);
+app.delete('/api/plan/reset', requireAuth, resetCurrentPlan);
+
 app.get('/export', requireAuth, exportData);
 app.post('/import', requireAuth, importData);
 
@@ -170,7 +186,24 @@ app.use(express.static(frontendDir, {
   }
 }));
 
-// SPA fallback
+// Direct route aliases for multi-page HTML architecture
+app.get(['/admin', '/admin.html'], (req: Request, res: Response) => {
+  res.sendFile(path.join(frontendDir, 'admin.html'));
+});
+app.get(['/login', '/login.html'], (req: Request, res: Response) => {
+  res.sendFile(path.join(frontendDir, 'login.html'));
+});
+app.get(['/history', '/history.html'], (req: Request, res: Response) => {
+  res.sendFile(path.join(frontendDir, 'history.html'));
+});
+app.get(['/weight', '/weight.html'], (req: Request, res: Response) => {
+  res.sendFile(path.join(frontendDir, 'weight.html'));
+});
+app.get(['/review', '/review.html'], (req: Request, res: Response) => {
+  res.sendFile(path.join(frontendDir, 'review.html'));
+});
+
+// SPA fallback for root and general routes
 app.get('*', (req: Request, res: Response) => {
   res.sendFile(path.join(frontendDir, 'index.html'));
 });

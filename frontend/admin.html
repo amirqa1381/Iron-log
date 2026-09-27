@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>Iron Log | پنل مدیریت سامانه</title>
+<meta name="description" content="مرکز کنترل و مدیریت سامانه هوشمند تمرینی Iron Log">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+<script>
+  (function(){
+    try {
+      var saved = localStorage.getItem('iron_theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      document.documentElement.setAttribute('data-theme', saved);
+    } catch(e) {}
+  })();
+</script>
+</head>
+<body>
+
+  <!-- نوار بالای صفحه مدیریت -->
+  <div class="user-bar">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span style="font-size:16px;">👑</span>
+      <span id="userGreeting" style="font-weight:700;color:var(--text);">در حال بارگذاری اطلاعات مدیر...</span>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <a href="/" class="btn" style="text-decoration:none;display:inline-flex;align-items:center;gap:4px;color:var(--accent);">
+        ⬅️ بازگشت به برنامه تمرینی
+      </a>
+      <button type="button" class="theme-toggle-btn" onclick="toggleTheme()" title="تغییر تم">
+        <span class="themeIcon">☀️</span>
+        <span class="themeText">تم روشن</span>
+      </button>
+      <button type="button" class="logout-btn" onclick="logoutUser()">خروج</button>
+    </div>
+  </div>
+
+  <!-- کانتینر اصلی پنل مدیریت -->
+  <div class="admin-page-container">
+    <div class="admin-modal-card" style="max-width:100%;box-shadow:none;">
+      <div class="admin-modal-head">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:24px;">👑</span>
+          <div>
+            <h1 style="font-size:18px;margin:0;color:var(--accent);font-weight:800;">مرکز کنترل و مدیریت سامانه (Admin Control Center)</h1>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px;">مدیریت کامل نقش‌های کاربران، پایش تمرینات، تنظیم اعلان‌های سراسری و سرویس‌ها</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-modal-body">
+        <!-- ۵ تب پنل مدیریت -->
+        <div class="admin-tabs">
+          <button type="button" class="admin-tab-btn active" data-atab="metrics" onclick="switchAdminTab('metrics')">📊 داشبورد و آمار</button>
+          <button type="button" class="admin-tab-btn" data-atab="users" onclick="switchAdminTab('users')">👥 مدیریت کاربران و نقش‌ها</button>
+          <button type="button" class="admin-tab-btn" data-atab="workouts" onclick="switchAdminTab('workouts')">🏋️ تمرینات زنده سامانه</button>
+          <button type="button" class="admin-tab-btn" data-atab="logs" onclick="switchAdminTab('logs')">📢 اعلان‌ها و لاگ سیستم</button>
+          <button type="button" class="admin-tab-btn" data-atab="email" onclick="switchAdminTab('email')">📧 سرویس ایمیل و گوگل</button>
+        </div>
+
+        <!-- تب ۱: داشبورد و آمار -->
+        <div id="adminTabMetrics">
+          <div class="admin-metrics-grid">
+            <div class="admin-metric-card">
+              <div class="val" id="admMetricUsers">—</div>
+              <div class="lbl">کل کاربران ثبت‌شده</div>
+            </div>
+            <div class="admin-metric-card">
+              <div class="val" id="admMetricWorkouts">—</div>
+              <div class="lbl">جلسات تمرینی ثبت‌شده</div>
+            </div>
+            <div class="admin-metric-card">
+              <div class="val" id="admMetricWeights">—</div>
+              <div class="lbl">رکوردهای وزن بدن</div>
+            </div>
+            <div class="admin-metric-card">
+              <div class="val" id="admMetricCustoms">—</div>
+              <div class="lbl">حرکات اختصاصی</div>
+            </div>
+          </div>
+
+          <!-- تفکیک نقش‌های کاربری -->
+          <div style="background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-bottom:12px;">
+            <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:8px;">👥 توزیع نقش‌های کاربری در سامانه</div>
+            <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:8px;text-align:center;">
+              <div style="background:rgba(217,164,65,0.12);padding:10px;border-radius:6px;border:1px solid rgba(217,164,65,0.3);">
+                <div style="font-size:11.5px;color:var(--accent);font-weight:600;">👑 مدیران (Admins)</div>
+                <b style="font-size:18px;color:var(--accent);" id="admRoleAdmins">—</b>
+              </div>
+              <div style="background:rgba(14,165,233,0.12);padding:10px;border-radius:6px;border:1px solid rgba(14,165,233,0.3);">
+                <div style="font-size:11.5px;color:#0ea5e9;font-weight:600;">🏋️ مربیان (Coaches)</div>
+                <b style="font-size:18px;color:#0ea5e9;" id="admRoleCoaches">—</b>
+              </div>
+              <div style="background:rgba(168,85,247,0.12);padding:10px;border-radius:6px;border:1px solid rgba(168,85,247,0.3);">
+                <div style="font-size:11.5px;color:#a855f7;font-weight:600;">⭐ ویژه (VIP)</div>
+                <b style="font-size:18px;color:#a855f7;" id="admRoleVips">—</b>
+              </div>
+              <div style="background:rgba(255,255,255,0.04);padding:10px;border-radius:6px;border:1px solid var(--line);">
+                <div style="font-size:11.5px;color:var(--muted);font-weight:600;">👤 عادی (Users)</div>
+                <b style="font-size:18px;color:var(--text);" id="admRoleUsers">—</b>
+              </div>
+            </div>
+          </div>
+
+          <!-- تفکیک برنامه‌ها و حرکات پرطرفدار -->
+          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:12px;margin-bottom:12px;">
+            <div style="background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:14px;">
+              <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:8px;">🏋️ تفکیک برنامه‌های تمرینی</div>
+              <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:12.5px;">
+                <span>دمبل خانگی (Home Dumbbell):</span>
+                <b style="color:var(--accent);" id="admModeDumbbell">—</b>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:12.5px;">
+                <span>باشگاه بدنسازی (Gym):</span>
+                <b style="color:#0ea5e9;" id="admModeGym">—</b>
+              </div>
+            </div>
+
+            <div style="background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:14px;">
+              <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:8px;">🔥 ۵ حرکت پرتکرار در کل سیستم</div>
+              <div id="admTopExercisesList" style="font-size:12px;color:var(--muted);">در حال دریافت...</div>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <!-- وضعیت سرور -->
+            <div style="background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:12px 14px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-weight:600;font-size:12.5px;color:var(--text);">⚡ وضعیت سرور و مصرف RAM</span>
+                <span id="admSystemUptime" style="font-size:11px;color:var(--accent);direction:ltr;font-family:monospace;">—</span>
+              </div>
+              <div id="admMemoryText" style="font-size:11.5px;color:var(--muted);margin-top:6px;">در حال بارگذاری...</div>
+            </div>
+
+            <!-- وضعیت دیتابیس -->
+            <div style="background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:12px 14px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-weight:600;font-size:12.5px;color:var(--text);">🗄️ وضعیت پایگاه داده (Database Engine)</span>
+                <span id="admDbBadge" class="admin-badge admin">در حال بررسی</span>
+              </div>
+              <div id="admDbDesc" style="font-size:11.5px;color:var(--muted);margin-top:6px;">—</div>
+            </div>
+
+            <!-- وضعیت سرویس ایمیل -->
+            <div style="background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:12px 14px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-weight:600;font-size:12.5px;color:var(--text);">📨 سرویس ارسال ایمیل</span>
+                <span id="admEmailBadge" class="admin-badge user">در حال بررسی</span>
+              </div>
+              <div id="admEmailDesc" style="font-size:11.5px;color:var(--muted);margin-top:6px;">—</div>
+            </div>
+          </div>
+
+          <div style="margin-top:14px;">
+            <button type="button" class="btn" style="width:100%;padding:10px;font-size:12.5px;color:var(--accent);" onclick="loadAdminMetrics()">🔄 به‌روزرسانی زنده آمار سیستم</button>
+          </div>
+        </div>
+
+        <!-- تب ۲: مدیریت کاربران و نقش‌ها -->
+        <div id="adminTabUsers" style="display:none;">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+            <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+              <button type="button" class="admin-filter-pill active" data-rfilter="all" onclick="filterUsersByRole('all')">همه کاربران</button>
+              <button type="button" class="admin-filter-pill" data-rfilter="admin" onclick="filterUsersByRole('admin')">👑 مدیران</button>
+              <button type="button" class="admin-filter-pill" data-rfilter="coach" onclick="filterUsersByRole('coach')">🏋️ مربیان</button>
+              <button type="button" class="admin-filter-pill" data-rfilter="vip" onclick="filterUsersByRole('vip')">⭐ VIP</button>
+              <button type="button" class="admin-filter-pill" data-rfilter="user" onclick="filterUsersByRole('user')">👤 عادی</button>
+            </div>
+            <div style="display:flex;gap:6px;">
+              <button type="button" class="primary" style="width:auto;padding:6px 14px;font-size:12px;margin:0;" onclick="openAdminCreateUserModal()">➕ ساخت کاربر جدید</button>
+              <button type="button" class="btn" style="padding:6px 12px;font-size:12px;" onclick="exportAdminUsersCsv()" title="خروجی فایل CSV کاربران">📥 خروجی CSV</button>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:8px;margin-bottom:12px;">
+            <input type="text" id="adminUserSearchInput" placeholder="🔍 جستجوی کاربر با نام، ایمیل یا شناسه..." oninput="debounceAdminSearch()" style="margin:0;font-size:12.5px;flex:1;">
+            <button type="button" class="btn" style="padding:6px 14px;font-size:12px;color:var(--accent);" onclick="loadAdminUsers()">🔄 تازه</button>
+          </div>
+
+          <div id="adminUsersFeedback" style="margin-bottom:10px;"></div>
+
+          <div style="overflow-x:auto;">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>نام و مشخصات کاربر</th>
+                  <th>نقش فعلی</th>
+                  <th>دکمه‌های تغییر نقش</th>
+                  <th>آمار تمرینی</th>
+                  <th>تاریخ عضویت</th>
+                  <th>عملیات</th>
+                </tr>
+              </thead>
+              <tbody id="adminUsersTableBody">
+                <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:18px;">در حال دریافت کاربران...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- تب ۳: تمرینات زنده سامانه -->
+        <div id="adminTabWorkouts" style="display:none;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <div style="font-size:13.5px;font-weight:700;color:var(--text);">🔥 خوراک زنده آخرین تمرینات ثبت‌شده در سراسر پلتفرم</div>
+            <button type="button" class="btn" style="padding:5px 12px;font-size:11.5px;color:var(--accent);" onclick="loadAdminRecentWorkouts()">🔄 تازه‌سازی</button>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>ورزشکار</th>
+                  <th>برنامه</th>
+                  <th>نام حرکت</th>
+                  <th>وزنه</th>
+                  <th>تکرارها</th>
+                  <th>RIR</th>
+                  <th>تاریخ</th>
+                  <th>یادداشت</th>
+                </tr>
+              </thead>
+              <tbody id="adminWorkoutsTableBody">
+                <tr><td colspan="8" style="text-align:center;color:var(--muted);padding:18px;">در حال دریافت خوراک تمرینات...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- تب ۴: اطلاعیه سراسری و لاگ سیستم -->
+        <div id="adminTabLogs" style="display:none;">
+          <!-- فرم تنظیم اعلان همگانی -->
+          <div style="background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:14px;margin-bottom:16px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+              <h3 style="font-size:13.5px;margin:0;color:var(--accent);font-weight:700;">📢 نوار اعلان سراسری به کاربران (Global Announcement Banner)</h3>
+              <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;margin:0;">
+                <input type="checkbox" id="admAnnounceEnabled" style="margin:0;">
+                <b>فعال بودن اعلان</b>
+              </label>
+            </div>
+            <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">
+              متنی که در اینجا وارد می‌کنید، در بالای صفحه اصلی تمام کاربران نمایش داده می‌شود.
+            </div>
+            <input type="text" id="admAnnounceMessage" placeholder="متن پیام اعلان (مثلاً: به‌روزرسانی سیستم انجام شد یا برنامه جدید اضافه گردید)..." style="font-size:12.5px;margin-bottom:10px;">
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+              <label style="font-size:12px;margin:0;">نوع اعلان:</label>
+              <select id="admAnnounceLevel" style="width:auto;margin:0;font-size:12px;padding:5px 10px;">
+                <option value="info">اطلاعاتی (آبی/روشن)</option>
+                <option value="warning">هشدار (طلایی)</option>
+                <option value="success">موفقیت (سبز)</option>
+              </select>
+              <button type="button" class="primary" style="width:auto;padding:6px 16px;font-size:12px;margin:0;" onclick="saveAdminAnnouncement()">ذخیره و انتشار اعلان</button>
+              <span id="admAnnounceFeedback" style="font-size:12px;"></span>
+            </div>
+          </div>
+
+          <!-- جدول لاگ‌های امنیتی -->
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <h3 style="font-size:13.5px;margin:0;color:var(--text);font-weight:700;">📜 لاگ‌های امنیتی و رویدادهای سیستم (Audit Trail)</h3>
+            <button type="button" class="btn" style="padding:4px 10px;font-size:11px;color:var(--accent);" onclick="loadAdminSystemLogs()">🔄 تازه‌سازی لاگ‌ها</button>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>نوع</th>
+                  <th>رویداد</th>
+                  <th>جزئیات</th>
+                  <th>کاربر مجری</th>
+                  <th>زمان</th>
+                </tr>
+              </thead>
+              <tbody id="adminLogsTableBody">
+                <tr><td colspan="5" style="text-align:center;color:var(--muted);padding:18px;">در حال دریافت لاگ‌ها...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- تب ۵: تنظیمات ایمیل و گوگل -->
+        <div id="adminTabEmail" style="display:none;">
+          <div style="background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:14px;margin-bottom:14px;">
+            <h3 style="font-size:14px;margin:0 0 8px 0;color:var(--accent);">راهنمای اتصال ارسال ایمیل با Google Gmail</h3>
+            <div style="font-size:12px;color:var(--muted);line-height:1.9;">
+              برای ارسال ایمیل‌های واقعی بازیابی رمز عبور از طریق حساب جیمیل (Google Workspace یا @gmail.com):
+              <ol style="margin:6px 0;padding-right:20px;">
+                <li>به صفحه <b style="color:var(--text);">Google Account Security</b> (myaccount.google.com/security) بروید.</li>
+                <li>گزینه <b>تایید دو مرحله‌ای (2-Step Verification)</b> را فعال کنید.</li>
+                <li>در انتهای صفحه بخش <b>رمزهای برنامه (App Passwords)</b> را باز کنید.</li>
+                <li>یک رمز جدید بسازید؛ گوگل یک رمز ۱۶ رقمی (مثلاً <code>abcd efgh ijkl mnop</code>) به شما می‌دهد.</li>
+                <li>این مقادیر را در متغیرهای محیطی تعریف فرمایید:
+                  <div style="background:var(--bg);padding:8px;border-radius:6px;direction:ltr;font-family:monospace;font-size:11.5px;color:var(--accent);margin-top:6px;">
+                    GMAIL_USER=your-email@gmail.com<br>
+                    GMAIL_APP_PASS=abcdefghijklmnop
+                  </div>
+                </li>
+              </ol>
+              <div style="font-size:11.5px;color:var(--ok);margin-top:6px;">
+                💡 <b>ارسال موفق:</b> هم‌اکنون تست ارسال ایمیل جیمیل با موفقیت آزمایش شده و آماده استفاده در بازیابی رمز عبور است.
+              </div>
+            </div>
+          </div>
+
+          <!-- فرم تست ارسال ایمیل -->
+          <div style="background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:14px;">
+            <h3 style="font-size:13.5px;margin:0 0 10px 0;color:var(--text);">ارسال ایمیل آزمایشی (Test Email)</h3>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <input type="email" id="admTestEmailTarget" placeholder="ایمیل مقصد برای دریافت تست" dir="ltr" style="margin:0;font-size:12.5px;flex:1;">
+              <button type="button" class="primary" style="width:auto;padding:8px 16px;white-space:nowrap;font-size:12px;margin:0;" onclick="submitTestEmail()">ارسال تست</button>
+            </div>
+            <div id="admTestEmailResult" style="margin-top:10px;"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- مودال ایجاد کاربر جدید توسط مدیر -->
+  <div id="adminCreateUserModal" class="auth-modal" style="display:none;z-index:10002;">
+    <div class="auth-box" style="max-width:400px;text-align:right;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;border-bottom:1px solid var(--line);padding-bottom:10px;">
+        <h3 style="margin:0;font-size:15px;color:var(--text);font-weight:700;">➕ ایجاد کاربر جدید در سامانه</h3>
+        <button type="button" onclick="closeAdminCreateUserModal()" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:0 4px;">✕</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div>
+          <label>نام و نام خانوادگی</label>
+          <input type="text" id="admCreateName" placeholder="مثلاً: سهراب مرادی">
+        </div>
+        <div>
+          <label>آدرس ایمیل</label>
+          <input type="email" id="admCreateEmail" placeholder="user@example.com" dir="ltr">
+        </div>
+        <div>
+          <label>رمز عبور اولیه (حداقل ۶ کاراکتر)</label>
+          <input type="password" id="admCreatePassword" placeholder="رمز عبور" dir="ltr">
+        </div>
+        <div>
+          <label>نقش و سطح دسترسی کاربر</label>
+          <select id="admCreateRole" style="margin-bottom:4px;">
+            <option value="user" selected>👤 کاربر عادی (User)</option>
+            <option value="vip">⭐ کاربر ویژه (VIP)</option>
+            <option value="coach">🏋️ مربی و آنالیزور (Coach)</option>
+            <option value="admin">👑 مدیر کل سیستم (Admin)</option>
+          </select>
+        </div>
+      </div>
+      <div id="admCreateFeedback" style="margin-top:8px;"></div>
+      <div style="display:flex;gap:8px;margin-top:14px;">
+        <button type="button" class="primary" style="flex:2;margin:0;" onclick="submitAdminCreateUser()">ایجاد کاربر</button>
+        <button type="button" class="btn" style="flex:1;" onclick="closeAdminCreateUserModal()">انصراف</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- مودال پرونده و جزئیات فعالیت کاربر -->
+  <div id="adminUserDetailsModal" class="auth-modal" style="display:none;z-index:10002;">
+    <div class="admin-modal-card" style="max-width:620px;">
+      <div class="admin-modal-head">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:20px;">📋</span>
+          <h3 style="margin:0;font-size:15px;color:var(--text);font-weight:700;" id="admUserDetailTitle">پرونده ورزشکار</h3>
+        </div>
+        <button type="button" onclick="closeAdminUserDetailsModal()" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:0 4px;">✕</button>
+      </div>
+      <div class="admin-modal-body" id="admUserDetailBody">
+        <div style="text-align:center;padding:24px;color:var(--muted);">در حال دریافت اطلاعات پرونده...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- مودال تغییر رمز عبور کاربر توسط ادمین -->
+  <div id="adminUserResetModal" class="auth-modal" style="display:none;z-index:10001;">
+    <div class="auth-box" style="max-width:380px;text-align:right;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;border-bottom:1px solid var(--line);padding-bottom:10px;">
+        <h3 style="margin:0;font-size:15px;color:var(--text);font-weight:700;">تنظیم رمز عبور جدید توسط مدیر</h3>
+        <button type="button" onclick="closeAdminUserResetModal()" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:0 4px;">✕</button>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">
+        کاربر: <b id="admResetTargetLabel" style="color:var(--accent);"></b>
+      </div>
+      <input type="hidden" id="admResetTargetUserId">
+      <label>رمز عبور جدید (حداقل ۶ کاراکتر)</label>
+      <input type="password" id="admResetTargetNewPassword" placeholder="رمز عبور جدید" dir="ltr">
+
+      <div id="admResetFeedback" style="margin-top:8px;"></div>
+
+      <div style="display:flex;gap:8px;margin-top:14px;">
+        <button type="button" class="primary" style="flex:2;margin:0;" onclick="submitAdminUserReset()">ثبت رمز جدید</button>
+        <button type="button" class="btn" style="flex:1;" onclick="closeAdminUserResetModal()">انصراف</button>
+      </div>
+    </div>
+  </div>
+
+<script src="/js/shared.js"></script>
+<script src="/js/admin.js"></script>
+</body>
+</html>

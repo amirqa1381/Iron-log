@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ارزیابی پیشرفت و اضافه بار | Iron Log</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+<script>
+  (function(){
+    try {
+      var saved = localStorage.getItem('iron_theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      document.documentElement.setAttribute('data-theme', saved);
+    } catch(e) {}
+  })();
+</script>
+</head>
+<body>
+
+<div id="app">
+  <!-- نوار اعلان سراسری -->
+  <div id="globalAnnouncementBanner" style="display:none;margin:8px 14px;padding:10px 14px;border-radius:8px;font-size:12.5px;font-weight:600;align-items:center;justify-content:space-between;">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span id="announcementIcon">📢</span>
+      <span id="announcementText"></span>
+    </div>
+    <button type="button" onclick="dismissAnnouncement()" style="background:none;border:none;color:inherit;cursor:pointer;font-size:16px;">✕</button>
+  </div>
+
+  <!-- نوار کاربر -->
+  <div class="user-bar">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span style="font-size:15px;">📊</span>
+      <span id="userGreeting" style="font-weight:600;color:var(--text);">در حال بارگذاری...</span>
+    </div>
+    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+      <a href="/admin.html" id="adminPanelBtn" class="btn" style="display:none;background:rgba(217,164,65,0.15);border:1px solid var(--accent);color:var(--accent);padding:4px 10px;font-size:11px;border-radius:20px;text-decoration:none;">
+        👑 پنل مدیریت
+      </a>
+      <button type="button" class="theme-toggle-btn" onclick="toggleTheme()" title="تغییر تم">
+        <span class="themeIcon">☀️</span>
+      </button>
+      <button type="button" class="logout-btn" onclick="logoutUser()">خروج</button>
+    </div>
+  </div>
+
+  <header>
+    <div class="brand">
+      <h1>ارزیابی جامع <span>پیشرفت تمرین</span></h1>
+      <span class="datebadge">آنالیز علمی</span>
+    </div>
+    <div class="subtitle">تحلیل اضافه بار تدریجی، پایش حجم تمرینات و پشتیبان‌گیری از اطلاعات</div>
+  </header>
+
+  <main>
+    <section class="card">
+      <div class="daytitle">
+        <h2>تنظیمات گزارش و فیلترها</h2>
+        <span class="daytag">پایش پیشرفت</span>
+      </div>
+
+      <label>بازه زمانی ارزیابی</label>
+      <select id="revTimeframe" onchange="toggleCustomDates()">
+        <option value="14">۱۴ روز گذشته (۲ هفته - بررسی سریع)</option>
+        <option value="30" selected>۳۰ روز گذشته (۱ ماه - استاندارد)</option>
+        <option value="60">۶۰ روز گذشته (۲ ماه - بررسی فاز کامل)</option>
+        <option value="all">تمام تاریخچه ثبت‌ها (All-Time)</option>
+        <option value="custom">بازه انتخابی دلخواه (Custom)...</option>
+      </select>
+
+      <div class="row2" id="revCustomDates" style="display:none;margin-top:8px;">
+        <div><label>از تاریخ</label><input type="date" id="revStartDate"></div>
+        <div><label>تا تاریخ</label><input type="date" id="revEndDate"></div>
+      </div>
+
+      <label>تمرکز روی حرکت خاص</label>
+      <select id="revExercise" onchange="renderReview()">
+        <option value="all">همه حرکات ثبت‌شده</option>
+      </select>
+
+      <!-- تنظیمات اهداف وزن -->
+      <div style="margin-top:12px;background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;" onclick="toggleGoalSettings()">
+          <span style="font-size:12px;font-weight:600;color:var(--accent);">🎯 تنظیم وزن شروع و وزن هدف</span>
+          <span id="goalToggleIcon" style="font-size:11px;color:var(--muted);">▼</span>
+        </div>
+        <div id="goalSettingsBox" style="display:none;margin-top:10px;">
+          <div class="row2">
+            <div>
+              <label style="margin-top:0;">وزن اولیه (kg)</label>
+              <input type="text" id="cfgStartWeight" placeholder="مثلاً ۷۵.۰" inputmode="decimal">
+            </div>
+            <div>
+              <label style="margin-top:0;">وزن هدف (kg)</label>
+              <input type="text" id="cfgTargetWeight" placeholder="مثلاً ۸۲.۰" inputmode="decimal">
+            </div>
+          </div>
+          <button class="ghost" style="margin-top:8px;font-size:12px;padding:6px 10px;" onclick="saveWeightGoals()">ذخیره اهداف وزن</button>
+          <div id="goalSaveFeedback" style="font-size:11.5px;margin-top:4px;"></div>
+        </div>
+      </div>
+
+      <button class="primary" style="margin-top:14px;" onclick="renderReview()">📊 محاسبه و تهیه ارزیابی جامع</button>
+
+      <!-- دکمه‌های خروجی و پشتیبان‌گیری -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;">
+        <button class="ghost" onclick="copyReviewReport()">📋 کپی متن ارزیابی</button>
+        <button class="ghost" onclick="exportData()">💾 بک‌آپ کامل (.json)</button>
+        <button class="ghost" onclick="exportWorkoutsToCSV()">📊 اکسل (.csv)</button>
+        <button class="ghost" onclick="document.getElementById('importFile').click()">📥 ایمپورت بک‌آپ</button>
+      </div>
+      <input type="file" id="importFile" accept="application/json,.json" style="display:none" onchange="importData(event)">
+    </section>
+
+    <div id="reviewOutput"></div>
+  </main>
+
+  <!-- نوار پایین برنامه -->
+  <nav>
+    <a href="/" class="navbtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.5 6.5l11 11M4 9l3-3 3 3M17 15l3 3-3 3M2 12h4M18 12h4M6 6l-2-2M18 18l2 2"/></svg>
+      تمرین و برنامه
+    </a>
+    <a href="/history.html" class="navbtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18M7 15l4-5 3 3 5-7"/></svg>
+      تاریخچه و رکوردها
+    </a>
+    <a href="/weight.html" class="navbtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      وزن بدن
+    </a>
+    <a href="/review.html" class="navbtn active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4M5 3h14a2 2 0 012 2v16l-4-3-4 3-4-3-4 3V5a2 2 0 012-2z"/></svg>
+      ارزیابی جامع
+    </a>
+  </nav>
+</div>
+
+<script src="/js/shared.js"></script>
+<script src="/js/review.js"></script>
+</body>
+</html>

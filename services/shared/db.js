@@ -119,6 +119,9 @@ const userSettings = [
 const customExercises = [];
 let nextCustomExerciseId = 1;
 
+const userPlans = [];
+let nextUserPlanId = 1;
+
 // In-memory query router
 function executeInMemoryQuery(text, params = []) {
   const sql = text.trim();
@@ -698,6 +701,90 @@ function executeInMemoryQuery(text, params = []) {
     return { rows: [], rowCount: 0 };
   }
 
+  // USER PLANS queries
+  if (lower.includes('from user_plans') && lower.includes('is_active = true') && lower.includes('user_id = $1')) {
+    const userId = Number(params[0]);
+    const plans = userPlans.filter(p => Number(p.user_id) === userId && p.is_active === true);
+    plans.sort((a, b) => b.id - a.id);
+    const top = plans[0];
+    if (top) {
+      return {
+        rows: [{
+          id: top.id,
+          user_id: top.user_id,
+          plan_name: top.plan_name,
+          source: top.source,
+          goal: top.goal,
+          location: top.location,
+          equipment: top.equipment,
+          experience: top.experience,
+          days_per_week: top.days_per_week,
+          plan_data: top.plan_data,
+          is_active: top.is_active,
+          created_at: top.created_at,
+          updated_at: top.updated_at
+        }],
+        rowCount: 1
+      };
+    }
+    return { rows: [], rowCount: 0 };
+  }
+
+  if (lower.startsWith('update user_plans set is_active = false where user_id = $1')) {
+    const userId = Number(params[0]);
+    userPlans.forEach(p => {
+      if (Number(p.user_id) === userId) {
+        p.is_active = false;
+        p.updated_at = new Date();
+      }
+    });
+    return { rows: [], rowCount: 1 };
+  }
+
+  if (lower.startsWith('insert into user_plans')) {
+    const newPlan = {
+      id: nextUserPlanId++,
+      user_id: Number(params[0]),
+      plan_name: params[1],
+      source: params[2] || 'ai',
+      goal: params[3] || '',
+      location: params[4] || 'gym',
+      equipment: typeof params[5] === 'string' ? JSON.parse(params[5] || '[]') : (params[5] || []),
+      experience: params[6] || 'intermediate',
+      days_per_week: Number(params[7]) || 3,
+      plan_data: typeof params[8] === 'string' ? JSON.parse(params[8] || '[]') : (params[8] || []),
+      is_active: params[9] !== undefined ? Boolean(params[9]) : true,
+      created_at: new Date(),
+      updated_at: new Date()
+    };
+    userPlans.push(newPlan);
+    return { rows: [newPlan], rowCount: 1 };
+  }
+
+  if (lower.startsWith('update user_plans set plan_data = $1')) {
+    const planData = typeof params[0] === 'string' ? JSON.parse(params[0]) : params[0];
+    const id = Number(params[1]);
+    const userId = Number(params[2]);
+    const plan = userPlans.find(p => Number(p.id) === id && Number(p.user_id) === userId);
+    if (plan) {
+      plan.plan_data = planData;
+      plan.updated_at = new Date();
+      return { rows: [plan], rowCount: 1 };
+    }
+    return { rows: [], rowCount: 0 };
+  }
+
+  if (lower.startsWith('delete from user_plans where user_id = $1')) {
+    const userId = Number(params[0]);
+    const prevLen = userPlans.length;
+    for (let i = userPlans.length - 1; i >= 0; i--) {
+      if (Number(userPlans[i].user_id) === userId) {
+        userPlans.splice(i, 1);
+      }
+    }
+    return { rows: [], rowCount: prevLen - userPlans.length };
+  }
+
   console.warn('[Mock DB] Unhandled SQL query:', sql);
   return { rows: [], rowCount: 0 };
 }
@@ -746,9 +833,9 @@ export async function initPostgresTables() {
           created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
         );
 
-        -- Ensure role column exists and promote admin emails
+        -- Ensure role column exists and promote admin emails if role is not set
         ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(20) DEFAULT 'user';
-        UPDATE users SET role = 'admin' WHERE LOWER(email) IN ('amirghasemian1381@gmail.com', 'amirhusseinghasemian@outlook.com', 'demo@ironlog.app');
+        UPDATE users SET role = 'admin' WHERE (role IS NULL OR role = '') AND LOWER(email) IN ('amirghasemian1381@gmail.com', 'amirhusseinghasemian@outlook.com', 'demo@ironlog.app');
 
         CREATE TABLE IF NOT EXISTS refresh_tokens (
           id SERIAL PRIMARY KEY,
@@ -823,12 +910,29 @@ export async function initPostgresTables() {
           created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
         );
 
+        CREATE TABLE IF NOT EXISTS user_plans (
+          id SERIAL PRIMARY KEY,
+          user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+          plan_name VARCHAR(255) NOT NULL,
+          source VARCHAR(50) DEFAULT 'ai',
+          goal VARCHAR(100),
+          location VARCHAR(50),
+          equipment JSONB DEFAULT '[]',
+          experience VARCHAR(50),
+          days_per_week INTEGER DEFAULT 3,
+          plan_data JSONB NOT NULL,
+          is_active BOOLEAN DEFAULT TRUE,
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+          updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        );
+
         -- Performance & Scalability Indexes
         CREATE INDEX IF NOT EXISTS idx_workout_logs_user_date ON workout_logs(user_id, log_date DESC);
         CREATE INDEX IF NOT EXISTS idx_workout_logs_user_exercise ON workout_logs(user_id, exercise_name);
         CREATE INDEX IF NOT EXISTS idx_bodyweight_logs_user_date ON bodyweight_logs(user_id, log_date DESC);
         CREATE INDEX IF NOT EXISTS idx_custom_exercises_user_mode ON custom_exercises(user_id, program_mode);
         CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user ON refresh_tokens(user_id);
+        CREATE INDEX IF NOT EXISTS idx_user_plans_user_active ON user_plans(user_id, is_active);
       `);
       isPostgresAvailable = true;
       console.log('✅ Supabase PostgreSQL connected and indexes verified successfully');

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>پایش وزن بدن و ترکیب بدنی | Iron Log</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+<script>
+  (function(){
+    try {
+      var saved = localStorage.getItem('iron_theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      document.documentElement.setAttribute('data-theme', saved);
+    } catch(e) {}
+  })();
+</script>
+</head>
+<body>
+
+<div id="app">
+  <!-- نوار اعلان سراسری -->
+  <div id="globalAnnouncementBanner" style="display:none;margin:8px 14px;padding:10px 14px;border-radius:8px;font-size:12.5px;font-weight:600;align-items:center;justify-content:space-between;">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span id="announcementIcon">📢</span>
+      <span id="announcementText"></span>
+    </div>
+    <button type="button" onclick="dismissAnnouncement()" style="background:none;border:none;color:inherit;cursor:pointer;font-size:16px;">✕</button>
+  </div>
+
+  <!-- نوار کاربر -->
+  <div class="user-bar">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span style="font-size:15px;">⚖️</span>
+      <span id="userGreeting" style="font-weight:600;color:var(--text);">در حال بارگذاری...</span>
+    </div>
+    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+      <a href="/admin.html" id="adminPanelBtn" class="btn" style="display:none;background:rgba(217,164,65,0.15);border:1px solid var(--accent);color:var(--accent);padding:4px 10px;font-size:11px;border-radius:20px;text-decoration:none;">
+        👑 پنل مدیریت
+      </a>
+      <button type="button" class="theme-toggle-btn" onclick="toggleTheme()" title="تغییر تم">
+        <span class="themeIcon">☀️</span>
+      </button>
+      <button type="button" class="logout-btn" onclick="logoutUser()">خروج</button>
+    </div>
+  </div>
+
+  <header>
+    <div class="brand">
+      <h1>پایش <span>وزن بدن</span></h1>
+      <span class="datebadge">ترکیب بدنی</span>
+    </div>
+    <div class="subtitle">ثبت روزانه وزن، مقایسه با مبدأ و هدف و پایش میانگین متحرک هفتگی</div>
+  </header>
+
+  <main>
+    <!-- کارت ثبت وزن امروز -->
+    <section class="card">
+      <div class="sectionhead">ثبت جدید وزن بدن</div>
+      <div class="row2">
+        <div>
+          <label>تاریخ ثبت</label>
+          <input type="date" id="bwDate">
+        </div>
+        <div>
+          <label>وزن به کیلوگرم (مثلاً ۷۸.۵)</label>
+          <input type="text" id="bwWeight" placeholder="۷۸.۵" inputmode="decimal">
+        </div>
+      </div>
+      <button type="button" class="primary" onclick="submitWeight()">ثبت وزن بدن</button>
+      <div id="bwFeedback"></div>
+    </section>
+
+    <!-- کارت اهداف وزن بدن -->
+    <section class="card">
+      <div class="sectionhead">اهداف ترکیب بدنی (مبدأ و هدف)</div>
+      <div class="row2">
+        <div>
+          <label>وزن شروع دوره (kg)</label>
+          <input type="text" id="tabBwStartWeight" placeholder="مثلاً ۷۵.۰" inputmode="decimal">
+        </div>
+        <div>
+          <label>وزن هدف (kg)</label>
+          <input type="text" id="tabBwTargetWeight" placeholder="مثلاً ۸۰.۰" inputmode="decimal">
+        </div>
+      </div>
+      <button type="button" class="btn" style="width:100%;margin-top:10px;padding:8px;" onclick="saveTabBwGoals()">ذخیره اهداف وزنی</button>
+      <div id="tabBwGoalFeedback" style="font-size:12px;margin-top:8px;"></div>
+    </section>
+
+    <!-- نمودار و تحلیل پیشرفت -->
+    <section class="card" id="bwChartCard" style="display:none;">
+      <div class="sectionhead" id="bwProgHead">نمودار نوسان و روند وزن</div>
+      <svg class="chart" id="bwChart"></svg>
+      <div id="bwTrendNote" style="font-size:12px;color:var(--muted);margin-top:10px;line-height:1.7;"></div>
+    </section>
+
+    <!-- سوابق ثبت شده -->
+    <section class="card">
+      <div class="sectionhead">تاریخچه ثبت‌های وزن</div>
+      <div class="wlist" id="bwList"></div>
+    </section>
+  </main>
+
+  <!-- نوار پایین برنامه -->
+  <nav>
+    <a href="/" class="navbtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.5 6.5l11 11M4 9l3-3 3 3M17 15l3 3-3 3M2 12h4M18 12h4M6 6l-2-2M18 18l2 2"/></svg>
+      تمرین و برنامه
+    </a>
+    <a href="/history.html" class="navbtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18M7 15l4-5 3 3 5-7"/></svg>
+      تاریخچه و رکوردها
+    </a>
+    <a href="/weight.html" class="navbtn active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      وزن بدن
+    </a>
+    <a href="/review.html" class="navbtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4M5 3h14a2 2 0 012 2v16l-4-3-4 3-4-3-4 3V5a2 2 0 012-2z"/></svg>
+      ارزیابی جامع
+    </a>
+  </nav>
+</div>
+
+<script src="/js/shared.js"></script>
+<script src="/js/weight.js"></script>
+</body>
+</html>

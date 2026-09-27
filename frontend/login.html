@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ورود یا ثبت‌نام | Iron Log</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+<script>
+  (function(){
+    try {
+      var saved = localStorage.getItem('iron_theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      document.documentElement.setAttribute('data-theme', saved);
+    } catch(e) {}
+  })();
+</script>
+</head>
+<body style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px;">
+
+  <div style="position:fixed;top:16px;left:16px;z-index:1001;">
+    <button type="button" class="theme-toggle-btn" onclick="toggleTheme()" title="تغییر تم">
+      <span class="authThemeIcon">☀️</span>
+      <span class="authThemeText">تم روشن</span>
+    </button>
+  </div>
+
+  <div class="auth-box">
+    <div class="auth-title">IRON LOG</div>
+    <div class="auth-sub">دفتر هوشمند پایش و اضافه بار تمرینات بدنسازی</div>
+
+    <div class="auth-nav">
+      <button type="button" id="tabBtnLogin" class="active" onclick="switchAuthTab('login')">ورود به حساب</button>
+      <button type="button" id="tabBtnRegister" onclick="switchAuthTab('register')">ثبت‌نام جدید</button>
+    </div>
+
+    <div id="authError" style="display:none;color:var(--danger);font-size:12.5px;margin-bottom:12px;text-align:center;padding:8px;background:rgba(217,108,108,0.1);border-radius:6px;border:1px solid rgba(217,108,108,0.3);"></div>
+    <div id="authSuccess" style="display:none;color:var(--ok);font-size:12.5px;margin-bottom:12px;text-align:center;padding:8px;background:rgba(111,191,115,0.1);border-radius:6px;border:1px solid rgba(111,191,115,0.3);"></div>
+
+    <!-- فرم ورود -->
+    <div id="authCardLogin">
+      <div>
+        <label>ایمیل</label>
+        <input type="email" id="loginEmail" placeholder="your-email@example.com" dir="ltr" value="amirghasemian1381@gmail.com">
+      </div>
+      <div>
+        <label>رمز عبور</label>
+        <input type="password" id="loginPassword" placeholder="••••••••" dir="ltr" value="123456">
+      </div>
+      <button type="button" class="primary" onclick="submitLogin()">ورود به حساب</button>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;font-size:12px;">
+        <a href="javascript:void(0)" onclick="openForgotPassword()" style="color:var(--accent);text-decoration:none;">🔑 رمز عبور را فراموش کرده‌اید؟</a>
+      </div>
+    </div>
+
+    <!-- فرم ثبت نام -->
+    <div id="authCardRegister" style="display:none;">
+      <div>
+        <label>نام و نام خانوادگی (اختیاری)</label>
+        <input type="text" id="regName" placeholder="مثلاً: سهراب مرادی">
+      </div>
+      <div>
+        <label>ایمیل</label>
+        <input type="email" id="regEmail" placeholder="your-email@example.com" dir="ltr">
+      </div>
+      <div>
+        <label>رمز عبور (حداقل ۶ کاراکتر)</label>
+        <input type="password" id="regPassword" placeholder="••••••••" dir="ltr">
+      </div>
+      <div>
+        <label>تکرار رمز عبور</label>
+        <input type="password" id="regConfirmPassword" placeholder="••••••••" dir="ltr">
+      </div>
+      <button type="button" class="primary" onclick="submitRegister()">ایجاد حساب کاربری</button>
+    </div>
+
+    <!-- فرم بازیابی رمز عبور -->
+    <div id="forgotPasswordCard" style="display:none;margin-top:10px;">
+      <div style="border-top:1px solid var(--line);padding-top:12px;">
+        <h4 style="margin:0 0 6px 0;font-size:14px;color:var(--accent);">بازیابی رمز عبور</h4>
+
+        <!-- مرحله ۱: دریافت ایمیل -->
+        <div id="forgotStep1">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:8px;">
+            ایمیل حساب خود را وارد کنید تا کد تأیید برای شما ارسال شود:
+          </div>
+          <input type="email" id="forgotEmail" placeholder="ایمیل حساب کاربری" dir="ltr">
+          <div id="forgotFeedback" style="margin-top:8px;"></div>
+          <div style="display:flex;gap:8px;margin-top:12px;">
+            <button type="button" class="primary" style="flex:2;margin:0;" onclick="submitForgotPassword()">ارسال کد بازیابی</button>
+            <button type="button" class="btn" style="flex:1;" onclick="cancelForgotPassword()">انصراف</button>
+          </div>
+        </div>
+
+        <!-- مرحله ۲: ورود کد و رمز جدید -->
+        <div id="forgotStep2" style="display:none;">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:8px;">
+            کد ۶ رقمی دریافتی و رمز عبور جدید خود را وارد کنید:
+          </div>
+          <div>
+            <label>کد ۶ رقمی تأیید</label>
+            <input type="text" id="resetCode" placeholder="مثلاً ۱۲۳۴۵۶" dir="ltr" style="font-family:monospace;letter-spacing:4px;text-align:center;font-size:16px;">
+          </div>
+          <div>
+            <label>رمز عبور جدید (حداقل ۶ کاراکتر)</label>
+            <input type="password" id="newPassword" placeholder="رمز عبور جدید" dir="ltr">
+          </div>
+          <div>
+            <label>تکرار رمز عبور جدید</label>
+            <input type="password" id="confirmNewPassword" placeholder="تکرار رمز عبور جدید" dir="ltr">
+          </div>
+          <div id="resetFeedback" style="margin-top:8px;"></div>
+          <div style="display:flex;gap:8px;margin-top:12px;">
+            <button type="button" class="primary" style="flex:2;margin:0;" onclick="submitResetPassword()">ثبت رمز جدید</button>
+            <button type="button" class="btn" style="flex:1;" onclick="cancelForgotPassword()">انصراف</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+<script src="/js/shared.js"></script>
+<script src="/js/auth.js"></script>
+</body>
+</html>
