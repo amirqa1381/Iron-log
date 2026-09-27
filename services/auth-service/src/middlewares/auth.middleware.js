@@ -20,10 +20,6 @@ export const verifyAccessToken = (req, res, next) => {
         return res.status(401).json({ message: 'حساب کاربری یافت نشد یا حذف شده است' });
       }
       const user = userCheck.rows[0];
-      const email = (user.email || '').toLowerCase().trim();
-      if (email === 'amirghasemian1381@gmail.com' || email === 'amirhusseinghasemian@outlook.com' || email === 'demo@ironlog.app') {
-        user.role = 'admin';
-      }
       req.user = user;
       next();
     } catch (dbErr) {

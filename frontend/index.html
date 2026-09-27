@@ -448,7 +448,7 @@
     border: 1px solid var(--line);
     border-radius: 12px;
     width: 100%;
-    max-width: 680px;
+    max-width: 820px;
     max-height: 90vh;
     display: flex;
     flex-direction: column;
@@ -472,6 +472,7 @@
     padding: 4px;
     border-radius: 8px;
     margin-bottom: 16px;
+    overflow-x: auto;
   }
   .admin-tab-btn {
     flex: 1;
@@ -480,12 +481,13 @@
     color: var(--muted);
     font-size: 12px;
     font-weight: 600;
-    padding: 8px 12px;
+    padding: 8px 10px;
     border-radius: 6px;
     cursor: pointer;
     font-family: inherit;
     transition: all .15s ease;
     white-space: nowrap;
+    text-align: center;
   }
   .admin-tab-btn.active {
     background: var(--accent);
@@ -542,10 +544,88 @@
     color: var(--accent);
     border: 1px solid var(--accent);
   }
+  .admin-badge.coach {
+    background: rgba(14, 165, 233, 0.2);
+    color: #0ea5e9;
+    border: 1px solid #0ea5e9;
+  }
+  .admin-badge.vip {
+    background: rgba(168, 85, 247, 0.2);
+    color: #a855f7;
+    border: 1px solid #a855f7;
+  }
   .admin-badge.user {
     background: var(--surface-2);
     color: var(--muted);
     border: 1px solid var(--line);
+  }
+
+  /* دکمه‌های تعویض سریع نقش کاربران */
+  .role-btn-group {
+    display: inline-flex;
+    gap: 2px;
+    background: var(--surface-2);
+    padding: 2px;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+  }
+  .role-pill-btn {
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-size: 10px;
+    padding: 3px 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    color: var(--muted);
+    transition: all .15s ease;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .role-pill-btn:hover {
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.08);
+  }
+  .role-pill-btn.active-admin {
+    background: rgba(217, 164, 65, 0.25);
+    color: var(--accent);
+    font-weight: 700;
+    border: 1px solid rgba(217, 164, 65, 0.4);
+  }
+  .role-pill-btn.active-coach {
+    background: rgba(14, 165, 233, 0.25);
+    color: #0ea5e9;
+    font-weight: 700;
+    border: 1px solid rgba(14, 165, 233, 0.4);
+  }
+  .role-pill-btn.active-vip {
+    background: rgba(168, 85, 247, 0.25);
+    color: #a855f7;
+    font-weight: 700;
+    border: 1px solid rgba(168, 85, 247, 0.4);
+  }
+  .role-pill-btn.active-user {
+    background: var(--line);
+    color: var(--text);
+    font-weight: 700;
+  }
+
+  /* فیلترهای نقش کاربر */
+  .admin-filter-pill {
+    padding: 4px 10px;
+    border-radius: 16px;
+    font-size: 11px;
+    font-weight: 600;
+    border: 1px solid var(--line);
+    background: var(--surface-2);
+    color: var(--muted);
+    cursor: pointer;
+    transition: all .15s ease;
+  }
+  .admin-filter-pill.active {
+    background: var(--accent);
+    color: var(--btn-primary-text);
+    border-color: var(--accent);
   }
 </style>
 </head>
@@ -672,21 +752,23 @@
 <div id="adminPanelModal" class="auth-modal" style="display:none;">
   <div class="admin-modal-card">
     <div class="admin-modal-head">
-      <div style="display:flex;align-items:center;gap:8px;">
-        <span style="font-size:20px;">👑</span>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:22px;">👑</span>
         <div>
-          <h2 style="font-size:16px;margin:0;color:var(--accent);font-weight:800;">پنل مدیریت سامانه (Admin Panel)</h2>
-          <div style="font-size:11px;color:var(--muted);">مدیریت کاربران، مانیتورینگ منابع و تنظیمات سرویس ایمیل</div>
+          <h2 style="font-size:16px;margin:0;color:var(--accent);font-weight:800;">پنل مدیریت سامانه (Admin Control Center)</h2>
+          <div style="font-size:11px;color:var(--muted);">مدیریت کاربران و نقش‌ها، مانیتورینگ تمرینات، اعلان‌ها و وضعیت سرور</div>
         </div>
       </div>
-      <button type="button" onclick="closeAdminPanelModal()" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:0 4px;">✕</button>
+      <button type="button" onclick="closeAdminPanelModal()" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:0 6px;">✕</button>
     </div>
 
     <div class="admin-modal-body">
       <!-- تب‌های پنل مدیریت -->
       <div class="admin-tabs">
         <button type="button" class="admin-tab-btn active" data-atab="metrics" onclick="switchAdminTab('metrics')">📊 داشبورد و آمار</button>
-        <button type="button" class="admin-tab-btn" data-atab="users" onclick="switchAdminTab('users')">👥 مدیریت کاربران</button>
+        <button type="button" class="admin-tab-btn" data-atab="users" onclick="switchAdminTab('users')">👥 مدیریت کاربران و نقش‌ها</button>
+        <button type="button" class="admin-tab-btn" data-atab="workouts" onclick="switchAdminTab('workouts')">🏋️ تمرینات زنده سامانه</button>
+        <button type="button" class="admin-tab-btn" data-atab="logs" onclick="switchAdminTab('logs')">📢 اعلان‌ها و لاگ سیستم</button>
         <button type="button" class="admin-tab-btn" data-atab="email" onclick="switchAdminTab('email')">📧 سرویس ایمیل و گوگل</button>
       </div>
 
@@ -695,11 +777,11 @@
         <div class="admin-metrics-grid">
           <div class="admin-metric-card">
             <div class="val" id="admMetricUsers">—</div>
-            <div class="lbl">کاربران ثبت‌شده</div>
+            <div class="lbl">کل کاربران ثبت‌شده</div>
           </div>
           <div class="admin-metric-card">
             <div class="val" id="admMetricWorkouts">—</div>
-            <div class="lbl">تمرینات ثبت‌شده</div>
+            <div class="lbl">جلسات تمرینی ثبت‌شده</div>
           </div>
           <div class="admin-metric-card">
             <div class="val" id="admMetricWeights">—</div>
@@ -711,11 +793,54 @@
           </div>
         </div>
 
-        <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px;">
+        <!-- تفکیک نقش‌های کاربری -->
+        <div style="background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-bottom:10px;">
+          <div style="font-size:12.5px;font-weight:700;color:var(--text);margin-bottom:8px;">👥 توزیع نقش‌های کاربری در سامانه</div>
+          <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:8px;text-align:center;">
+            <div style="background:rgba(217,164,65,0.12);padding:8px;border-radius:6px;border:1px solid rgba(217,164,65,0.3);">
+              <div style="font-size:11px;color:var(--accent);">👑 مدیران (Admins)</div>
+              <b style="font-size:16px;color:var(--accent);" id="admRoleAdmins">—</b>
+            </div>
+            <div style="background:rgba(14,165,233,0.12);padding:8px;border-radius:6px;border:1px solid rgba(14,165,233,0.3);">
+              <div style="font-size:11px;color:#0ea5e9;">🏋️ مربیان (Coaches)</div>
+              <b style="font-size:16px;color:#0ea5e9;" id="admRoleCoaches">—</b>
+            </div>
+            <div style="background:rgba(168,85,247,0.12);padding:8px;border-radius:6px;border:1px solid rgba(168,85,247,0.3);">
+              <div style="font-size:11px;color:#a855f7;">⭐ ویژه (VIP)</div>
+              <b style="font-size:16px;color:#a855f7;" id="admRoleVips">—</b>
+            </div>
+            <div style="background:rgba(255,255,255,0.04);padding:8px;border-radius:6px;border:1px solid var(--line);">
+              <div style="font-size:11px;color:var(--muted);">👤 عادی (Users)</div>
+              <b style="font-size:16px;color:var(--text);" id="admRoleUsers">—</b>
+            </div>
+          </div>
+        </div>
+
+        <!-- تفکیک برنامه‌های تمرینی و حرکات برتر -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));gap:10px;margin-bottom:10px;">
+          <div style="background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:12px 14px;">
+            <div style="font-size:12.5px;font-weight:700;color:var(--text);margin-bottom:6px;">🏋️ تفکیک برنامه‌های تمرینی</div>
+            <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:12px;">
+              <span>دمبل خانگی (Home Dumbbell):</span>
+              <b style="color:var(--accent);" id="admModeDumbbell">—</b>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:12px;">
+              <span>باشگاه بدنسازی (Gym):</span>
+              <b style="color:#0ea5e9;" id="admModeGym">—</b>
+            </div>
+          </div>
+
+          <div style="background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:12px 14px;">
+            <div style="font-size:12.5px;font-weight:700;color:var(--text);margin-bottom:6px;">🔥 ۵ حرکت پرتکرار در کل سیستم</div>
+            <div id="admTopExercisesList" style="font-size:11.5px;color:var(--muted);">در حال دریافت...</div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:10px;">
           <!-- وضعیت سرور و حافظه -->
           <div style="background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:12px 14px;">
             <div style="display:flex;justify-content:space-between;align-items:center;">
-              <span style="font-weight:600;font-size:12.5px;color:var(--text);">⚡ وضعیت سرور و مصرف RAM</span>
+              <span style="font-weight:600;font-size:12.5px;color:var(--text);">⚡ وضعیت سرور، پلتفرم و مصرف RAM</span>
               <span id="admSystemUptime" style="font-size:11px;color:var(--accent);direction:ltr;font-family:monospace;">—</span>
             </div>
             <div id="admMemoryText" style="font-size:11.5px;color:var(--muted);margin-top:6px;">در حال بارگذاری...</div>
@@ -724,7 +849,7 @@
           <!-- وضعیت دیتابیس -->
           <div style="background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:12px 14px;">
             <div style="display:flex;justify-content:space-between;align-items:center;">
-              <span style="font-weight:600;font-size:12.5px;color:var(--text);">🗄️ وضعیت پایگاه داده</span>
+              <span style="font-weight:600;font-size:12.5px;color:var(--text);">🗄️ وضعیت پایگاه داده (Database Engine)</span>
               <span id="admDbBadge" class="admin-badge admin">در حال بررسی</span>
             </div>
             <div id="admDbDesc" style="font-size:11.5px;color:var(--muted);margin-top:6px;">—</div>
@@ -739,12 +864,30 @@
             <div id="admEmailDesc" style="font-size:11.5px;color:var(--muted);margin-top:6px;">—</div>
           </div>
         </div>
+
+        <div style="display:flex;gap:8px;margin-top:14px;">
+          <button type="button" class="btn" style="flex:1;padding:8px;font-size:12px;color:var(--accent);" onclick="loadAdminMetrics()">🔄 به‌روزرسانی زنده آمار</button>
+        </div>
       </div>
 
-      <!-- تب ۲: مدیریت کاربران -->
+      <!-- تب ۲: مدیریت کاربران و نقش‌ها -->
       <div id="adminTabUsers" style="display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+            <button type="button" class="admin-filter-pill active" data-rfilter="all" onclick="filterUsersByRole('all')">همه</button>
+            <button type="button" class="admin-filter-pill" data-rfilter="admin" onclick="filterUsersByRole('admin')">👑 مدیران</button>
+            <button type="button" class="admin-filter-pill" data-rfilter="coach" onclick="filterUsersByRole('coach')">🏋️ مربیان</button>
+            <button type="button" class="admin-filter-pill" data-rfilter="vip" onclick="filterUsersByRole('vip')">⭐ VIP</button>
+            <button type="button" class="admin-filter-pill" data-rfilter="user" onclick="filterUsersByRole('user')">👤 عادی</button>
+          </div>
+          <div style="display:flex;gap:6px;">
+            <button type="button" class="primary" style="width:auto;padding:6px 12px;font-size:11.5px;" onclick="openAdminCreateUserModal()">➕ ساخت کاربر جدید</button>
+            <button type="button" class="btn" style="padding:6px 10px;font-size:11.5px;" onclick="exportAdminUsersCsv()" title="خروجی فایل CSV کاربران">📥 خروجی CSV</button>
+          </div>
+        </div>
+
         <div style="display:flex;gap:8px;margin-bottom:12px;">
-          <input type="text" id="adminUserSearchInput" placeholder="جستجوی کاربر با ایمیل یا نام..." oninput="debounceAdminSearch()" style="margin:0;font-size:12px;">
+          <input type="text" id="adminUserSearchInput" placeholder="🔍 جستجوی کاربر با نام، ایمیل یا شناسه..." oninput="debounceAdminSearch()" style="margin:0;font-size:12px;flex:1;">
           <button type="button" class="btn" style="padding:6px 14px;font-size:12px;color:var(--accent);" onclick="loadAdminUsers()">🔄 تازه</button>
         </div>
 
@@ -754,21 +897,99 @@
           <table class="admin-table">
             <thead>
               <tr>
-                <th>نام و ایمیل کاربر</th>
-                <th>نقش</th>
-                <th>تمرینات</th>
-                <th>عضویت</th>
+                <th>نام و مشخصات کاربر</th>
+                <th>نقش فعلی</th>
+                <th>دکمه‌های تغییر نقش</th>
+                <th>آمار تمرینی</th>
+                <th>تاریخ عضویت</th>
                 <th>عملیات</th>
               </tr>
             </thead>
             <tbody id="adminUsersTableBody">
-              <tr><td colspan="5" style="text-align:center;color:var(--muted);padding:18px;">در حال دریافت کاربران...</td></tr>
+              <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:18px;">در حال دریافت کاربران...</td></tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      <!-- تب ۳: تنظیمات ایمیل و گوگل -->
+      <!-- تب ۳: تمرینات زنده سامانه -->
+      <div id="adminTabWorkouts" style="display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <div style="font-size:13px;font-weight:700;color:var(--text);">🔥 خوراک زنده آخرین تمرینات ثبت‌شده در سراسر پلتفرم</div>
+          <button type="button" class="btn" style="padding:5px 12px;font-size:11.5px;color:var(--accent);" onclick="loadAdminRecentWorkouts()">🔄 تازه‌سازی</button>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>ورزشکار</th>
+                <th>برنامه</th>
+                <th>نام حرکت</th>
+                <th>وزنه</th>
+                <th>تکرارها</th>
+                <th>RIR</th>
+                <th>تاریخ</th>
+                <th>یادداشت</th>
+              </tr>
+            </thead>
+            <tbody id="adminWorkoutsTableBody">
+              <tr><td colspan="8" style="text-align:center;color:var(--muted);padding:18px;">در حال دریافت خوراک تمرینات...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- تب ۴: اطلاعیه سراسری و لاگ سیستم -->
+      <div id="adminTabLogs" style="display:none;">
+        <!-- فرم تنظیم اطلاعیه همگانی -->
+        <div style="background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:14px;margin-bottom:16px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <h3 style="font-size:13.5px;margin:0;color:var(--accent);font-weight:700;">📢 نوار اعلان سراسری به کاربران (Global Announcement Banner)</h3>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;margin:0;">
+              <input type="checkbox" id="admAnnounceEnabled" style="margin:0;">
+              <b>فعال بودن اعلان</b>
+            </label>
+          </div>
+          <div style="font-size:11.5px;color:var(--muted);margin-bottom:10px;">
+            متنی که در اینجا وارد می‌کنید، در یک نوار جذاب در بالای صفحه اصلی برنامه به تمام کاربران نمایش داده می‌شود.
+          </div>
+          <input type="text" id="admAnnounceMessage" placeholder="متن پیام اعلان (مثلاً: به‌روزرسانی سیستم انجام شد یا برنامه تمرینی جدید فعال شد)..." style="font-size:12.5px;margin-bottom:10px;">
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+            <label style="font-size:12px;margin:0;">نوع اعلان:</label>
+            <select id="admAnnounceLevel" style="width:auto;margin:0;font-size:12px;padding:5px 10px;">
+              <option value="info">اطلاعاتی (آبی/روشن)</option>
+              <option value="warning">هشدار (طلایی)</option>
+              <option value="success">موفقیت (سبز)</option>
+            </select>
+            <button type="button" class="primary" style="width:auto;padding:6px 16px;font-size:12px;" onclick="saveAdminAnnouncement()">ذخیره و انتشار اعلان</button>
+            <span id="admAnnounceFeedback" style="font-size:11.5px;"></span>
+          </div>
+        </div>
+
+        <!-- جدول لاگ‌های امنیتی و رویدادها -->
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <h3 style="font-size:13.5px;margin:0;color:var(--text);font-weight:700;">📜 لاگ‌های امنیتی و رویدادهای سیستم (Audit Trail)</h3>
+          <button type="button" class="btn" style="padding:4px 10px;font-size:11px;color:var(--accent);" onclick="loadAdminSystemLogs()">🔄 تازه‌سازی لاگ‌ها</button>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>نوع</th>
+                <th>رویداد</th>
+                <th>جزئیات</th>
+                <th>کاربر مجری</th>
+                <th>زمان</th>
+              </tr>
+            </thead>
+            <tbody id="adminLogsTableBody">
+              <tr><td colspan="5" style="text-align:center;color:var(--muted);padding:18px;">در حال دریافت لاگ‌ها...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- تب ۵: تنظیمات ایمیل و گوگل -->
       <div id="adminTabEmail" style="display:none;">
         <div style="background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:14px;margin-bottom:14px;">
           <h3 style="font-size:14px;margin:0 0 8px 0;color:var(--accent);">راهنمای اتصال ارسال ایمیل با Google Gmail</h3>
@@ -779,15 +1000,15 @@
               <li>گزینه <b>تایید دو مرحله‌ای (2-Step Verification)</b> را فعال کنید.</li>
               <li>در انتهای صفحه بخش <b>رمزهای برنامه (App Passwords)</b> را باز کنید.</li>
               <li>یک رمز جدید بسازید؛ گوگل یک رمز ۱۶ رقمی (مثلاً <code>abcd efgh ijkl mnop</code>) به شما می‌دهد.</li>
-              <li>این مقادیر را در فایل <code>.env</code> تعریف کنید:
+              <li>این مقادیر را در متغیرهای محیطی تعریف فرمایید:
                 <div style="background:var(--bg);padding:8px;border-radius:6px;direction:ltr;font-family:monospace;font-size:11.5px;color:var(--accent);margin-top:6px;">
                   GMAIL_USER=your-email@gmail.com<br>
                   GMAIL_APP_PASS=abcdefghijklmnop
                 </div>
               </li>
             </ol>
-            <div style="font-size:11.5px;color:var(--success);margin-top:6px;">
-              💡 <b>نکته:</b> حتی اگر جیمیل هنوز متصل نشده باشد، سیستم در حالت پیش‌نمایش (Mock Preview) کد بازیابی را در کنسول و فرم به شما نشان می‌دهد تا روند بازیابی رمز بدون مانع تست شود!
+            <div style="font-size:11.5px;color:var(--ok);margin-top:6px;">
+              💡 <b>ارسال موفق:</b> هم‌اکنون تست ارسال ایمیل جیمیل با موفقیت آزمایش شده و آماده استفاده در بازیابی رمز عبور است.
             </div>
           </div>
         </div>
@@ -803,6 +1024,60 @@
         </div>
       </div>
 
+    </div>
+  </div>
+</div>
+
+<!-- مودال ایجاد کاربر جدید توسط مدیر -->
+<div id="adminCreateUserModal" class="auth-modal" style="display:none;z-index:10002;">
+  <div class="auth-box" style="max-width:400px;text-align:right;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;border-bottom:1px solid var(--line);padding-bottom:10px;">
+      <h3 style="margin:0;font-size:15px;color:var(--text);font-weight:700;">➕ ایجاد کاربر جدید در سامانه</h3>
+      <button type="button" onclick="closeAdminCreateUserModal()" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:0 4px;">✕</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div>
+        <label>نام و نام خانوادگی</label>
+        <input type="text" id="admCreateName" placeholder="مثلاً: سهراب مرادی">
+      </div>
+      <div>
+        <label>آدرس ایمیل</label>
+        <input type="email" id="admCreateEmail" placeholder="user@example.com" dir="ltr">
+      </div>
+      <div>
+        <label>رمز عبور اولیه (حداقل ۶ کاراکتر)</label>
+        <input type="password" id="admCreatePassword" placeholder="رمز عبور" dir="ltr">
+      </div>
+      <div>
+        <label>نقش و سطح دسترسی کاربر</label>
+        <select id="admCreateRole" style="margin-bottom:4px;">
+          <option value="user" selected>👤 کاربر عادی (User)</option>
+          <option value="vip">⭐ کاربر ویژه (VIP)</option>
+          <option value="coach">🏋️ مربی و آنالیزور (Coach)</option>
+          <option value="admin">👑 مدیر کل سیستم (Admin)</option>
+        </select>
+      </div>
+    </div>
+    <div id="admCreateFeedback" style="margin-top:8px;"></div>
+    <div style="display:flex;gap:8px;margin-top:14px;">
+      <button type="button" class="primary" style="flex:2;" onclick="submitAdminCreateUser()">ایجاد کاربر</button>
+      <button type="button" class="btn" style="flex:1;" onclick="closeAdminCreateUserModal()">انصراف</button>
+    </div>
+  </div>
+</div>
+
+<!-- مودال پرونده و جزئیات فعالیت کاربر -->
+<div id="adminUserDetailsModal" class="auth-modal" style="display:none;z-index:10002;">
+  <div class="admin-modal-card" style="max-width:620px;">
+    <div class="admin-modal-head">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:20px;">📋</span>
+        <h3 style="margin:0;font-size:15px;color:var(--text);font-weight:700;" id="admUserDetailTitle">پرونده ورزشکار</h3>
+      </div>
+      <button type="button" onclick="closeAdminUserDetailsModal()" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:0 4px;">✕</button>
+    </div>
+    <div class="admin-modal-body" id="admUserDetailBody">
+      <div style="text-align:center;padding:24px;color:var(--muted);">در حال دریافت اطلاعات پرونده...</div>
     </div>
   </div>
 </div>
@@ -890,6 +1165,15 @@
 </div>
 
 <div id="app">
+
+  <!-- نوار اعلان سراسری سیستم (Global Announcement Banner) -->
+  <div id="globalAnnouncementBanner" style="display:none;margin-bottom:12px;padding:10px 14px;border-radius:8px;font-size:12.5px;font-weight:600;align-items:center;justify-content:space-between;">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span id="announcementIcon">📢</span>
+      <span id="announcementText"></span>
+    </div>
+    <button type="button" onclick="dismissAnnouncement()" style="background:none;border:none;color:inherit;cursor:pointer;font-size:16px;">✕</button>
+  </div>
 
   <!-- نوار مشخصات کاربر -->
   <div class="user-bar">
@@ -1351,6 +1635,29 @@ let bodyWeightLogs = [];
 let customExercises = [];
 let START_WEIGHT = null, TARGET_WEIGHT = null;
 
+async function parseResponseJson(res) {
+  if (!res) return {};
+  const text = await res.text();
+  if (!text || !text.trim()) return {};
+  try {
+    return JSON.parse(text);
+  } catch (err) {
+    if (text.trim().startsWith('<')) {
+      if (res.status === 404) {
+        throw new Error('مسیر درخواست‌شده در سرور یافت نشد (404).');
+      }
+      if (res.status === 502 || res.status === 503) {
+        throw new Error('سرور در حال راه‌اندازی مجدد است، لطفاً چند لحظه بعد دوباره امتحان کنید.');
+      }
+      if (res.status === 401 || res.status === 403) {
+        throw new Error('دسترسی شما منقضی شده یا مجاز نیست. لطفاً مجدداً وارد حساب خود شوید.');
+      }
+      throw new Error(`خطای ارتباط با سرور (${res.status}). لطفاً صفحه را بازخوانی (رفرش) فرمایید.`);
+    }
+    throw new Error(text.slice(0, 150));
+  }
+}
+
 /* ---------------- ۰. مدیریت سراسری تم تاریک و روشن (Global Theme Management) ---------------- */
 function getSavedTheme() {
   try {
@@ -1427,7 +1734,7 @@ async function handleAuthSubmit(e){
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, displayName: displayName || undefined })
       });
-      const regData = await regRes.json();
+      const regData = await parseResponseJson(regRes);
       if (!regRes.ok) throw new Error(regData.message || 'خطا در ثبت‌نام');
       currentAuthMode = 'login';
     }
@@ -1438,7 +1745,7 @@ async function handleAuthSubmit(e){
       credentials: 'include',
       body: JSON.stringify({ email, password })
     });
-    const logData = await logRes.json();
+    const logData = await parseResponseJson(logRes);
     if (!logRes.ok) throw new Error(logData.message || 'ایمیل یا رمز عبور اشتباه است');
 
     currentAccessToken = logData.accessToken;
@@ -1472,7 +1779,7 @@ async function tryRefreshToken(){
       body: savedRt ? JSON.stringify({ refreshToken: savedRt }) : undefined
     });
     if (res.ok) {
-      const data = await res.json();
+      const data = await parseResponseJson(res);
       currentAccessToken = data.accessToken;
       if (data.refreshToken) {
         localStorage.setItem('iron_refresh_token', data.refreshToken);
@@ -1481,7 +1788,7 @@ async function tryRefreshToken(){
         headers: { 'Authorization': `Bearer ${currentAccessToken}` }
       });
       if (meRes.ok) {
-        currentUser = await meRes.json();
+        currentUser = await parseResponseJson(meRes);
         if (isUserAdmin(currentUser)) {
           currentUser.role = 'admin';
           apiFetch('/auth/claim-admin', { method: 'POST' }).catch(() => {});
@@ -1525,29 +1832,35 @@ function isUserAdmin(user) {
   if (!user) return false;
   if (user.role === 'admin') return true;
   const email = (user.email || '').toLowerCase().trim();
-  return email === 'amirghasemian1381@gmail.com' || 
-         email === 'amirhusseinghasemian@outlook.com' || 
-         email === 'demo@ironlog.app';
+  return email === 'amirghasemian1381@gmail.com' || email === 'amirhusseinghasemian@outlook.com';
 }
 
 function updateUserBar(){
   if (currentUser) {
-    if (isUserAdmin(currentUser)) {
+    const isMasterOwner = ['amirghasemian1381@gmail.com', 'amirhusseinghasemian@outlook.com'].includes((currentUser.email || '').toLowerCase().trim());
+    if (!currentUser.role && isMasterOwner) {
       currentUser.role = 'admin';
     }
-    const isAdmin = currentUser.role === 'admin';
-    const roleBadge = isAdmin 
-      ? ' <span style="background:rgba(217,164,65,0.18);color:var(--accent);font-size:10px;padding:2px 7px;border-radius:12px;border:1px solid var(--accent);font-weight:700;">مدیر</span>' 
-      : '';
-    document.getElementById('userGreeting').innerHTML = `${currentUser.displayName || currentUser.display_name || currentUser.email} خوش آمدید${roleBadge}`;
+    const role = currentUser.role || 'user';
+    const hasAdminAccess = role === 'admin' || isMasterOwner;
+
+    const roleBadges = {
+      admin: '<span class="admin-badge admin" style="margin-right:6px;font-size:10px;">👑 مدیر</span>',
+      coach: '<span class="admin-badge coach" style="margin-right:6px;font-size:10px;">🏋️ مربی</span>',
+      vip: '<span class="admin-badge vip" style="margin-right:6px;font-size:10px;">⭐ VIP</span>',
+      user: '<span class="admin-badge user" style="margin-right:6px;font-size:10px;">👤 کاربر</span>'
+    };
+
+    const roleBadge = roleBadges[role] || roleBadges.user;
+    document.getElementById('userGreeting').innerHTML = `${currentUser.displayName || currentUser.display_name || currentUser.email} خوش آمدید ${roleBadge}`;
     
     const adminBtn = document.getElementById('adminPanelBtn');
     if (adminBtn) {
-      adminBtn.style.display = isAdmin ? 'inline-flex' : 'none';
+      adminBtn.style.display = hasAdminAccess ? 'inline-flex' : 'none';
     }
     const claimBtn = document.getElementById('claimAdminBtn');
     if (claimBtn) {
-      claimBtn.style.display = !isAdmin ? 'inline-flex' : 'none';
+      claimBtn.style.display = (!hasAdminAccess) ? 'inline-flex' : 'none';
     }
   }
 }
@@ -1555,7 +1868,7 @@ function updateUserBar(){
 async function claimAdminRole() {
   try {
     const res = await apiFetch('/auth/claim-admin', { method: 'POST' });
-    const data = await res.json();
+    const data = await parseResponseJson(res);
     if (!res.ok) throw new Error(data.message || 'خطا در ارتقای نقش');
     if (currentUser) currentUser.role = 'admin';
     updateUserBar();
@@ -1749,7 +2062,7 @@ async function submitChangePassword() {
       method: 'POST',
       body: JSON.stringify({ currentPassword, newPassword })
     });
-    const data = await res.json();
+    const data = await parseResponseJson(res);
     if (!res.ok) throw new Error(data.message || 'خطا در تغییر رمز عبور');
 
     fb.innerHTML = `<div class="feedback up">${data.message}</div>`;
@@ -1763,6 +2076,7 @@ async function submitChangePassword() {
 
 /* ---------------- ۱.۲. توابع پنل مدیریت سیستم (Admin Panel Logic) ---------------- */
 let currentAdminTab = 'metrics';
+let currentRoleFilter = 'all';
 let adminUsersCache = [];
 let adminSearchTimer = null;
 
@@ -1809,34 +2123,70 @@ function switchAdminTab(tab) {
   });
   document.getElementById('adminTabMetrics').style.display = tab === 'metrics' ? 'block' : 'none';
   document.getElementById('adminTabUsers').style.display = tab === 'users' ? 'block' : 'none';
+  document.getElementById('adminTabWorkouts').style.display = tab === 'workouts' ? 'block' : 'none';
+  document.getElementById('adminTabLogs').style.display = tab === 'logs' ? 'block' : 'none';
   document.getElementById('adminTabEmail').style.display = tab === 'email' ? 'block' : 'none';
 
   if (tab === 'metrics') loadAdminMetrics();
   if (tab === 'users') loadAdminUsers();
+  if (tab === 'workouts') loadAdminRecentWorkouts();
+  if (tab === 'logs') {
+    loadAdminAnnouncement();
+    loadAdminSystemLogs();
+  }
   if (tab === 'email') loadEmailConfig();
 }
 
 async function loadAdminMetrics() {
   try {
     const res = await apiFetch('/admin/metrics');
-    if (!res.ok) throw new Error('خطا در دریافت آمار');
-    const data = await res.json();
+    const data = await parseResponseJson(res);
+    if (!res.ok) throw new Error(data.message || 'خطا در دریافت آمار');
 
     document.getElementById('admMetricUsers').textContent = faDigits(data.metrics.totalUsers);
     document.getElementById('admMetricWorkouts').textContent = faDigits(data.metrics.totalWorkouts);
     document.getElementById('admMetricWeights').textContent = faDigits(data.metrics.totalBodyweights);
     document.getElementById('admMetricCustoms').textContent = faDigits(data.metrics.totalCustomExercises);
 
+    // Role breakdown
+    if (data.metrics.roleCounts) {
+      document.getElementById('admRoleAdmins').textContent = faDigits(data.metrics.roleCounts.admin || 0);
+      document.getElementById('admRoleCoaches').textContent = faDigits(data.metrics.roleCounts.coach || 0);
+      document.getElementById('admRoleVips').textContent = faDigits(data.metrics.roleCounts.vip || 0);
+      document.getElementById('admRoleUsers').textContent = faDigits(data.metrics.roleCounts.user || 0);
+    }
+
+    // Modes breakdown
+    if (data.metrics.modeCounts) {
+      document.getElementById('admModeDumbbell').textContent = `${faDigits(data.metrics.modeCounts.dumbbell || 0)} جلسه`;
+      document.getElementById('admModeGym').textContent = `${faDigits(data.metrics.modeCounts.gym || 0)} جلسه`;
+    }
+
+    // Top exercises
+    const topListEl = document.getElementById('admTopExercisesList');
+    if (topListEl) {
+      if (data.metrics.topExercises && data.metrics.topExercises.length > 0) {
+        topListEl.innerHTML = data.metrics.topExercises.map((e, idx) => `
+          <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px dashed var(--line);">
+            <span>${idx + 1}. <b>${e.name}</b></span>
+            <span style="color:var(--accent);font-weight:700;">${faDigits(e.count)} بار</span>
+          </div>
+        `).join('');
+      } else {
+        topListEl.innerHTML = '<span style="color:var(--muted)">هنوز تمرینی برای تحلیل ثبت نشده است.</span>';
+      }
+    }
+
     const uptimeMin = Math.round(data.system.uptimeSeconds / 60);
-    document.getElementById('admSystemUptime').textContent = `Uptime: ${uptimeMin} min`;
-    document.getElementById('admMemoryText').textContent = `مصرف حافظه RAM سرور: ${data.system.memoryUsedMB} MB از ${data.system.memoryTotalMB} MB`;
+    document.getElementById('admSystemUptime').textContent = `Uptime: ${uptimeMin} min (${data.system.platform || 'linux'})`;
+    document.getElementById('admMemoryText').textContent = `Node.js: ${data.system.nodeVersion || 'v20'} | حافظه RAM مصرفی: ${data.system.memoryUsedMB} MB از ${data.system.memoryTotalMB} MB`;
 
     const dbBadge = document.getElementById('admDbBadge');
     const dbDesc = document.getElementById('admDbDesc');
     if (data.dbStatus.isPostgresConnected) {
       dbBadge.textContent = 'PostgreSQL متصل';
       dbBadge.className = 'admin-badge admin';
-      dbDesc.textContent = 'دیتابیس ابری Supabase PostgreSQL فعال است و اطلاعات ماندگار ذخیره می‌شوند.';
+      dbDesc.textContent = 'دیتابیس ابری PostgreSQL فعال است و اطلاعات ماندگار ذخیره می‌شوند.';
     } else {
       dbBadge.textContent = 'حافظه موقت (In-Memory)';
       dbBadge.className = 'admin-badge user';
@@ -1846,9 +2196,9 @@ async function loadAdminMetrics() {
     const emailBadge = document.getElementById('admEmailBadge');
     const emailDesc = document.getElementById('admEmailDesc');
     if (data.emailStatus.isConfigured) {
-      emailBadge.textContent = 'سرویس زنده ' + (data.emailStatus.provider === 'google_gmail' ? 'جیمیل' : 'SMTP');
+      emailBadge.textContent = 'سرویس زنده ' + (data.emailStatus.provider === 'google_gmail' ? 'جیمیل (Google Gmail)' : 'SMTP');
       emailBadge.className = 'admin-badge admin';
-      emailDesc.textContent = `ارسال ایمیل‌های بازیابی از طریق ${data.emailStatus.senderEmail} فعال است.`;
+      emailDesc.textContent = `ارسال ایمیل‌های بازیابی از طریق ${data.emailStatus.senderEmail} فعال و تست‌شده است.`;
     } else {
       emailBadge.textContent = 'شبیه‌ساز پیش‌نمایش (Mock)';
       emailBadge.className = 'admin-badge user';
@@ -1859,58 +2209,510 @@ async function loadAdminMetrics() {
   }
 }
 
+function filterUsersByRole(role) {
+  currentRoleFilter = role;
+  document.querySelectorAll('.admin-filter-pill').forEach(b => {
+    b.classList.toggle('active', b.dataset.rfilter === role);
+  });
+  loadAdminUsers();
+}
+
 async function loadAdminUsers() {
   const q = document.getElementById('adminUserSearchInput')?.value.trim() || '';
   const tbody = document.getElementById('adminUsersTableBody');
-  tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:16px;color:var(--muted)">در حال دریافت کاربران...</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:16px;color:var(--muted)">در حال دریافت کاربران...</td></tr>';
 
   try {
-    const res = await apiFetch(`/admin/users?q=${encodeURIComponent(q)}`);
-    if (!res.ok) throw new Error('خطا در دریافت کاربران');
-    const data = await res.json();
+    const res = await apiFetch(`/admin/users?q=${encodeURIComponent(q)}&role=${encodeURIComponent(currentRoleFilter)}`);
+    const data = await parseResponseJson(res);
+    if (!res.ok) throw new Error(data.message || 'خطا در دریافت کاربران');
     adminUsersCache = data.users || [];
 
-    if (adminUsersCache.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:16px;color:var(--muted)">هیچ کاربری یافت نشد.</td></tr>';
+    renderAdminUsersTable();
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:16px;color:var(--danger)">${err.message}</td></tr>`;
+  }
+}
+
+function renderAdminUsersTable() {
+  const tbody = document.getElementById('adminUsersTableBody');
+  if (!tbody) return;
+
+  if (!adminUsersCache || adminUsersCache.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:16px;color:var(--muted)">هیچ کاربری با این مشخصات یافت نشد.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = adminUsersCache.map(u => {
+    const isSelf = currentUser && (currentUser.id === u.id || currentUser.email === u.email);
+    const role = u.role || 'user';
+    const roleMeta = {
+      admin: { label: '👑 مدیر کل', cls: 'admin' },
+      coach: { label: '🏋️ مربی', cls: 'coach' },
+      vip: { label: '⭐ VIP', cls: 'vip' },
+      user: { label: '👤 عادی', cls: 'user' }
+    }[role] || { label: role, cls: 'user' };
+
+    const joinDate = new Date(u.createdAt).toLocaleDateString('fa-IR', { year: 'numeric', month: 'short', day: 'numeric' });
+    const lastActive = u.lastWorkoutDate 
+      ? `<span style="font-size:10px;color:var(--ok);">آخرین ثبت: ${u.lastWorkoutDate}</span>` 
+      : '<span style="font-size:10px;color:var(--muted);">هنوز تمرینی ندارد</span>';
+
+    return `
+      <tr id="user-row-${u.id}">
+        <td>
+          <div style="font-weight:700;color:var(--text);">${u.displayName || 'بی‌نام'} ${isSelf ? '<span style="font-size:10px;color:var(--accent);">(حساب شما)</span>' : ''}</div>
+          <div style="font-size:11px;color:var(--muted);direction:ltr;text-align:right;font-family:monospace;">${u.email}</div>
+        </td>
+        <td>
+          <span class="admin-badge ${roleMeta.cls}" id="badge-role-${u.id}">${roleMeta.label}</span>
+        </td>
+        <td>
+          <!-- دکمه‌های تغییر سریع نقش کاربر -->
+          <div class="role-btn-group" title="کلیک برای تغییر مستقیم نقش کاربر">
+            <button type="button" class="role-pill-btn ${role === 'admin' ? 'active-admin' : ''}" 
+              onclick="changeUserRole(${u.id}, 'admin', '${u.email}')" title="تنظیم نقش به مدیر (Admin)">👑 مدیر</button>
+            <button type="button" class="role-pill-btn ${role === 'coach' ? 'active-coach' : ''}" 
+              onclick="changeUserRole(${u.id}, 'coach', '${u.email}')" title="تنظیم نقش به مربی (Coach)">🏋️ مربی</button>
+            <button type="button" class="role-pill-btn ${role === 'vip' ? 'active-vip' : ''}" 
+              onclick="changeUserRole(${u.id}, 'vip', '${u.email}')" title="تنظیم نقش به کاربر ویژه (VIP)">⭐ VIP</button>
+            <button type="button" class="role-pill-btn ${role === 'user' ? 'active-user' : ''}" 
+              onclick="changeUserRole(${u.id}, 'user', '${u.email}')" title="تنظیم نقش به کاربر عادی (User)">👤 عادی</button>
+          </div>
+        </td>
+        <td>
+          <div><b style="color:var(--accent);font-size:13px;">${faDigits(u.workoutCount)}</b> <span style="font-size:11px;color:var(--muted);">ست تمرین</span></div>
+          <div>${lastActive}</div>
+        </td>
+        <td style="font-size:11px;color:var(--muted);white-space:nowrap;">
+          ${joinDate}
+        </td>
+        <td>
+          <div style="display:flex;gap:4px;flex-wrap:wrap;">
+            <button type="button" class="btn" style="padding:3px 7px;font-size:10.5px;color:var(--accent);" onclick="openAdminUserDetails(${u.id})" title="مشاهده پرونده کامل و رکوردهای ورزشکار">
+              👁️ پرونده
+            </button>
+            <button type="button" class="btn" style="padding:3px 7px;font-size:10.5px;color:var(--text);" onclick="openAdminUserResetModal(${u.id}, '${u.email}')" title="تغییر رمز عبور">
+              🔑 رمز
+            </button>
+            ${!isSelf ? `
+              <button type="button" class="delbtn" id="delBtn-${u.id}" style="padding:3px 7px;font-size:10.5px;" onclick="safeDeleteUserClick(${u.id}, '${u.email}')" title="حذف کاربر">
+                🗑️
+              </button>
+            ` : ''}
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function debounceAdminSearch() {
+  if (adminSearchTimer) clearTimeout(adminSearchTimer);
+  adminSearchTimer = setTimeout(() => {
+    loadAdminUsers();
+  }, 300);
+}
+
+async function changeUserRole(userId, newRole, userEmail) {
+  const roleNames = {
+    admin: '👑 مدیر کل (Admin)',
+    coach: '🏋️ مربی و آنالیزور (Coach)',
+    vip: '⭐ کاربر ویژه (VIP)',
+    user: '👤 کاربر عادی (User)'
+  };
+
+  const fb = document.getElementById('adminUsersFeedback');
+  if (fb) {
+    fb.innerHTML = `<div class="feedback" style="color:var(--accent);">⏳ در حال تغییر نقش ${userEmail} به ${roleNames[newRole]}...</div>`;
+  }
+
+  // 1. Optimistically update local user object & immediately re-render table
+  const target = adminUsersCache.find(u => Number(u.id) === Number(userId));
+  if (target) {
+    target.role = newRole;
+  }
+  if (currentUser && (Number(currentUser.id) === Number(userId) || currentUser.email === userEmail)) {
+    currentUser.role = newRole;
+    updateUserBar();
+  }
+
+  renderAdminUsersTable();
+
+  // 2. Send API request
+  try {
+    const res = await apiFetch(`/admin/users/${userId}/role`, {
+      method: 'PUT',
+      body: JSON.stringify({ role: newRole })
+    });
+    const data = await parseResponseJson(res);
+    if (!res.ok) throw new Error(data.message || 'خطا در تغییر نقش');
+
+    if (fb) {
+      fb.innerHTML = `<div class="feedback up">✅ نقش کاربر ${userEmail} با موفقیت به «${roleNames[newRole]}» تغییر یافت.</div>`;
+      setTimeout(() => { if (fb.textContent.includes(userEmail)) fb.innerHTML = ''; }, 3500);
+    }
+
+    loadAdminMetrics();
+  } catch (err) {
+    if (fb) {
+      fb.innerHTML = `<div class="feedback down">⚠️ خطا در تغییر نقش: ${err.message}</div>`;
+    }
+    loadAdminUsers();
+  }
+}
+
+// 2-Step safe delete that works without window.confirm inside iframes
+let pendingDeleteUserId = null;
+let pendingDeleteTimer = null;
+
+function safeDeleteUserClick(userId, userEmail) {
+  const btn = document.getElementById(`delBtn-${userId}`);
+  if (pendingDeleteUserId === userId) {
+    // Second click: execute delete
+    clearTimeout(pendingDeleteTimer);
+    pendingDeleteUserId = null;
+    executeDeleteUser(userId, userEmail);
+    return;
+  }
+
+  // First click: ask for confirmation in-place
+  if (pendingDeleteTimer) clearTimeout(pendingDeleteTimer);
+  if (pendingDeleteUserId) {
+    const prevBtn = document.getElementById(`delBtn-${pendingDeleteUserId}`);
+    if (prevBtn) {
+      prevBtn.innerHTML = '🗑️';
+      prevBtn.style.background = '';
+    }
+  }
+
+  pendingDeleteUserId = userId;
+  if (btn) {
+    btn.innerHTML = '⚠️ تایید حذف؟';
+    btn.style.background = '#e11d48';
+    btn.style.color = '#fff';
+  }
+
+  pendingDeleteTimer = setTimeout(() => {
+    pendingDeleteUserId = null;
+    if (btn) {
+      btn.innerHTML = '🗑️';
+      btn.style.background = '';
+      btn.style.color = '';
+    }
+  }, 4000);
+}
+
+async function executeDeleteUser(userId, userEmail) {
+  const fb = document.getElementById('adminUsersFeedback');
+  if (fb) {
+    fb.innerHTML = `<div class="feedback" style="color:var(--muted);">در حال حذف کاربر ${userEmail}...</div>`;
+  }
+
+  try {
+    const res = await apiFetch(`/admin/users/${userId}`, {
+      method: 'DELETE'
+    });
+    const data = await parseResponseJson(res);
+    if (!res.ok) throw new Error(data.message || 'خطا در حذف کاربر');
+
+    if (fb) {
+      fb.innerHTML = `<div class="feedback up">✅ ${data.message}</div>`;
+      setTimeout(() => { fb.innerHTML = ''; }, 3000);
+    }
+    loadAdminUsers();
+    loadAdminMetrics();
+  } catch (err) {
+    if (fb) {
+      fb.innerHTML = `<div class="feedback down">⚠️ خطا: ${err.message}</div>`;
+    }
+  }
+}
+
+function openAdminCreateUserModal() {
+  document.getElementById('admCreateName').value = '';
+  document.getElementById('admCreateEmail').value = '';
+  document.getElementById('admCreatePassword').value = '';
+  document.getElementById('admCreateRole').value = 'user';
+  document.getElementById('admCreateFeedback').innerHTML = '';
+  document.getElementById('adminCreateUserModal').style.display = 'flex';
+}
+
+function closeAdminCreateUserModal() {
+  document.getElementById('adminCreateUserModal').style.display = 'none';
+}
+
+async function submitAdminCreateUser() {
+  const displayName = document.getElementById('admCreateName').value.trim();
+  const email = document.getElementById('admCreateEmail').value.trim();
+  const password = document.getElementById('admCreatePassword').value;
+  const role = document.getElementById('admCreateRole').value;
+  const fb = document.getElementById('admCreateFeedback');
+
+  if (!email || !email.includes('@')) {
+    fb.innerHTML = '<div class="feedback down">لطفاً یک ایمیل معتبر وارد کنید.</div>';
+    return;
+  }
+  if (!password || password.length < 6) {
+    fb.innerHTML = '<div class="feedback down">رمز عبور باید حداقل ۶ کاراکتر باشد.</div>';
+    return;
+  }
+
+  fb.innerHTML = '<div class="feedback" style="color:var(--muted)">در حال ایجاد کاربر...</div>';
+
+  try {
+    const res = await apiFetch('/admin/users', {
+      method: 'POST',
+      body: JSON.stringify({ email, password, displayName, role })
+    });
+    const data = await parseResponseJson(res);
+    if (!res.ok) throw new Error(data.message || 'خطا در ایجاد کاربر');
+
+    fb.innerHTML = `<div class="feedback up">${data.message}</div>`;
+    setTimeout(() => {
+      closeAdminCreateUserModal();
+      loadAdminUsers();
+      loadAdminMetrics();
+    }, 1200);
+  } catch (err) {
+    fb.innerHTML = `<div class="feedback down">${err.message}</div>`;
+  }
+}
+
+async function openAdminUserDetails(userId) {
+  document.getElementById('adminUserDetailsModal').style.display = 'flex';
+  const title = document.getElementById('admUserDetailTitle');
+  const body = document.getElementById('admUserDetailBody');
+  body.innerHTML = '<div style="text-align:center;padding:24px;color:var(--muted);">در حال دریافت اطلاعات پرونده...</div>';
+
+  try {
+    const res = await apiFetch(`/admin/users/${userId}/details`);
+    const data = await parseResponseJson(res);
+    if (!res.ok) throw new Error(data.message || 'خطا در دریافت پرونده کاربر');
+
+    const u = data.user;
+    title.textContent = `پرونده ورزشکار: ${u.displayName || u.email}`;
+
+    const workouts = data.workouts || [];
+    const bodyweights = data.bodyweights || [];
+    const customs = data.customExercises || [];
+
+    const workoutsHtml = workouts.length === 0 
+      ? '<div style="color:var(--muted);font-size:12px;padding:8px 0;">هنوز تمرینی توسط این کاربر ثبت نشده است.</div>'
+      : `
+        <table class="admin-table" style="margin-top:8px;">
+          <thead>
+            <tr>
+              <th>حرکت</th>
+              <th>برنامه</th>
+              <th>وزنه</th>
+              <th>تکرارها</th>
+              <th>تاریخ</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${workouts.map(w => `
+              <tr>
+                <td><b>${w.exercise_name || w.exerciseName}</b></td>
+                <td><span class="daytag" style="font-size:10px;">${w.program_mode === 'gym' ? 'باشگاه' : 'دمبل'}</span></td>
+                <td style="color:var(--accent);font-weight:700;">${faDigits(w.weight_kg || w.weightKg)} kg</td>
+                <td>${Array.isArray(w.reps) ? w.reps.join(' - ') : w.reps}</td>
+                <td style="font-size:11px;color:var(--muted);">${w.log_date || w.logDate}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+
+    const weightsHtml = bodyweights.length === 0
+      ? '<div style="color:var(--muted);font-size:12px;padding:8px 0;">ثبت وزنی یافت نشد.</div>'
+      : `
+        <div style="display:flex;gap:6px;overflow-x:auto;padding:6px 0;">
+          ${bodyweights.map(b => `
+            <div style="background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:6px 10px;text-align:center;flex-shrink:0;">
+              <b style="color:var(--accent);font-size:13px;">${faDigits(b.weight_kg || b.weightKg)} kg</b>
+              <div style="font-size:10px;color:var(--muted);margin-top:2px;">${b.log_date || b.logDate}</div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+
+    body.innerHTML = `
+      <div style="background:var(--surface-2);border-radius:8px;padding:12px;border:1px solid var(--line);margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-size:14px;font-weight:700;color:var(--text);">${u.displayName || 'بی‌نام'}</div>
+            <div style="font-size:12px;color:var(--muted);direction:ltr;text-align:right;">${u.email}</div>
+          </div>
+          <span class="admin-badge ${u.role === 'admin' ? 'admin' : (u.role === 'coach' ? 'coach' : (u.role === 'vip' ? 'vip' : 'user'))}">
+            ${u.role}
+          </span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;text-align:center;margin-top:12px;">
+          <div style="background:var(--surface);padding:8px;border-radius:6px;">
+            <div style="font-size:11px;color:var(--muted);">کل ست‌های تمرین</div>
+            <b style="font-size:15px;color:var(--accent);">${faDigits(workouts.length)}</b>
+          </div>
+          <div style="background:var(--surface);padding:8px;border-radius:6px;">
+            <div style="font-size:11px;color:var(--muted);">ثبت‌های وزن بدن</div>
+            <b style="font-size:15px;color:var(--ok);">${faDigits(bodyweights.length)}</b>
+          </div>
+          <div style="background:var(--surface);padding:8px;border-radius:6px;">
+            <div style="font-size:11px;color:var(--muted);">حرکات شخصی</div>
+            <b style="font-size:15px;color:#a855f7;">${faDigits(customs.length)}</b>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:14px;">
+        <div style="font-size:12.5px;font-weight:700;color:var(--text);margin-bottom:4px;">⚖️ تاریخچه اخیر وزن بدن</div>
+        ${weightsHtml}
+      </div>
+
+      <div>
+        <div style="font-size:12.5px;font-weight:700;color:var(--text);margin-bottom:4px;">🏋️ آخرین جلسات تمرینی ورزشکار</div>
+        ${workoutsHtml}
+      </div>
+    `;
+  } catch (err) {
+    body.innerHTML = `<div class="feedback down">${err.message}</div>`;
+  }
+}
+
+function closeAdminUserDetailsModal() {
+  document.getElementById('adminUserDetailsModal').style.display = 'none';
+}
+
+function exportAdminUsersCsv() {
+  if (!adminUsersCache || adminUsersCache.length === 0) {
+    alert('کاربری برای خروجی وجود ندارد.');
+    return;
+  }
+
+  let csv = '\uFEFFشناسه,نام کاربر,ایمیل,نقش,تعداد تمرینات,تعداد ثبت وزن,آخرین تاریخ تمرین,تاریخ عضویت\n';
+  adminUsersCache.forEach(u => {
+    csv += `"${u.id}","${u.displayName || ''}","${u.email}","${u.role}","${u.workoutCount}","${u.bodyweightCount}","${u.lastWorkoutDate || ''}","${u.createdAt}"\n`;
+  });
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `ironlog-users-${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/* ---------------- خوراک زنده تمرینات سراسر پلتفرم ---------------- */
+async function loadAdminRecentWorkouts() {
+  const tbody = document.getElementById('adminWorkoutsTableBody');
+  tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:16px;color:var(--muted)">در حال دریافت تمرینات...</td></tr>';
+
+  try {
+    const res = await apiFetch('/admin/recent-workouts');
+    const data = await parseResponseJson(res);
+    if (!res.ok) throw new Error(data.message || 'خطا در دریافت تمرینات');
+
+    const workouts = data.workouts || [];
+    if (workouts.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:16px;color:var(--muted)">هنوز تمرینی در سامانه ثبت نشده است.</td></tr>';
       return;
     }
 
-    tbody.innerHTML = adminUsersCache.map(u => {
-      const isAdmin = u.role === 'admin';
-      const isSelf = currentUser && currentUser.id === u.id;
-      const joinDate = new Date(u.createdAt).toLocaleDateString('fa-IR', { year: 'numeric', month: 'short', day: 'numeric' });
+    tbody.innerHTML = workouts.map(w => {
+      const modeLabel = w.program_mode === 'gym' ? 'باشگاه' : 'دمبل خانگی';
+      const repsStr = Array.isArray(w.reps) ? w.reps.join(' - ') : (w.reps || '—');
+      const rirStr = Array.isArray(w.rir) ? w.rir.join(' - ') : (w.rir || '—');
       return `
         <tr>
           <td>
-            <div style="font-weight:700;color:var(--text);">${u.displayName || 'بی‌نام'} ${isSelf ? '<span style="font-size:10px;color:var(--accent);">(شما)</span>' : ''}</div>
-            <div style="font-size:11px;color:var(--muted);direction:ltr;text-align:right;font-family:monospace;">${u.email}</div>
+            <b style="color:var(--text);font-size:12px;">${w.user_display_name || 'کاربر'}</b>
+            <div style="font-size:10px;color:var(--muted);direction:ltr;text-align:right;">${w.user_email || ''}</div>
           </td>
-          <td>
-            <span class="admin-badge ${isAdmin ? 'admin' : 'user'}">${isAdmin ? '👑 مدیر' : 'کاربر'}</span>
-          </td>
-          <td>
-            <span style="font-weight:700;color:var(--accent);">${faDigits(u.workoutCount)}</span> ست
-          </td>
-          <td style="font-size:11px;color:var(--muted);white-space:nowrap;">
-            ${joinDate}
-          </td>
-          <td>
-            <div style="display:flex;gap:4px;flex-wrap:wrap;">
-              ${!isSelf ? `
-                <button type="button" class="btn" style="padding:3px 7px;font-size:10.5px;color:var(--accent);" onclick="changeUserRole(${u.id}, '${isAdmin ? 'user' : 'admin'}')">
-                  ${isAdmin ? 'عزل مدیر' : 'ارتقا به مدیر'}
-                </button>
-              ` : ''}
-              <button type="button" class="btn" style="padding:3px 7px;font-size:10.5px;color:var(--text);" onclick="openAdminUserResetModal(${u.id}, '${u.email}')">
-                🔑 تغییر رمز
-              </button>
-              ${!isSelf ? `
-                <button type="button" class="delbtn" style="padding:3px 7px;font-size:10.5px;" onclick="deleteUserByAdminConfirm(${u.id}, '${u.email}')">
-                  حذف
-                </button>
-              ` : ''}
-            </div>
-          </td>
+          <td><span class="daytag" style="font-size:10px;">${modeLabel}</span></td>
+          <td><b>${w.exercise_name}</b></td>
+          <td style="color:var(--accent);font-weight:700;">${faDigits(w.weight_kg)} kg</td>
+          <td>${faDigits(repsStr)}</td>
+          <td style="color:var(--muted);">${faDigits(rirStr)}</td>
+          <td style="font-size:11px;color:var(--muted);white-space:nowrap;">${w.log_date}</td>
+          <td style="font-size:11px;color:var(--muted);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${w.notes || '—'}</td>
+        </tr>
+      `;
+    }).join('');
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:16px;color:var(--danger)">${err.message}</td></tr>`;
+  }
+}
+
+/* ---------------- اعلان سراسری و لاگ سیستم ---------------- */
+async function loadAdminAnnouncement() {
+  try {
+    const res = await apiFetch('/admin/announcement');
+    const data = await parseResponseJson(res);
+    if (res.ok && data.announcement) {
+      document.getElementById('admAnnounceEnabled').checked = Boolean(data.announcement.enabled);
+      document.getElementById('admAnnounceMessage').value = data.announcement.message || '';
+      document.getElementById('admAnnounceLevel').value = data.announcement.level || 'info';
+    }
+  } catch (e) {
+    console.warn('loadAdminAnnouncement error:', e);
+  }
+}
+
+async function saveAdminAnnouncement() {
+  const enabled = document.getElementById('admAnnounceEnabled').checked;
+  const message = document.getElementById('admAnnounceMessage').value.trim();
+  const level = document.getElementById('admAnnounceLevel').value;
+  const fb = document.getElementById('admAnnounceFeedback');
+
+  fb.textContent = 'در حال ذخیره...';
+  fb.style.color = 'var(--muted)';
+
+  try {
+    const res = await apiFetch('/admin/announcement', {
+      method: 'PUT',
+      body: JSON.stringify({ enabled, message, level })
+    });
+    const data = await parseResponseJson(res);
+    if (!res.ok) throw new Error(data.message || 'خطا در ذخیره اعلان');
+
+    fb.textContent = '✅ اعلان با موفقیت ذخیره و منتشر شد.';
+    fb.style.color = 'var(--ok)';
+    applyAnnouncementBanner(data.announcement);
+    setTimeout(() => { fb.textContent = ''; }, 2500);
+  } catch (err) {
+    fb.textContent = '⚠️ ' + err.message;
+    fb.style.color = 'var(--danger)';
+  }
+}
+
+async function loadAdminSystemLogs() {
+  const tbody = document.getElementById('adminLogsTableBody');
+  tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:16px;color:var(--muted)">در حال دریافت لاگ‌ها...</td></tr>';
+
+  try {
+    const res = await apiFetch('/admin/system-logs');
+    const data = await parseResponseJson(res);
+    if (!res.ok) throw new Error(data.message || 'خطا در دریافت لاگ‌ها');
+
+    const logs = data.logs || [];
+    if (logs.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:16px;color:var(--muted)">هیچ لاگی ثبت نشده است.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = logs.map(l => {
+      const timeStr = new Date(l.timestamp).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const dateStr = new Date(l.timestamp).toLocaleDateString('fa-IR');
+      return `
+        <tr>
+          <td><span class="daytag" style="font-size:10px;">${l.type}</span></td>
+          <td style="font-weight:700;color:var(--text);">${l.action}</td>
+          <td style="font-size:11.5px;color:var(--muted);">${l.details}</td>
+          <td style="font-size:11px;color:var(--accent);">${l.user || 'مدیر'}</td>
+          <td style="font-size:11px;color:var(--muted);direction:ltr;white-space:nowrap;">${dateStr} ${timeStr}</td>
         </tr>
       `;
     }).join('');
@@ -1919,32 +2721,53 @@ async function loadAdminUsers() {
   }
 }
 
-function debounceAdminSearch() {
-  if (adminSearchTimer) clearTimeout(adminSearchTimer);
-  adminSearchTimer = setTimeout(() => {
-    loadAdminUsers();
-  }, 350);
+function applyAnnouncementBanner(announcement) {
+  const banner = document.getElementById('globalAnnouncementBanner');
+  if (!banner) return;
+  if (!announcement || !announcement.enabled || !announcement.message) {
+    banner.style.display = 'none';
+    return;
+  }
+
+  const textEl = document.getElementById('announcementText');
+  const iconEl = document.getElementById('announcementIcon');
+  textEl.textContent = announcement.message;
+
+  if (announcement.level === 'warning') {
+    banner.style.background = 'rgba(217, 164, 65, 0.15)';
+    banner.style.border = '1px solid var(--accent)';
+    banner.style.color = 'var(--accent)';
+    iconEl.textContent = '⚠️';
+  } else if (announcement.level === 'success') {
+    banner.style.background = 'rgba(111, 191, 115, 0.15)';
+    banner.style.border = '1px solid var(--ok)';
+    banner.style.color = 'var(--ok)';
+    iconEl.textContent = '🎉';
+  } else {
+    banner.style.background = 'rgba(14, 165, 233, 0.15)';
+    banner.style.border = '1px solid #0ea5e9';
+    banner.style.color = '#0ea5e9';
+    iconEl.textContent = '📢';
+  }
+
+  banner.style.display = 'flex';
 }
 
-async function changeUserRole(userId, newRole) {
-  const confirmMsg = newRole === 'admin' 
-    ? 'آیا از ارتقای این کاربر به سطح مدیر اطمینان دارید؟'
-    : 'آیا از تبدیل این کاربر به کاربر عادی اطمینان دارید؟';
-  if (!confirm(confirmMsg)) return;
+function dismissAnnouncement() {
+  const banner = document.getElementById('globalAnnouncementBanner');
+  if (banner) banner.style.display = 'none';
+}
 
+async function fetchPublicAnnouncement() {
   try {
-    const res = await apiFetch(`/admin/users/${userId}/role`, {
-      method: 'PUT',
-      body: JSON.stringify({ role: newRole })
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'خطا در تغییر نقش');
-    alert(data.message);
-    loadAdminUsers();
-    loadAdminMetrics();
-  } catch (err) {
-    alert('خطا: ' + err.message);
-  }
+    const res = await fetch('/public/announcement');
+    if (res.ok) {
+      const data = await parseResponseJson(res);
+      if (data && data.announcement) {
+        applyAnnouncementBanner(data.announcement);
+      }
+    }
+  } catch (e) {}
 }
 
 async function deleteUserByAdminConfirm(userId, userEmail) {
@@ -1956,7 +2779,7 @@ async function deleteUserByAdminConfirm(userId, userEmail) {
     const res = await apiFetch(`/admin/users/${userId}`, {
       method: 'DELETE'
     });
-    const data = await res.json();
+    const data = await parseResponseJson(res);
     if (!res.ok) throw new Error(data.message || 'خطا در حذف کاربر');
     alert(data.message);
     loadAdminUsers();
@@ -1995,7 +2818,7 @@ async function submitAdminUserReset() {
       method: 'PUT',
       body: JSON.stringify({ newPassword })
     });
-    const data = await res.json();
+    const data = await parseResponseJson(res);
     if (!res.ok) throw new Error(data.message || 'خطا در تغییر رمز');
 
     fb.innerHTML = `<div class="feedback up">${data.message}</div>`;
@@ -2010,13 +2833,15 @@ async function submitAdminUserReset() {
 async function loadEmailConfig() {
   try {
     const res = await apiFetch('/admin/email-config');
-    if (res.ok) {
-      const data = await res.json();
+    const data = await parseResponseJson(res);
+    if (res.ok && data) {
       if (!document.getElementById('admTestEmailTarget').value && currentUser) {
         document.getElementById('admTestEmailTarget').value = currentUser.email;
       }
     }
-  } catch (e) {}
+  } catch (e) {
+    console.warn('loadEmailConfig error:', e);
+  }
 }
 
 async function submitTestEmail() {
@@ -2028,19 +2853,21 @@ async function submitTestEmail() {
     return;
   }
 
-  resultBox.innerHTML = '<div class="feedback" style="color:var(--muted)">در حال ارسال ایمیل تستی...</div>';
+  resultBox.innerHTML = '<div class="feedback" style="color:var(--muted)">در حال اتصال به سرور و ارسال ایمیل تستی...</div>';
 
   try {
     const res = await apiFetch('/admin/test-email', {
       method: 'POST',
       body: JSON.stringify({ targetEmail })
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'خطا در ارسال ایمیل');
+    const data = await parseResponseJson(res);
+    if (!res.ok) {
+      throw new Error(data.message || `خطای سرور (${res.status}) در ارسال ایمیل آزمایشی.`);
+    }
 
-    resultBox.innerHTML = `<div class="feedback up">${data.message}</div>`;
+    resultBox.innerHTML = `<div class="feedback up">✅ ${data.message}</div>`;
   } catch (err) {
-    resultBox.innerHTML = `<div class="feedback down">${err.message}</div>`;
+    resultBox.innerHTML = `<div class="feedback down">⚠️ ${err.message}</div>`;
   }
 }
 
@@ -2062,9 +2889,16 @@ async function apiFetch(url, options = {}) {
   if (currentAccessToken) {
     options.headers['Authorization'] = `Bearer ${currentAccessToken}`;
   }
-  options.headers['Content-Type'] = 'application/json';
+  if (!options.headers['Content-Type'] && options.body && typeof options.body === 'string') {
+    options.headers['Content-Type'] = 'application/json';
+  }
 
-  let res = await fetch(url, options);
+  let res;
+  try {
+    res = await fetch(url, options);
+  } catch (netErr) {
+    throw new Error('خطا در اتصال به سرور. لطفاً وضعیت اینترنت خود را بررسی کنید.');
+  }
 
   if ((res.status === 401 || res.status === 403) && url !== '/auth/refresh') {
     const refreshed = await tryRefreshToken();
@@ -2073,7 +2907,7 @@ async function apiFetch(url, options = {}) {
       res = await fetch(url, options);
     } else {
       logoutUser();
-      throw new Error('جلسه شما منقضی شده است، لطفاً دوباره وارد شوید.');
+      throw new Error('نشست شما منقضی شده است، لطفاً دوباره وارد شوید.');
     }
   }
   return res;
@@ -4731,6 +5565,8 @@ window.addEventListener('DOMContentLoaded', async () => {
       document.getElementById('forgotEmail').value = resetEmail;
     }
   }
+
+  fetchPublicAnnouncement().catch(() => {});
 
   const isSessionValid = await tryRefreshToken();
   if (isSessionValid) {

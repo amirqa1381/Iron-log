@@ -24,6 +24,13 @@ import {
   getAdminMetrics,
   getAdminUsers,
   updateUserRole,
+  createUserByAdmin,
+  getUserDetails,
+  getRecentWorkouts,
+  getSystemLogs,
+  getAdminAnnouncement,
+  updateAdminAnnouncement,
+  getPublicAnnouncement,
   adminResetUserPassword,
   deleteUserByAdmin,
   getEmailConfig,
@@ -85,9 +92,16 @@ app.post('/auth/claim-admin', verifyAccessToken, claimAdmin);
 // Admin Service Routes (Protected with Admin Role)
 app.get('/admin/metrics', verifyAccessToken, requireAdmin, getAdminMetrics);
 app.get('/admin/users', verifyAccessToken, requireAdmin, getAdminUsers);
+app.post('/admin/users', verifyAccessToken, requireAdmin, createUserByAdmin);
+app.get('/admin/users/:id/details', verifyAccessToken, requireAdmin, getUserDetails);
 app.put('/admin/users/:id/role', verifyAccessToken, requireAdmin, updateUserRole);
 app.put('/admin/users/:id/reset-password', verifyAccessToken, requireAdmin, adminResetUserPassword);
 app.delete('/admin/users/:id', verifyAccessToken, requireAdmin, deleteUserByAdmin);
+app.get('/admin/recent-workouts', verifyAccessToken, requireAdmin, getRecentWorkouts);
+app.get('/admin/system-logs', verifyAccessToken, requireAdmin, getSystemLogs);
+app.get('/admin/announcement', verifyAccessToken, requireAdmin, getAdminAnnouncement);
+app.put('/admin/announcement', verifyAccessToken, requireAdmin, updateAdminAnnouncement);
+app.get('/public/announcement', getPublicAnnouncement);
 app.get('/admin/email-config', verifyAccessToken, requireAdmin, getEmailConfig);
 app.post('/admin/test-email', verifyAccessToken, requireAdmin, testEmailSending);
 

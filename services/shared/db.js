@@ -238,9 +238,23 @@ function executeInMemoryQuery(text, params = []) {
         id: u.id,
         email: u.email,
         display_name: u.display_name,
+        role: u.role || 'user',
         created_at: u.created_at
       })),
       rowCount: found.length
+    };
+  }
+
+  if (lower.includes('from users') && !lower.includes('where') && !lower.startsWith('insert') && !lower.startsWith('update') && !lower.startsWith('delete') && !lower.includes('count(*)')) {
+    return {
+      rows: users.map(u => ({
+        id: u.id,
+        email: u.email,
+        display_name: u.display_name,
+        role: u.role || 'user',
+        created_at: u.created_at
+      })),
+      rowCount: users.length
     };
   }
 
@@ -454,6 +468,30 @@ function executeInMemoryQuery(text, params = []) {
         rowCount: filtered.length
       };
     }
+  }
+
+  if (lower.includes('from workout_logs') && !lower.startsWith('insert') && !lower.startsWith('delete') && !lower.startsWith('select count(*)')) {
+    const sorted = workoutLogs.slice().sort((a, b) => new Date(b.created_at || b.log_date).getTime() - new Date(a.created_at || a.log_date).getTime());
+    const limit = lower.includes('limit') ? 50 : sorted.length;
+    const mapped = sorted.slice(0, limit).map(w => {
+      const u = users.find(usr => Number(usr.id) === Number(w.user_id));
+      return {
+        id: w.id,
+        user_id: w.user_id,
+        user_email: u ? u.email : 'کاربر',
+        user_display_name: u ? (u.display_name || u.email) : 'ورزشکار',
+        user_role: u ? (u.role || 'user') : 'user',
+        program_mode: w.program_mode,
+        exercise_name: w.exercise_name,
+        log_date: w.log_date,
+        weight_kg: w.weight_kg,
+        reps: w.reps,
+        rir: w.rir,
+        notes: w.notes,
+        created_at: w.created_at
+      };
+    });
+    return { rows: mapped, rowCount: mapped.length };
   }
 
   if (lower.startsWith('delete from workout_logs where id = $1 and user_id = $2')) {
