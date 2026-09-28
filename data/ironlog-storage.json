@@ -1,0 +1,258 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "email": "demo@ironlog.app",
+      "password_hash": "$2a$10$GpBttspWw08hhQKegrrHzOjJVaPKDvWugfVuZK8VFXDWpPCv2OLOS",
+      "display_name": "علی (مدیر)",
+      "role": "admin",
+      "created_at": "2026-09-01T08:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "email": "amirghasemian1381@gmail.com",
+      "password_hash": "$2a$10$GpBttspWw08hhQKegrrHzOjJVaPKDvWugfVuZK8VFXDWpPCv2OLOS",
+      "display_name": "امیر قاسمی (مدیر سیستم)",
+      "role": "admin",
+      "created_at": "2026-09-02T10:00:00.000Z"
+    },
+    {
+      "id": 3,
+      "email": "amirhusseinghasemian@outlook.com",
+      "password_hash": "$2a$10$GpBttspWw08hhQKegrrHzOjJVaPKDvWugfVuZK8VFXDWpPCv2OLOS",
+      "display_name": "امیرحسین قاسمی (مدیر سیستم)",
+      "role": "admin",
+      "created_at": "2026-09-03T10:00:00.000Z"
+    }
+  ],
+  "workoutLogs": [
+    {
+      "id": 1,
+      "user_id": 1,
+      "program_mode": "dumbbell",
+      "exercise_name": "Dumbbell Bench Press",
+      "log_date": "2026-09-10",
+      "weight_kg": 15,
+      "reps": [
+        10,
+        10,
+        8
+      ],
+      "rir": [
+        2,
+        2,
+        1
+      ],
+      "rpe": [
+        8,
+        8,
+        9
+      ],
+      "notes": "فرم عالی و تمرکز روی بالاسینه",
+      "created_at": "2026-09-10T10:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "user_id": 1,
+      "program_mode": "dumbbell",
+      "exercise_name": "Dumbbell Incline Press",
+      "log_date": "2026-09-10",
+      "weight_kg": 12.5,
+      "reps": [
+        10,
+        9,
+        8
+      ],
+      "rir": [
+        2,
+        1,
+        1
+      ],
+      "rpe": [
+        8,
+        9,
+        9
+      ],
+      "notes": "زاویه نیمکت ۳۰ درجه",
+      "created_at": "2026-09-10T10:30:00.000Z"
+    },
+    {
+      "id": 3,
+      "user_id": 1,
+      "program_mode": "dumbbell",
+      "exercise_name": "Dumbbell Bench Press",
+      "log_date": "2026-09-15",
+      "weight_kg": 17.5,
+      "reps": [
+        8,
+        8,
+        7
+      ],
+      "rir": [
+        1,
+        1,
+        0
+      ],
+      "rpe": [
+        9,
+        9,
+        10
+      ],
+      "notes": "افزایش وزنه نسبت به هفته قبل (رکورد جدید)",
+      "created_at": "2026-09-15T10:00:00.000Z"
+    }
+  ],
+  "bodyweightLogs": [
+    {
+      "id": 1,
+      "user_id": 1,
+      "log_date": "2026-09-01",
+      "weight_kg": 78,
+      "created_at": "2026-09-01T08:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "user_id": 1,
+      "log_date": "2026-09-08",
+      "weight_kg": 78.6,
+      "created_at": "2026-09-08T08:00:00.000Z"
+    },
+    {
+      "id": 3,
+      "user_id": 1,
+      "log_date": "2026-09-15",
+      "weight_kg": 79.2,
+      "created_at": "2026-09-15T08:00:00.000Z"
+    },
+    {
+      "id": 22,
+      "user_id": 2,
+      "log_date": "2026-09-28",
+      "weight_kg": 79,
+      "created_at": "2026-09-28T08:13:47.290Z"
+    },
+    {
+      "id": 23,
+      "user_id": 2,
+      "log_date": "2026-09-28",
+      "weight_kg": 79,
+      "created_at": "2026-09-28T08:13:55.377Z"
+    },
+    {
+      "id": 24,
+      "user_id": 2,
+      "log_date": "2026-09-28",
+      "weight_kg": 79,
+      "created_at": "2026-09-28T08:25:00.082Z"
+    },
+    {
+      "id": 25,
+      "user_id": 1,
+      "log_date": "2026-09-28",
+      "weight_kg": 78.5,
+      "created_at": "2026-09-28T08:29:03.855Z"
+    }
+  ],
+  "userSettings": [
+    {
+      "user_id": 1,
+      "active_mode": "dumbbell",
+      "start_weight": 75,
+      "target_weight": 82,
+      "updated_at": "2026-09-28T08:29:03.844Z"
+    },
+    {
+      "user_id": 2,
+      "active_mode": "dumbbell",
+      "start_weight": 78,
+      "target_weight": 85,
+      "updated_at": "2026-09-28T08:25:07.439Z"
+    }
+  ],
+  "customExercises": [],
+  "userPlans": [],
+  "refreshTokens": [
+    {
+      "id": 1,
+      "user_id": 1,
+      "token_hash": "6c056a35fddf88d53c7fbd6692235df4dcb534424f7fc796ce21941f70a6b90e",
+      "expires_at": "2026-10-28T08:03:50.048Z",
+      "revoked_at": "2026-09-28T08:18:37.495Z"
+    },
+    {
+      "id": 1,
+      "user_id": 1,
+      "token_hash": "6d6ac53b3febee4af39758fddb7441a46562dc218a0a68e70f9e4353343de30e",
+      "expires_at": "2026-10-28T08:07:40.912Z",
+      "revoked_at": null
+    },
+    {
+      "id": 2,
+      "user_id": 1,
+      "token_hash": "0778a105d30ca9fe346b814f2be9c7f088ad8d2936f12917e4de8e2e7128c5e0",
+      "expires_at": "2026-10-28T08:07:58.338Z",
+      "revoked_at": "2026-09-28T08:24:57.129Z"
+    },
+    {
+      "id": 1,
+      "user_id": 1,
+      "token_hash": "1875f0bd92cc3e61ecac83bddf34d600f4fe00476db922350068d15089d067a8",
+      "expires_at": "2026-10-28T08:08:03.338Z",
+      "revoked_at": null
+    },
+    {
+      "id": 1,
+      "user_id": 2,
+      "token_hash": "a63feee7a79a14a98e3583f369f3316fbd088cece11be706636984dfd208dcdf",
+      "expires_at": "2026-10-28T08:13:19.817Z",
+      "revoked_at": null
+    },
+    {
+      "id": 2,
+      "user_id": 2,
+      "token_hash": "33427b49d68c445b0142bed8623d97b9e9e7e70f2ede26714dcbbf7c050b725f",
+      "expires_at": "2026-10-28T08:13:21.210Z",
+      "revoked_at": null
+    },
+    {
+      "id": 3,
+      "user_id": 2,
+      "token_hash": "0fba09d8780023e49e612dc1b7ce1c3118351fc2794bd133a6def69a47c8aa21",
+      "expires_at": "2026-10-28T08:13:44.017Z",
+      "revoked_at": "2026-09-28T08:25:11.273Z"
+    },
+    {
+      "id": 1,
+      "user_id": 2,
+      "token_hash": "31db72ece613e58fc0f61c9eb32bcc7d74d9f8d646c673a81aa4966eb264d3eb",
+      "expires_at": "2026-10-28T08:18:36.259Z",
+      "revoked_at": null
+    },
+    {
+      "id": 2,
+      "user_id": 2,
+      "token_hash": "1dbc5da95a438c672c06980e6b690e681dc69194189670c5ee6f9c712d3dc98c",
+      "expires_at": "2026-10-28T08:18:37.495Z",
+      "revoked_at": null
+    },
+    {
+      "id": 3,
+      "user_id": 2,
+      "token_hash": "6c2ebce60ecdeaf52faf51f376d7443ace6e31ba155968115115615a0ae46468",
+      "expires_at": "2026-10-28T08:24:57.130Z",
+      "revoked_at": null
+    },
+    {
+      "id": 4,
+      "user_id": 2,
+      "token_hash": "6ccc9abbef34a5946409c976b9f27e171cb5261831d6cf44e73c9f58c2023157",
+      "expires_at": "2026-10-28T08:25:11.273Z",
+      "revoked_at": null
+    }
+  ],
+  "nextUserId": 3,
+  "nextWorkoutId": 16,
+  "nextWeightId": 26,
+  "nextCustomExerciseId": 1,
+  "nextUserPlanId": 1
+}

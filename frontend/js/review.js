@@ -42,15 +42,20 @@ async function loadReviewData() {
     }
     if (bRes.ok) {
       const data = await bRes.json();
-      bodyWeightLogs = data.bodyweights || [];
+      const raw = Array.isArray(data) ? data : (data.bodyweights || data.logs || data.rows || []);
+      bodyWeightLogs = raw.map(l => ({
+        id: l.id,
+        date: l.date || l.logDate || l.log_date,
+        weight: Number(l.weight !== undefined ? l.weight : (l.weightKg !== undefined ? l.weightKg : l.weight_kg))
+      })).filter(l => l.date && !isNaN(l.weight));
     }
     if (sRes.ok) {
       const data = await sRes.json();
-      const s = data.settings || {};
-      START_WEIGHT = s.startWeight !== null ? Number(s.startWeight) : null;
-      TARGET_WEIGHT = s.targetWeight !== null ? Number(s.targetWeight) : null;
-      if (START_WEIGHT) document.getElementById('cfgStartWeight').value = START_WEIGHT;
-      if (TARGET_WEIGHT) document.getElementById('cfgTargetWeight').value = TARGET_WEIGHT;
+      const s = data.settings || data || {};
+      START_WEIGHT = s.startWeight !== null && s.startWeight !== undefined ? Number(s.startWeight) : null;
+      TARGET_WEIGHT = s.targetWeight !== null && s.targetWeight !== undefined ? Number(s.targetWeight) : null;
+      if (START_WEIGHT && document.getElementById('cfgStartWeight')) document.getElementById('cfgStartWeight').value = START_WEIGHT;
+      if (TARGET_WEIGHT && document.getElementById('cfgTargetWeight')) document.getElementById('cfgTargetWeight').value = TARGET_WEIGHT;
     }
 
     populateExerciseFilter();

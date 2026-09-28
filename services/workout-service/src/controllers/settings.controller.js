@@ -8,12 +8,18 @@ export const getSettings = async (req, res) => {
       [req.userId]
     );
     if (result.rows.length === 0) {
-      return res.json({ activeMode: 'dumbbell', startWeight: 78, targetWeight: 85 });
+      const def = { activeMode: 'dumbbell', startWeight: 78, targetWeight: 85 };
+      return res.json({ ...def, settings: def });
     }
+    const row = result.rows[0];
+    const payload = {
+      activeMode: row.activeMode || 'dumbbell',
+      startWeight: row.startWeight !== undefined && row.startWeight !== null ? Number(row.startWeight) : null,
+      targetWeight: row.targetWeight !== undefined && row.targetWeight !== null ? Number(row.targetWeight) : null
+    };
     return res.json({
-      activeMode: result.rows[0].activeMode || 'dumbbell',
-      startWeight: Number(result.rows[0].startWeight) || 78,
-      targetWeight: Number(result.rows[0].targetWeight) || 85
+      ...payload,
+      settings: payload
     });
   } catch (err) {
     console.error('getSettings error:', err);
@@ -68,10 +74,15 @@ export const updateSettings = async (req, res) => {
       [req.userId, newActiveMode, newStartWeight, newTargetWeight]
     );
 
-    return res.json({
+    const payload = {
       activeMode: newActiveMode,
       startWeight: newStartWeight,
       targetWeight: newTargetWeight
+    };
+
+    return res.json({
+      ...payload,
+      settings: payload
     });
   } catch (err) {
     console.error('updateSettings error:', err);

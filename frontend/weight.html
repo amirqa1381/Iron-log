@@ -54,6 +54,22 @@
   </header>
 
   <main>
+    <!-- کارت‌های آمار و فاصله تا وزن هدف -->
+    <div class="statrow" id="bwStatRow" style="margin-bottom:16px;">
+      <div class="statchip">
+        <div class="k">آخرین وزن ثبت‌شده</div>
+        <div class="v" id="bwStatCurrent">—</div>
+      </div>
+      <div class="statchip">
+        <div class="k">وزن هدف</div>
+        <div class="v" id="bwStatTarget">—</div>
+      </div>
+      <div class="statchip" style="border:1px solid var(--accent);background:rgba(217,164,65,0.06);">
+        <div class="k">فاصله تا وزن هدف</div>
+        <div class="v" id="bwStatToGo" style="color:var(--accent);font-weight:700;">—</div>
+      </div>
+    </div>
+
     <!-- کارت ثبت وزن امروز -->
     <section class="card">
       <div class="sectionhead">ثبت جدید وزن بدن</div>
@@ -85,7 +101,7 @@
         </div>
       </div>
       <button type="button" class="btn" style="width:100%;margin-top:10px;padding:8px;" onclick="saveTabBwGoals()">ذخیره اهداف وزنی</button>
-      <div id="tabBwGoalFeedback" style="font-size:12px;margin-top:8px;"></div>
+      <div id="tabBwGoalFeedback" style="font-size:12.5px;margin-top:12px;padding:10px 14px;border-radius:8px;background:rgba(255,255,255,0.03);line-height:1.7;"></div>
     </section>
 
     <!-- نمودار و تحلیل پیشرفت -->

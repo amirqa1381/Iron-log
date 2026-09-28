@@ -1,6 +1,8 @@
 import pg from 'pg';
 import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
+import fs from 'fs';
+import path from 'path';
 
 dotenv.config();
 
@@ -125,6 +127,89 @@ let nextCustomExerciseId = 1;
 const userPlans = [];
 let nextUserPlanId = 1;
 
+// Persistent Local Disk Storage
+const STORAGE_DIR = path.resolve(process.cwd(), 'data');
+const STORAGE_FILE = path.join(STORAGE_DIR, 'ironlog-storage.json');
+
+function initPersistedStorage() {
+  try {
+    if (!fs.existsSync(STORAGE_DIR)) {
+      fs.mkdirSync(STORAGE_DIR, { recursive: true });
+    }
+    if (fs.existsSync(STORAGE_FILE)) {
+      const raw = fs.readFileSync(STORAGE_FILE, 'utf-8');
+      const data = JSON.parse(raw);
+      if (Array.isArray(data.users) && data.users.length > 0) {
+        users.length = 0;
+        data.users.forEach(u => users.push(u));
+      }
+      if (Array.isArray(data.workoutLogs) && data.workoutLogs.length > 0) {
+        workoutLogs.length = 0;
+        data.workoutLogs.forEach(w => workoutLogs.push(w));
+      }
+      if (Array.isArray(data.bodyweightLogs) && data.bodyweightLogs.length > 0) {
+        bodyweightLogs.length = 0;
+        data.bodyweightLogs.forEach(b => bodyweightLogs.push(b));
+      }
+      if (Array.isArray(data.userSettings) && data.userSettings.length > 0) {
+        userSettings.length = 0;
+        data.userSettings.forEach(s => userSettings.push(s));
+      }
+      if (Array.isArray(data.customExercises) && data.customExercises.length > 0) {
+        customExercises.length = 0;
+        data.customExercises.forEach(c => customExercises.push(c));
+      }
+      if (Array.isArray(data.userPlans) && data.userPlans.length > 0) {
+        userPlans.length = 0;
+        data.userPlans.forEach(p => userPlans.push(p));
+      }
+      if (Array.isArray(data.refreshTokens) && data.refreshTokens.length > 0) {
+        refreshTokens.length = 0;
+        data.refreshTokens.forEach(r => refreshTokens.push(r));
+      }
+      if (data.nextUserId) nextUserId = data.nextUserId;
+      if (data.nextWorkoutId) nextWorkoutId = data.nextWorkoutId;
+      if (data.nextWeightId) nextWeightId = data.nextWeightId;
+      if (data.nextCustomExerciseId) nextCustomExerciseId = data.nextCustomExerciseId;
+      if (data.nextUserPlanId) nextUserPlanId = data.nextUserPlanId;
+    } else {
+      savePersistedStorage();
+    }
+  } catch (err) {
+    console.warn('[Storage Warning] Could not load persisted file:', err.message);
+  }
+}
+
+function savePersistedStorage() {
+  try {
+    if (!fs.existsSync(STORAGE_DIR)) {
+      fs.mkdirSync(STORAGE_DIR, { recursive: true });
+    }
+    const state = {
+      users,
+      workoutLogs,
+      bodyweightLogs,
+      userSettings,
+      customExercises,
+      userPlans,
+      refreshTokens,
+      nextUserId,
+      nextWorkoutId,
+      nextWeightId,
+      nextCustomExerciseId,
+      nextUserPlanId
+    };
+    const tmp = STORAGE_FILE + '.tmp';
+    fs.writeFileSync(tmp, JSON.stringify(state, null, 2), 'utf-8');
+    fs.renameSync(tmp, STORAGE_FILE);
+  } catch (err) {
+    console.warn('[Storage Warning] Could not save persisted file:', err.message);
+  }
+}
+
+// Automatically load persisted data on module initialization
+initPersistedStorage();
+
 // In-memory query router
 function executeInMemoryQuery(text, params = []) {
   const sql = text.trim();
@@ -159,6 +244,7 @@ function executeInMemoryQuery(text, params = []) {
       created_at: new Date()
     };
     users.push(newUser);
+    savePersistedStorage();
     return {
       rows: [{ id: newUser.id, email: newUser.email, display_name: newUser.display_name, role: newUser.role }],
       rowCount: 1
@@ -170,6 +256,7 @@ function executeInMemoryQuery(text, params = []) {
     const user = users.find(u => Number(u.id) === Number(userId));
     if (user) {
       user.password_hash = newHash;
+      savePersistedStorage();
       return { rows: [{ id: user.id }], rowCount: 1 };
     }
     return { rows: [], rowCount: 0 };
@@ -180,6 +267,7 @@ function executeInMemoryQuery(text, params = []) {
     const user = users.find(u => Number(u.id) === Number(userId));
     if (user) {
       user.role = newRole;
+      savePersistedStorage();
       return { rows: [{ id: user.id, role: user.role }], rowCount: 1 };
     }
     return { rows: [], rowCount: 0 };
@@ -312,6 +400,7 @@ function executeInMemoryQuery(text, params = []) {
         deleted = 1;
       }
     }
+    if (deleted > 0) savePersistedStorage();
     return { rows: [], rowCount: deleted };
   }
 
@@ -425,6 +514,7 @@ function executeInMemoryQuery(text, params = []) {
       created_at: new Date()
     };
     workoutLogs.push(item);
+    savePersistedStorage();
     return {
       rows: [{
         id: item.id,
@@ -517,76 +607,76 @@ function executeInMemoryQuery(text, params = []) {
     const idx = workoutLogs.findIndex(w => Number(w.id) === id && Number(w.user_id) === userId);
     if (idx !== -1) {
       const removed = workoutLogs.splice(idx, 1);
+      savePersistedStorage();
       return { rows: [{ id: removed[0].id }], rowCount: 1 };
     }
     return { rows: [], rowCount: 0 };
   }
 
   // BODYWEIGHT_LOGS queries
+  if (lower.includes('count(*) from bodyweight_logs')) {
+    return { rows: [{ count: String(bodyweightLogs.length) }], rowCount: 1 };
+  }
+
   if (lower.includes('into bodyweight_logs')) {
     const [user_id, log_date, weight_kg] = params;
     const userId = Number(user_id);
     const dateStr = typeof log_date === 'string' ? log_date : new Date(log_date).toISOString().slice(0, 10);
     const weightNum = Number(weight_kg);
 
-    const existing = bodyweightLogs.find(b => Number(b.user_id) === userId && b.log_date === dateStr);
-    if (existing) {
-      existing.weight_kg = weightNum;
-      return {
-        rows: [{ id: existing.id, logDate: existing.log_date, weightKg: existing.weight_kg }],
-        rowCount: 1
-      };
-    } else {
-      const newItem = {
-        id: nextWeightId++,
-        user_id: userId,
-        log_date: dateStr,
-        weight_kg: weightNum,
-        created_at: new Date()
-      };
-      bodyweightLogs.push(newItem);
-      return {
-        rows: [{ id: newItem.id, logDate: newItem.log_date, weightKg: newItem.weight_kg }],
-        rowCount: 1
-      };
-    }
+    const newItem = {
+      id: nextWeightId++,
+      user_id: userId,
+      log_date: dateStr,
+      weight_kg: weightNum,
+      created_at: new Date()
+    };
+    bodyweightLogs.push(newItem);
+    savePersistedStorage();
+    return {
+      rows: [{ 
+        id: newItem.id, 
+        logDate: newItem.log_date, 
+        weightKg: newItem.weight_kg, 
+        date: newItem.log_date,
+        weight: newItem.weight_kg,
+        created_at: newItem.created_at 
+      }],
+      rowCount: 1
+    };
   }
 
-  if (lower.includes('from bodyweight_logs where user_id = $1')) {
-    const userId = Number(params[0]);
-    const filtered = bodyweightLogs.filter(b => Number(b.user_id) === userId);
-    filtered.sort((a, b) => a.log_date.localeCompare(b.log_date));
-
-    if (lower.includes('as "logdate"')) {
-      return {
-        rows: filtered.map(b => ({
-          id: b.id,
-          logDate: b.log_date,
-          weightKg: b.weight_kg,
-          created_at: b.created_at
-        })),
-        rowCount: filtered.length
-      };
-    } else {
-      return {
-        rows: filtered.map(b => ({
-          log_date: b.log_date,
-          weight_kg: b.weight_kg
-        })),
-        rowCount: filtered.length
-      };
-    }
-  }
-
-  if (lower.startsWith('delete from bodyweight_logs where id = $1 and user_id = $2')) {
+  if (lower.includes('delete from bodyweight_logs')) {
     const id = Number(params[0]);
-    const userId = Number(params[1]);
-    const idx = bodyweightLogs.findIndex(b => Number(b.id) === id && Number(b.user_id) === userId);
+    const userId = params[1] !== undefined ? Number(params[1]) : null;
+    const idx = bodyweightLogs.findIndex(b => Number(b.id) === id && (userId === null || Number(b.user_id) === userId));
     if (idx !== -1) {
       const removed = bodyweightLogs.splice(idx, 1);
+      savePersistedStorage();
       return { rows: [{ id: removed[0].id }], rowCount: 1 };
     }
     return { rows: [], rowCount: 0 };
+  }
+
+  if (lower.includes('from bodyweight_logs') && !lower.startsWith('delete') && !lower.startsWith('insert')) {
+    let list = bodyweightLogs;
+    if (params && params[0] !== undefined) {
+      const userId = Number(params[0]);
+      list = bodyweightLogs.filter(b => Number(b.user_id) === userId);
+    }
+    list.sort((a, b) => a.log_date.localeCompare(b.log_date) || (a.id - b.id));
+
+    return {
+      rows: list.map(b => ({
+        id: b.id,
+        logDate: b.log_date,
+        weightKg: b.weight_kg,
+        date: b.log_date,
+        weight: b.weight_kg,
+        created_at: b.created_at
+      })),
+      rowCount: list.length
+    };
   }
 
   // SETTINGS queries
@@ -630,6 +720,7 @@ function executeInMemoryQuery(text, params = []) {
         updated_at: new Date()
       });
     }
+    savePersistedStorage();
     return { rows: [{ active_mode }], rowCount: 1 };
   }
 
@@ -654,6 +745,7 @@ function executeInMemoryQuery(text, params = []) {
       created_at: new Date()
     };
     customExercises.push(item);
+    savePersistedStorage();
     return {
       rows: [{
         id: item.id,
@@ -710,6 +802,7 @@ function executeInMemoryQuery(text, params = []) {
     const idx = customExercises.findIndex(c => Number(c.id) === id && Number(c.user_id) === userId);
     if (idx !== -1) {
       const removed = customExercises.splice(idx, 1);
+      savePersistedStorage();
       return { rows: [{ id: removed[0].id }], rowCount: 1 };
     }
     return { rows: [], rowCount: 0 };
@@ -752,6 +845,7 @@ function executeInMemoryQuery(text, params = []) {
         p.updated_at = new Date();
       }
     });
+    savePersistedStorage();
     return { rows: [], rowCount: 1 };
   }
 
@@ -772,6 +866,7 @@ function executeInMemoryQuery(text, params = []) {
       updated_at: new Date()
     };
     userPlans.push(newPlan);
+    savePersistedStorage();
     return { rows: [newPlan], rowCount: 1 };
   }
 
@@ -783,6 +878,7 @@ function executeInMemoryQuery(text, params = []) {
     if (plan) {
       plan.plan_data = planData;
       plan.updated_at = new Date();
+      savePersistedStorage();
       return { rows: [plan], rowCount: 1 };
     }
     return { rows: [], rowCount: 0 };
@@ -796,6 +892,9 @@ function executeInMemoryQuery(text, params = []) {
         userPlans.splice(i, 1);
       }
     }
+    if (prevLen !== userPlans.length) {
+      savePersistedStorage();
+    }
     return { rows: [], rowCount: prevLen - userPlans.length };
   }
 
@@ -805,9 +904,16 @@ function executeInMemoryQuery(text, params = []) {
 
 // Check if a real DATABASE_URL is available
 let realPool = null;
-let isPostgresAvailable = null; // null = pending check, true = active, false = unreachable
+let isPostgresAvailable = false;
 
-if (process.env.DATABASE_URL) {
+const isRealDatabaseUrl = Boolean(
+  process.env.DATABASE_URL &&
+  !process.env.DATABASE_URL.includes('@hostname') &&
+  !process.env.DATABASE_URL.includes('user:password@') &&
+  !process.env.DATABASE_URL.includes('example.com')
+);
+
+if (isRealDatabaseUrl) {
   try {
     const { Pool } = pg;
     realPool = new Pool({
@@ -815,9 +921,8 @@ if (process.env.DATABASE_URL) {
       ssl: { rejectUnauthorized: false },
       max: 10,
       idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 10000 // 10s timeout to allow secure SSL handshake to cloud DB
+      connectionTimeoutMillis: 2500 // Fast 2.5s timeout to prevent UI lag
     });
-    // Handle pool-level idle client errors
     realPool.on('error', (err) => {
       console.warn('[Postgres Pool Warning]', err.message);
     });
@@ -830,7 +935,7 @@ if (process.env.DATABASE_URL) {
 }
 
 export async function initPostgresTables() {
-  if (!realPool) {
+  if (!realPool || !isRealDatabaseUrl) {
     isPostgresAvailable = false;
     return;
   }
@@ -893,9 +998,11 @@ export async function initPostgresTables() {
           user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
           log_date DATE NOT NULL,
           weight_kg NUMERIC(5,2) NOT NULL,
-          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-          CONSTRAINT unique_user_bw_date UNIQUE (user_id, log_date)
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
         );
+
+        -- Remove restrictive unique constraint if present so users can log multiple weigh-ins
+        ALTER TABLE bodyweight_logs DROP CONSTRAINT IF EXISTS unique_user_bw_date;
 
         CREATE TABLE IF NOT EXISTS user_settings (
           user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
@@ -962,7 +1069,11 @@ export async function initPostgresTables() {
     }
   } catch (err) {
     isPostgresAvailable = false;
-    console.log('[Storage Engine] Cloud PostgreSQL host unreachable in current network environment; active in-memory storage engaged:', err.message);
+    if (realPool) {
+      try { realPool.end().catch(() => {}); } catch(e) {}
+      realPool = null;
+    }
+    console.log('[Storage Engine] PostgreSQL not reachable; fast persistent local storage active.');
   }
 }
 
@@ -970,43 +1081,37 @@ export function getDatabaseStatus() {
   return {
     hasDatabaseUrl: Boolean(process.env.DATABASE_URL),
     isPostgresActive: isPostgresAvailable === true,
-    engine: isPostgresAvailable === true ? 'PostgreSQL' : 'In-Memory Mock Storage'
+    engine: isPostgresAvailable === true ? 'PostgreSQL' : 'Persistent Storage (JSON + In-Memory)'
   };
 }
 
 export const pool = {
   query: async (text, params) => {
-    if (realPool) {
+    if (realPool && isPostgresAvailable === true) {
       try {
-        const res = await realPool.query(text, params);
-        isPostgresAvailable = true;
-        return res;
+        return await realPool.query(text, params);
       } catch (dbErr) {
-        // Fallback only if genuine network or host resolution failure
-        const isNetworkErr = ['ECONNREFUSED', 'ENOTFOUND', 'EAI_AGAIN', 'ETIMEDOUT'].includes(dbErr.code);
+        const isNetworkErr = ['ECONNREFUSED', 'ENOTFOUND', 'EAI_AGAIN', 'ETIMEDOUT', '28P01'].includes(dbErr.code);
         if (isNetworkErr) {
           isPostgresAvailable = false;
+          try { realPool.end().catch(() => {}); } catch(e){}
+          realPool = null;
           return executeInMemoryQuery(text, params);
         }
-        // Rethrow query errors so they are not masked by in-memory mock!
         throw dbErr;
       }
     }
     return executeInMemoryQuery(text, params);
   },
   connect: async () => {
-    if (realPool) {
+    if (realPool && isPostgresAvailable === true) {
       try {
         const client = await realPool.connect();
-        isPostgresAvailable = true;
         return client;
       } catch (err) {
-        const isNetworkErr = ['ECONNREFUSED', 'ENOTFOUND', 'EAI_AGAIN', 'ETIMEDOUT'].includes(err.code);
-        if (isNetworkErr) {
-          isPostgresAvailable = false;
-        } else {
-          throw err;
-        }
+        isPostgresAvailable = false;
+        try { realPool.end().catch(() => {}); } catch(e){}
+        realPool = null;
       }
     }
     return {

@@ -101,11 +101,27 @@ async function loadStatsData() {
 
     if (bwRes.ok) {
       const bwData = await parseResponseJson(bwRes);
-      bodyWeightLogs = bwData.logs || [];
+      const rawBw = Array.isArray(bwData) ? bwData : (bwData.logs || bwData.bodyweights || bwData.rows || []);
+      bodyWeightLogs = rawBw.map(l => ({
+        id: l.id,
+        date: l.date || l.logDate || l.log_date,
+        weightKg: Number(l.weightKg !== undefined ? l.weightKg : (l.weight !== undefined ? l.weight : l.weight_kg)),
+        weight: Number(l.weight !== undefined ? l.weight : (l.weightKg !== undefined ? l.weightKg : l.weight_kg)),
+        created_at: l.created_at
+      })).filter(l => !isNaN(l.weightKg));
+
+      // Sort chronological by date then id so the most recent is reliably at the end
+      bodyWeightLogs.sort((a, b) => {
+        const dCmp = (a.date || '').localeCompare(b.date || '');
+        if (dCmp !== 0) return dCmp;
+        return (Number(a.id) || 0) - (Number(b.id) || 0);
+      });
+
       if (bodyWeightLogs.length > 0) {
         const last = bodyWeightLogs[bodyWeightLogs.length - 1];
         const el = document.getElementById('statWeight');
-        if (el) el.textContent = `${faDigits(last.weightKg || last.weight_kg)} ک‌گ`;
+        if (el) el.textContent = `${faDigits(last.weightKg)} ک‌گ`;
+        updateToGoWeight();
       }
     }
 
@@ -118,11 +134,10 @@ async function loadStatsData() {
 
     if (setRes.ok) {
       const setData = await parseResponseJson(setRes);
-      if (setData.settings) {
-        START_WEIGHT = setData.settings.startWeight;
-        TARGET_WEIGHT = setData.settings.targetWeight;
-        updateToGoWeight();
-      }
+      const sObj = setData.settings || setData || {};
+      START_WEIGHT = parseUserNumber(sObj.startWeight ?? sObj.start_weight);
+      TARGET_WEIGHT = parseUserNumber(sObj.targetWeight ?? sObj.target_weight);
+      updateToGoWeight();
     }
   } catch (err) {
     console.warn('[loadStatsData warning]:', err.message);
@@ -132,18 +147,24 @@ async function loadStatsData() {
 function updateToGoWeight() {
   const el = document.getElementById('statToGo');
   if (!el) return;
-  if (!TARGET_WEIGHT || bodyWeightLogs.length === 0) {
+  const tw = parseUserNumber(TARGET_WEIGHT);
+  if (!tw || bodyWeightLogs.length === 0) {
     el.textContent = '—';
     return;
   }
-  const last = bodyWeightLogs[bodyWeightLogs.length - 1].weightKg || bodyWeightLogs[bodyWeightLogs.length - 1].weight_kg;
-  const diff = +(last - TARGET_WEIGHT).toFixed(1);
-  if (diff > 0) {
-    el.textContent = `${faDigits(diff)} ک‌گ کاهش`;
-  } else if (diff < 0) {
-    el.textContent = `${faDigits(Math.abs(diff))} ک‌گ افزایش`;
-  } else {
+  const lastItem = bodyWeightLogs[bodyWeightLogs.length - 1];
+  const last = Number(lastItem.weightKg !== undefined ? lastItem.weightKg : (lastItem.weight !== undefined ? lastItem.weight : lastItem.weight_kg));
+  if (isNaN(last) || last <= 0) {
+    el.textContent = '—';
+    return;
+  }
+  const diff = +(last - tw).toFixed(1);
+  if (Math.abs(diff) < 0.2) {
     el.textContent = 'رسیده به هدف 🎯';
+  } else if (diff > 0) {
+    el.textContent = `${faDigits(diff)} ک‌گ کاهش`;
+  } else {
+    el.textContent = `${faDigits(Math.abs(diff))} ک‌گ افزایش`;
   }
 }
 
@@ -732,15 +753,15 @@ function renderExerciseCardHtml(ex, exIndex) {
   const setsCount = Number(ex.sets) || 3;
   const youtubeUrl = ex.youtube || `https://www.youtube.com/results?search_query=${encodeURIComponent((ex.name || ex.nameFa) + ' form')}`;
 
-  // Find existing logs for this exercise today if any
+  // Find existing logs for this exercise today if any (most recent entry)
   const todayStr = todayISO();
-  const existingLog = workoutLogs.find(l => 
+  const existingLog = workoutLogs.slice().reverse().find(l => 
     (l.exerciseName === ex.name || l.exerciseName === ex.nameFa || l.exercise_name === ex.name || l.exercise_name === ex.nameFa) &&
     (l.logDate === todayStr || l.log_date === todayStr)
   );
 
   // Find most recent previous session log for ghost record / previous benchmark
-  const previousLog = workoutLogs.find(l => 
+  const previousLog = workoutLogs.slice().reverse().find(l => 
     (l.exerciseName === ex.name || l.exerciseName === ex.nameFa || l.exercise_name === ex.name || l.exercise_name === ex.nameFa) &&
     (l.logDate !== todayStr && l.log_date !== todayStr)
   );
@@ -787,7 +808,7 @@ function renderExerciseCardHtml(ex, exIndex) {
       <div class="set-row-box" style="display:flex;align-items:center;justify-content:space-between;gap:6px;padding:6px 0;border-top:1px solid var(--line);">
         <span style="font-size:12px;font-weight:700;color:var(--muted);width:42px;">ست ${faDigits(s)}</span>
         <div style="display:flex;align-items:center;gap:6px;flex:1;">
-          <input type="text" inputmode="decimal" placeholder="${weightPlaceholder}" value="${s === 1 ? loggedWeight : ''}" 
+          <input type="text" inputmode="decimal" placeholder="${weightPlaceholder}" value="${loggedWeight !== '' ? loggedWeight : ''}" 
             id="weight_${exIndex}_${s}" 
             oninput="debouncedAutoSaveSet(${exIndex})" 
             onchange="autoSaveSet(${exIndex})" 
@@ -1008,6 +1029,8 @@ async function autoSaveSet(exIndex) {
       } else {
         workoutLogs.push(saved);
       }
+      const statSessionsEl = document.getElementById('statSessions');
+      if (statSessionsEl) statSessionsEl.textContent = faDigits(workoutLogs.length);
       const rpeSummary = rpe.length > 0 ? ` (RPE: ${rpe.join('/')})` : '';
       showToast(`ثبت شد: ${ex.nameFa}${rpeSummary}`, 'success');
     }
@@ -1316,16 +1339,6 @@ async function submitCustomExercise() {
   } catch (err) {
     showToast('خطا در ثبت حرکت اختصاصی', 'error');
   }
-}
-
-function escapeHtml(str) {
-  if (str === null || str === undefined) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
 }
 
 /* ==========================================================================
