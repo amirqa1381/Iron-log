@@ -33,14 +33,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
-function quickFillLogin(email, password = '123456') {
-  const emailInput = document.getElementById('loginEmail');
-  const passInput = document.getElementById('loginPassword');
-  if (emailInput) emailInput.value = email;
-  if (passInput) passInput.value = password;
-  submitLogin();
-}
-
 function switchAuthTab(tab) {
   activeAuthTab = tab;
   document.getElementById('tabBtnLogin').classList.toggle('active', tab === 'login');

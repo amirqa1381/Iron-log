@@ -37,46 +37,15 @@
     <div id="authError" style="display:none;color:var(--danger);font-size:12.5px;margin-bottom:12px;text-align:center;padding:8px;background:rgba(217,108,108,0.1);border-radius:6px;border:1px solid rgba(217,108,108,0.3);"></div>
     <div id="authSuccess" style="display:none;color:var(--ok);font-size:12.5px;margin-bottom:12px;text-align:center;padding:8px;background:rgba(111,191,115,0.1);border-radius:6px;border:1px solid rgba(111,191,115,0.3);"></div>
 
-    <!-- دکمه‌های ورود سریع با یک کلیک -->
-    <div style="margin-bottom:14px;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:10px 12px;">
-      <div style="font-size:11.5px;font-weight:700;color:var(--text);margin-bottom:6px;">⚡ ورود سریع با یک کلیک (بدون نیاز به تایپ رمز):</div>
-      <div style="display:flex;flex-direction:column;gap:6px;">
-        <button type="button" class="btn" style="display:flex;justify-content:space-between;align-items:center;font-size:11.5px;padding:7px 10px;border-color:var(--accent);background:rgba(217,164,65,0.1);color:var(--accent);font-weight:700;" onclick="quickFillLogin('amirhusseinghasemian@outlook.com', '123456')">
-          <span>👑 حساب اوتلوک ۱ (امیرحسین قاسمی)</span>
-          <span style="font-size:10px;opacity:0.8;" dir="ltr">amirhusseinghasemian@outlook.com</span>
-        </button>
-        <button type="button" class="btn" style="display:flex;justify-content:space-between;align-items:center;font-size:11.5px;padding:7px 10px;" onclick="quickFillLogin('amirhosseinghasemian@outlook.com', '123456')">
-          <span>👑 حساب اوتلوک ۲ (امیرحسین قاسمی)</span>
-          <span style="font-size:10px;opacity:0.8;" dir="ltr">amirhosseinghasemian@outlook.com</span>
-        </button>
-        <button type="button" class="btn" style="display:flex;justify-content:space-between;align-items:center;font-size:11.5px;padding:7px 10px;" onclick="quickFillLogin('amirghasemian@outlook.com', '123456')">
-          <span>👑 حساب اوتلوک ۳ (امیر قاسمی)</span>
-          <span style="font-size:10px;opacity:0.8;" dir="ltr">amirghasemian@outlook.com</span>
-        </button>
-        <button type="button" class="btn" style="display:flex;justify-content:space-between;align-items:center;font-size:11.5px;padding:7px 10px;" onclick="quickFillLogin('amirghasemian1381@outlook.com', '123456')">
-          <span>👑 حساب اوتلوک ۴ (امیر قاسمی ۱۳۸۱)</span>
-          <span style="font-size:10px;opacity:0.8;" dir="ltr">amirghasemian1381@outlook.com</span>
-        </button>
-        <button type="button" class="btn" style="display:flex;justify-content:space-between;align-items:center;font-size:11.5px;padding:7px 10px;" onclick="quickFillLogin('amirghasemian1381@gmail.com', '123456')">
-          <span>👑 حساب جیمیل (امیر قاسمی)</span>
-          <span style="font-size:10px;opacity:0.8;" dir="ltr">amirghasemian1381@gmail.com</span>
-        </button>
-        <button type="button" class="btn" style="display:flex;justify-content:space-between;align-items:center;font-size:11.5px;padding:7px 10px;" onclick="quickFillLogin('demo@ironlog.app', '123456')">
-          <span>👤 حساب عمومی دمو (علی)</span>
-          <span style="font-size:10px;opacity:0.8;" dir="ltr">demo@ironlog.app</span>
-        </button>
-      </div>
-    </div>
-
     <!-- فرم ورود -->
     <div id="authCardLogin">
       <div>
         <label>ایمیل</label>
-        <input type="email" id="loginEmail" placeholder="your-email@outlook.com" dir="ltr" value="amirhusseinghasemian@outlook.com" onkeydown="if(event.key==='Enter') submitLogin()">
+        <input type="email" id="loginEmail" placeholder="your-email@example.com" dir="ltr" onkeydown="if(event.key==='Enter') submitLogin()">
       </div>
       <div>
         <label>رمز عبور</label>
-        <input type="password" id="loginPassword" placeholder="••••••••" dir="ltr" value="123456" onkeydown="if(event.key==='Enter') submitLogin()">
+        <input type="password" id="loginPassword" placeholder="••••••••" dir="ltr" onkeydown="if(event.key==='Enter') submitLogin()">
       </div>
       <button type="button" id="btnLoginSubmit" class="primary" onclick="submitLogin()">ورود به حساب</button>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;font-size:12px;">
