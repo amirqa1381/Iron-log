@@ -645,13 +645,18 @@ export async function generateAiPlan(req, res) {
 
     // Attempt Gemini Generation if available
     if (genAI && process.env.GEMINI_API_KEY) {
+      const abortCtrl = new AbortController();
+      const timeoutId = setTimeout(() => {
+        try { abortCtrl.abort(); } catch (e) {}
+      }, 4500);
+
       try {
-        const categories = ['chest', 'back', 'legs_quads', 'legs_hamstrings', 'shoulders', 'biceps', 'triceps', 'abs_core', 'calves', 'full_body'];
+        const categories = ['chest', 'back', 'legs_quads', 'legs_hamstrings', 'shoulders', 'biceps', 'triceps', 'abs_core'];
         const representativePool = [];
         
         for (const cat of categories) {
           const list = validCandidates.filter(e => e.category === cat);
-          list.slice(0, 7).forEach(e => {
+          list.slice(0, 3).forEach(e => {
             representativePool.push({
               id: e.id,
               nameFa: e.nameFa,
@@ -712,20 +717,14 @@ Respond ONLY with a valid JSON object matching this schema:
   ]
 }`;
 
-        // Set a timeout of 4000ms so the request never stalls or causes gateway/network timeout
-        const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('Gemini API call timed out (4s threshold reached)')), 4000)
-        );
-
-        const geminiPromise = genAI.models.generateContent({
+        const response = await genAI.models.generateContent({
           model: 'gemini-3.8-flash',
           contents: prompt,
           config: {
-            responseMimeType: 'application/json'
+            responseMimeType: 'application/json',
+            abortSignal: abortCtrl.signal
           }
         });
-
-        const response = await Promise.race([geminiPromise, timeoutPromise]);
 
         const text = response.text?.trim();
         if (text) {
@@ -787,6 +786,8 @@ Respond ONLY with a valid JSON object matching this schema:
         }
       } catch (aiErr) {
         console.warn('[Gemini Plan Notice - Engaging CSCS Algorithmic Engine]:', aiErr.message);
+      } finally {
+        clearTimeout(timeoutId);
       }
     }
 

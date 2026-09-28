@@ -488,10 +488,10 @@ async function submitAiPlanGeneration() {
     });
 
     const data = await parseResponseJson(res);
-    if (res.ok && data && (data.success || data.plan)) {
+    if (res && res.ok && data && (data.success || data.plan)) {
       activeUserPlan = data.plan;
       isRebuildingPlan = false;
-      showToast('برنامه اختصاصی شما توسط هوش مصنوعی با موفقیت ساخته و فعال شد! 🎉', 'success');
+      showToast('برنامه اختصاصی شما با موفقیت ساخته و فعال شد! 🎉', 'success');
       try {
         renderActivePlan();
       } catch (rErr) {
@@ -500,10 +500,11 @@ async function submitAiPlanGeneration() {
       return;
     }
 
-    showToast((data && data.message) || 'خطا در تولید برنامه هوش مصنوعی', 'error');
+    const errorMsg = (data && data.message) || (res ? `خطای سرور (${res.status})` : 'خطا در تولید برنامه');
+    showToast(errorMsg, 'error');
     renderPlanWizard('ai');
   } catch (err) {
-    showToast(err.message || 'خطا در اتصال به سرور هوش مصنوعی', 'error');
+    showToast(err.message || 'خطا در برقراری ارتباط با سرور برنامه هوشمند', 'error');
     renderPlanWizard('ai');
   }
 }

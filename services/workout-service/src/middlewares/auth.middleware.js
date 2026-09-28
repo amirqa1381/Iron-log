@@ -18,7 +18,14 @@ export const requireAuth = (req, res, next) => {
       // Check if the user exists in database (in case user was removed/deleted)
       const userCheck = await pool.query('SELECT id FROM users WHERE id = $1', [decoded.userId]);
       if (userCheck.rows.length === 0) {
-        return res.status(401).json({ message: 'حساب کاربری یافت نشد یا حذف شده است' });
+        if (decoded.email) {
+          const emailCheck = await pool.query('SELECT id FROM users WHERE LOWER(email) = LOWER($1)', [decoded.email]);
+          if (emailCheck.rows.length > 0) {
+            req.userId = emailCheck.rows[0].id;
+            return next();
+          }
+        }
+        return res.status(401).json({ message: 'حساب کاربری یافت نشد یا منقضی شده است' });
       }
 
       req.userId = decoded.userId;

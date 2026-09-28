@@ -46,10 +46,28 @@ if (typeof window !== 'undefined') {
 }
 
 async function parseResponseJson(res) {
+  if (!res) {
+    return { message: 'پاسخی از سرور دریافت نشد' };
+  }
+  let text = '';
   try {
-    return await res.json();
+    text = await res.text();
   } catch (err) {
-    return { message: 'پاسخ نامعتبر از سرور' };
+    return { message: 'خطا در خواندن پاسخ از سرور' };
+  }
+
+  if (!text || !text.trim()) {
+    return { success: res.ok, message: res.ok ? 'عملیات با موفقیت انجام شد' : `خطای سرور (${res.status})` };
+  }
+
+  try {
+    return JSON.parse(text);
+  } catch (parseErr) {
+    console.warn('[parseResponseJson] Non-JSON payload received:', text.slice(0, 200));
+    if (res.status >= 500) {
+      return { message: 'خطای موقت در سرور رخ داده است. لطفاً چند لحظه بعد مجدداً تلاش کنید.' };
+    }
+    return { message: 'خطا در پردازش پاسخ سرور' };
   }
 }
 

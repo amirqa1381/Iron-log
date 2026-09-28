@@ -218,6 +218,15 @@ app.get('*', (req: Request, res: Response) => {
   res.sendFile(path.join(frontendDir, 'index.html'));
 });
 
+// Process-level crash prevention handlers
+process.on('unhandledRejection', (reason: any) => {
+  console.warn('[Server] Unhandled rejection intercepted:', reason?.message || reason);
+});
+
+process.on('uncaughtException', (err: any) => {
+  console.error('[Server] Uncaught exception intercepted:', err?.message || err);
+});
+
 // Auto-initialize Supabase PostgreSQL tables if connected
 initPostgresTables().catch(err => {
   console.warn('[Postgres Init]', err.message);
