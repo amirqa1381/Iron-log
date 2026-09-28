@@ -11,7 +11,7 @@ export const requireAuth = (req, res, next) => {
 
   jwt.verify(token, process.env.JWT_ACCESS_SECRET, async (err, decoded) => {
     if (err) {
-      return res.status(403).json({ message: 'توکن نامعتبر یا منقضی شده است' });
+      return res.status(401).json({ message: 'توکن نامعتبر یا منقضی شده است' });
     }
     
     try {

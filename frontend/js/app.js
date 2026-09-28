@@ -487,22 +487,23 @@ async function submitAiPlanGeneration() {
       body: JSON.stringify(aiWizardData)
     });
 
-    if (res.ok) {
-      const data = await parseResponseJson(res);
-      if (data && data.success && data.plan) {
-        activeUserPlan = data.plan;
-        isRebuildingPlan = false;
-        showToast('برنامه اختصاصی شما توسط هوش مصنوعی با موفقیت ساخته و فعال شد! 🎉', 'success');
+    const data = await parseResponseJson(res);
+    if (res.ok && data && (data.success || data.plan)) {
+      activeUserPlan = data.plan;
+      isRebuildingPlan = false;
+      showToast('برنامه اختصاصی شما توسط هوش مصنوعی با موفقیت ساخته و فعال شد! 🎉', 'success');
+      try {
         renderActivePlan();
-        return;
+      } catch (rErr) {
+        console.warn('Notice when rendering active plan:', rErr);
       }
+      return;
     }
 
-    const errData = await parseResponseJson(res);
-    showToast(errData.message || 'خطا در تولید برنامه هوش مصنوعی', 'error');
+    showToast((data && data.message) || 'خطا در تولید برنامه هوش مصنوعی', 'error');
     renderPlanWizard('ai');
   } catch (err) {
-    showToast('خطا در اتصال به سرور هوش مصنوعی', 'error');
+    showToast(err.message || 'خطا در اتصال به سرور هوش مصنوعی', 'error');
     renderPlanWizard('ai');
   }
 }
@@ -634,21 +635,22 @@ async function submitManualPlan() {
       })
     });
 
-    if (res.ok) {
-      const data = await parseResponseJson(res);
-      if (data && data.success && data.plan) {
-        activeUserPlan = data.plan;
-        isRebuildingPlan = false;
-        showToast('برنامه دست‌ساز شما با موفقیت ثبت شد!', 'success');
+    const data = await parseResponseJson(res);
+    if (res.ok && data && (data.success || data.plan)) {
+      activeUserPlan = data.plan;
+      isRebuildingPlan = false;
+      showToast('برنامه دست‌ساز شما با موفقیت ثبت شد!', 'success');
+      try {
         renderActivePlan();
-        return;
+      } catch (rErr) {
+        console.warn('Notice when rendering active plan:', rErr);
       }
+      return;
     }
 
-    const errData = await parseResponseJson(res);
-    showToast(errData.message || 'خطا در ثبت برنامه دست‌ساز', 'error');
+    showToast((data && data.message) || 'خطا در ثبت برنامه دست‌ساز', 'error');
   } catch (err) {
-    showToast('خطا در اتصال به سرور', 'error');
+    showToast(err.message || 'خطا در اتصال به سرور', 'error');
   }
 }
 

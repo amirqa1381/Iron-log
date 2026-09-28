@@ -18,17 +18,28 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  // Check if user is already logged in
-  const isValid = await tryRefreshToken();
-  if (isValid && currentUser) {
-    const redirect = urlParams.get('redirect');
-    if (redirect === 'admin' && currentUser.role === 'admin') {
-      window.location.href = '/admin.html';
-    } else {
-      window.location.href = '/';
+  // Check if user is already logged in (skip if explicitly switching accounts)
+  const isSwitching = urlParams.get('switch') === '1' || urlParams.get('logout') === '1';
+  if (!isSwitching) {
+    const isValid = await tryRefreshToken();
+    if (isValid && currentUser) {
+      const redirect = urlParams.get('redirect');
+      if (redirect === 'admin' && (currentUser.role === 'admin' || isUserAdmin(currentUser))) {
+        window.location.href = '/admin.html';
+      } else if (redirect) {
+        window.location.href = redirect.startsWith('/') ? redirect : `/${redirect}`;
+      }
     }
   }
 });
+
+function quickFillLogin(email, password = '123456') {
+  const emailInput = document.getElementById('loginEmail');
+  const passInput = document.getElementById('loginPassword');
+  if (emailInput) emailInput.value = email;
+  if (passInput) passInput.value = password;
+  submitLogin();
+}
 
 function switchAuthTab(tab) {
   activeAuthTab = tab;

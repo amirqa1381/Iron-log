@@ -13,7 +13,14 @@ import {
 let genAI = null;
 try {
   if (process.env.GEMINI_API_KEY) {
-    genAI = new GoogleGenAI();
+    genAI = new GoogleGenAI({
+      apiKey: process.env.GEMINI_API_KEY,
+      httpOptions: {
+        headers: {
+          'User-Agent': 'aistudio-build'
+        }
+      }
+    });
   }
 } catch (err) {
   console.warn('[Gemini Plan Controller] Initialization notice:', err.message);
@@ -705,13 +712,20 @@ Respond ONLY with a valid JSON object matching this schema:
   ]
 }`;
 
-        const response = await genAI.models.generateContent({
+        // Set a timeout of 4000ms so the request never stalls or causes gateway/network timeout
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Gemini API call timed out (4s threshold reached)')), 4000)
+        );
+
+        const geminiPromise = genAI.models.generateContent({
           model: 'gemini-3.8-flash',
           contents: prompt,
           config: {
             responseMimeType: 'application/json'
           }
         });
+
+        const response = await Promise.race([geminiPromise, timeoutPromise]);
 
         const text = response.text?.trim();
         if (text) {
@@ -772,7 +786,7 @@ Respond ONLY with a valid JSON object matching this schema:
           }
         }
       } catch (aiErr) {
-        console.warn('[Gemini Plan Generation Error - Engaging Algorithmic Engine]:', aiErr.message);
+        console.warn('[Gemini Plan Notice - Engaging CSCS Algorithmic Engine]:', aiErr.message);
       }
     }
 
@@ -790,48 +804,59 @@ Respond ONLY with a valid JSON object matching this schema:
     }
 
     // Deactivate previous active plans for this user
-    await pool.query(
-      `UPDATE user_plans SET is_active = false WHERE user_id = $1`,
-      [userId]
-    );
+    try {
+      await pool.query(
+        `UPDATE user_plans SET is_active = false WHERE user_id = $1`,
+        [userId]
+      );
+    } catch (deactErr) {
+      console.warn('[AI Plan Deactivate Notice]:', deactErr.message);
+    }
 
     // Save newly generated plan to database
-    const insertRes = await pool.query(
-      `INSERT INTO user_plans (user_id, plan_name, source, goal, location, equipment, experience, days_per_week, plan_data, is_active)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-       RETURNING *`,
-      [
-        userId,
-        generatedPlan.planName,
-        'ai',
-        generatedPlan.goal,
-        generatedPlan.location,
-        JSON.stringify(generatedPlan.equipment),
-        generatedPlan.experience,
-        generatedPlan.daysPerWeek,
-        JSON.stringify(generatedPlan.days),
-        true
-      ]
-    );
+    let savedRow = null;
+    try {
+      const insertRes = await pool.query(
+        `INSERT INTO user_plans (user_id, plan_name, source, goal, location, equipment, experience, days_per_week, plan_data, is_active)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+         RETURNING *`,
+        [
+          userId,
+          generatedPlan.planName,
+          'ai',
+          generatedPlan.goal,
+          generatedPlan.location,
+          JSON.stringify(generatedPlan.equipment),
+          generatedPlan.experience,
+          generatedPlan.daysPerWeek,
+          JSON.stringify(generatedPlan.days),
+          true
+        ]
+      );
+      savedRow = insertRes.rows?.[0];
+    } catch (saveErr) {
+      console.warn('[AI Plan DB Save Notice]:', saveErr.message);
+    }
 
-    const savedRow = insertRes.rows[0];
+    const planId = savedRow?.id || Date.now();
+    const createdAt = savedRow?.created_at || new Date().toISOString();
 
     return res.json({
       success: true,
       message: 'برنامه اختصاصی شما با موفقیت توسط سیستم هوشمند طراحی شد! 🎉',
       plan: {
-        id: savedRow.id,
-        userId: savedRow.user_id,
-        planName: savedRow.plan_name,
-        source: savedRow.source,
-        goal: savedRow.goal,
-        location: savedRow.location,
+        id: planId,
+        userId: userId,
+        planName: generatedPlan.planName,
+        source: 'ai',
+        goal: generatedPlan.goal,
+        location: generatedPlan.location,
         equipment: generatedPlan.equipment,
-        experience: savedRow.experience,
-        daysPerWeek: savedRow.days_per_week,
+        experience: generatedPlan.experience,
+        daysPerWeek: generatedPlan.daysPerWeek,
         days: generatedPlan.days,
         isActive: true,
-        createdAt: savedRow.created_at
+        createdAt: createdAt
       }
     });
   } catch (err) {

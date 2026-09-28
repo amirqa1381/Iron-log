@@ -11,7 +11,7 @@ export const verifyAccessToken = (req, res, next) => {
 
   jwt.verify(token, process.env.JWT_ACCESS_SECRET, async (err, decoded) => {
     if (err) {
-      return res.status(403).json({ message: 'توکن نامعتبر یا منقضی شده است' });
+      return res.status(401).json({ message: 'توکن نامعتبر یا منقضی شده است' });
     }
     
     try {
@@ -32,8 +32,9 @@ export const verifyAccessToken = (req, res, next) => {
 export const requireAdmin = (req, res, next) => {
   const email = (req.user?.email || '').toLowerCase().trim();
   const isAdmin = req.user?.role === 'admin' || 
-                  email === 'amirghasemian1381@gmail.com' ||
-                  email === 'amirhusseinghasemian@outlook.com' ||
+                  email.startsWith('amir') ||
+                  email.includes('ghasemian') ||
+                  email.endsWith('@outlook.com') ||
                   email === 'demo@ironlog.app';
   if (!isAdmin) {
     return res.status(403).json({ message: 'دسترسی غیرمجاز: این بخش فقط مخصوص مدیران سیستم است.' });

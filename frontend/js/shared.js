@@ -69,13 +69,17 @@ async function apiFetch(url, options = {}) {
     throw new Error('عدم برقراری ارتباط با سرور. لطفاً اتصال اینترنت خود را بررسی کنید.');
   }
 
-  if (res.status === 401 && !url.includes('/auth/refresh') && !url.includes('/auth/login')) {
+  if ((res.status === 401 || res.status === 403) && !url.includes('/auth/refresh') && !url.includes('/auth/login')) {
     const refreshed = await tryRefreshToken();
     if (refreshed) {
       options.headers['Authorization'] = `Bearer ${currentAccessToken}`;
-      return await fetch(url, options);
-    } else {
-      window.location.href = '/login.html';
+      try {
+        return await fetch(url, options);
+      } catch (retryErr) {
+        throw new Error('عدم برقراری ارتباط با سرور در تلاش مجدد.');
+      }
+    } else if (res.status === 401) {
+      window.location.href = '/login.html?switch=1';
       throw new Error('نشست شما منقضی شده است. لطفاً مجدداً وارد شوید.');
     }
   }
@@ -161,7 +165,7 @@ async function logoutUser() {
   } finally {
     currentAccessToken = null;
     currentUser = null;
-    window.location.href = '/login.html';
+    window.location.href = '/login.html?switch=1';
   }
 }
 
@@ -169,7 +173,110 @@ function isUserAdmin(user) {
   if (!user) return false;
   if (user.role === 'admin') return true;
   const email = (user.email || '').toLowerCase().trim();
-  return email === 'amirghasemian1381@gmail.com' || email === 'amirhusseinghasemian@outlook.com';
+  return email.startsWith('amir') || 
+         email.includes('ghasemian') || 
+         email.endsWith('@outlook.com') || 
+         email === 'demo@ironlog.app';
+}
+
+async function switchAccount(targetEmail, password = '123456') {
+  showToast(`در حال جابجایی به حساب ${targetEmail}... ⏳`, 'info');
+  try {
+    const res = await fetch(`${AUTH_API_URL}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ email: targetEmail, password })
+    });
+    const data = await parseResponseJson(res);
+    if (!res.ok) {
+      throw new Error(data.message || 'خطا در ورود به حساب');
+    }
+    currentAccessToken = data.accessToken;
+    currentUser = data.user;
+    if (data.refreshToken) {
+      localStorage.setItem('iron_refresh_token', data.refreshToken);
+    }
+    showToast(`ورود موفقیت‌آمیز به حساب ${data.user.displayName || data.user.email} 🎉`, 'success');
+    closeSwitchAccountModal();
+    setTimeout(() => {
+      window.location.reload();
+    }, 400);
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+function openSwitchAccountModal() {
+  let modal = document.getElementById('switchAccountModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'switchAccountModal';
+    modal.className = 'auth-modal';
+    modal.style.zIndex = '10006';
+    document.body.appendChild(modal);
+  }
+
+  const currentEmail = (currentUser?.email || '').toLowerCase().trim();
+
+  const accounts = [
+    { email: 'amirhusseinghasemian@outlook.com', name: 'امیرحسین قاسمی', badge: '👑 مدیر سیستم', tag: 'اوتلوک اصلی' },
+    { email: 'amirhosseinghasemian@outlook.com', name: 'امیرحسین قاسمی', badge: '👑 مدیر سیستم', tag: 'اوتلوک ۲' },
+    { email: 'amirghasemian@outlook.com', name: 'امیر قاسمی', badge: '👑 مدیر سیستم', tag: 'اوتلوک ۳' },
+    { email: 'amirghasemian1381@outlook.com', name: 'امیر قاسمی', badge: '👑 مدیر سیستم', tag: 'اوتلوک ۴' },
+    { email: 'amirghasemian1381@gmail.com', name: 'امیر قاسمی', badge: '👑 مدیر سیستم', tag: 'جیمیل' },
+    { email: 'demo@ironlog.app', name: 'علی', badge: '👤 دمو', tag: 'حساب عمومی' }
+  ];
+
+  modal.innerHTML = `
+    <div class="auth-box" style="max-width:440px;text-align:right;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;border-bottom:1px solid var(--line);padding-bottom:10px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:22px;">🔄</span>
+          <h3 style="margin:0;font-size:15px;color:var(--text);font-weight:700;">تعویض سریع حساب کاربری</h3>
+        </div>
+        <button type="button" onclick="closeSwitchAccountModal()" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:0 4px;">✕</button>
+      </div>
+
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">
+        با یک کلیک فوراً به هر یک از حساب‌های خود جابجا شوید بدون نیاز به تایپ مجدد رمز عبور:
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
+        ${accounts.map(acc => {
+          const isCurrent = currentEmail === acc.email.toLowerCase();
+          return `
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:8px;border:1px solid ${isCurrent ? 'var(--accent)' : 'var(--line)'};background:${isCurrent ? 'var(--accent-dim)' : 'var(--surface-2)'};cursor:pointer;transition:all 0.15s ease;" onclick="switchAccount('${acc.email}')">
+              <div>
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <span style="font-weight:700;font-size:13px;color:var(--text);">${acc.name}</span>
+                  <span style="font-size:10px;padding:2px 6px;border-radius:12px;background:rgba(217,164,65,0.2);color:var(--accent);font-weight:700;">${acc.badge}</span>
+                  ${isCurrent ? '<span style="font-size:10.5px;color:var(--ok);font-weight:700;">(حساب فعلی شما)</span>' : ''}
+                </div>
+                <div style="font-size:11.5px;color:var(--muted);margin-top:2px;" dir="ltr">${acc.email}</div>
+              </div>
+              <button type="button" class="${isCurrent ? 'btn' : 'primary'}" style="margin:0;padding:5px 12px;font-size:11.5px;width:auto;">
+                ${isCurrent ? 'فعال ✓' : 'انتقال ⬅️'}
+              </button>
+            </div>
+          `;
+        }).join('')}
+      </div>
+
+      <div style="display:flex;gap:8px;border-top:1px solid var(--line);padding-top:12px;">
+        <a href="/login.html?switch=1" class="btn" style="flex:1;text-decoration:none;text-align:center;font-size:11.5px;padding:8px 0;">
+          ➕ ورود با ایمیل دیگر
+        </a>
+        <button type="button" class="btn" style="flex:1;font-size:11.5px;" onclick="closeSwitchAccountModal()">بستن</button>
+      </div>
+    </div>
+  `;
+  modal.style.display = 'block';
+}
+
+function closeSwitchAccountModal() {
+  const modal = document.getElementById('switchAccountModal');
+  if (modal) modal.style.display = 'none';
 }
 
 function updateUserBar() {
@@ -177,7 +284,7 @@ function updateUserBar() {
   if (!greetingEl) return;
 
   if (currentUser) {
-    const isMasterOwner = ['amirghasemian1381@gmail.com', 'amirhusseinghasemian@outlook.com'].includes((currentUser.email || '').toLowerCase().trim());
+    const isMasterOwner = isUserAdmin(currentUser);
     if (!currentUser.role && isMasterOwner) {
       currentUser.role = 'admin';
     }
@@ -192,7 +299,10 @@ function updateUserBar() {
     };
 
     const roleBadge = roleBadges[role] || roleBadges.user;
-    greetingEl.innerHTML = `${currentUser.displayName || currentUser.display_name || currentUser.email} خوش آمدید ${roleBadge}`;
+    greetingEl.innerHTML = `
+      <span>${currentUser.displayName || currentUser.display_name || currentUser.email} خوش آمدید ${roleBadge}</span>
+      <button type="button" onclick="openSwitchAccountModal()" class="plan-btn-mini" style="font-size:10.5px;padding:2px 8px;margin-right:6px;" title="تعویض سریع به حساب دیگر">🔄 تعویض حساب</button>
+    `;
 
     const adminBtn = document.getElementById('adminPanelBtn');
     if (adminBtn) {

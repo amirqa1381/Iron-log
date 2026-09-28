@@ -16,12 +16,12 @@ window.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
-  const isMasterOwner = ['amirghasemian1381@gmail.com', 'amirhusseinghasemian@outlook.com'].includes((currentUser.email || '').toLowerCase().trim());
-  if (currentUser.role !== 'admin' && !isMasterOwner) {
+  if (!isUserAdmin(currentUser)) {
     showToast('دسترسی به این بخش نیازمند دسترسی مدیریت (Admin) است.', 'error');
     setTimeout(() => { window.location.href = '/'; }, 1200);
     return;
   }
+  if (!currentUser.role) currentUser.role = 'admin';
 
   switchAdminTab('metrics');
 });
