@@ -700,7 +700,24 @@ function renderActivePlan() {
     return;
   }
 
-  exContainer.innerHTML = day.exercises.map((ex, exIndex) => renderExerciseCardHtml(ex, exIndex)).join('');
+  let coachBannerHtml = '';
+  if (day.coachTips && (day.coachTips.warmup || day.coachTips.focus || day.coachTips.overload)) {
+    coachBannerHtml = `
+      <div class="day-coach-banner">
+        <div class="coach-head">
+          <span style="font-size:16px;">🧠</span>
+          <span>راهنمای مربی هوشمند این جلسه:</span>
+        </div>
+        <div class="coach-body">
+          ${day.coachTips.warmup ? `<div>🏃 <b>گرم‌کردن اختصاصی:</b> ${escapeHtml(day.coachTips.warmup)}</div>` : ''}
+          ${day.coachTips.focus ? `<div>🎯 <b>استراتژی جلسه:</b> ${escapeHtml(day.coachTips.focus)}</div>` : ''}
+          ${day.coachTips.overload ? `<div>📈 <b>هدف اضافه بار:</b> ${escapeHtml(day.coachTips.overload)}</div>` : ''}
+        </div>
+      </div>
+    `;
+  }
+
+  exContainer.innerHTML = coachBannerHtml + day.exercises.map((ex, exIndex) => renderExerciseCardHtml(ex, exIndex)).join('');
 }
 
 function selectActiveDayIndex(idx) {
@@ -722,6 +739,30 @@ function renderExerciseCardHtml(ex, exIndex) {
     (l.logDate === todayStr || l.log_date === todayStr)
   );
 
+  // Find most recent previous session log for ghost record / previous benchmark
+  const previousLog = workoutLogs.find(l => 
+    (l.exerciseName === ex.name || l.exerciseName === ex.nameFa || l.exercise_name === ex.name || l.exercise_name === ex.nameFa) &&
+    (l.logDate !== todayStr && l.log_date !== todayStr)
+  );
+
+  let prevRecordHintHtml = '';
+  let prevWeightVal = '';
+  if (previousLog) {
+    const pw = previousLog.weightKg !== undefined ? previousLog.weightKg : previousLog.weight_kg;
+    prevWeightVal = pw !== null && pw !== undefined ? String(pw) : '';
+    const prArr = Array.isArray(previousLog.reps) ? previousLog.reps : [previousLog.reps];
+    const prRpe = Array.isArray(previousLog.rpe) ? previousLog.rpe : [];
+    const validPrevRpes = prRpe.filter(v => typeof v === 'number' && !isNaN(v));
+    const avgPrevRpe = validPrevRpes.length > 0 ? (validPrevRpes.reduce((a, b) => a + b, 0) / validPrevRpes.length).toFixed(1) : '';
+
+    prevRecordHintHtml = `
+      <div class="previous-record-hint">
+        <div>📊 رکورد جلسه قبل: <span class="pr-val">${faDigits(pw || 0)} kg × ${faDigits(prArr.join('-'))}</span> ${avgPrevRpe ? `<span class="rpe-tag-badge ${getRpeClass(avgPrevRpe)}">RPE ${faDigits(avgPrevRpe)}</span>` : ''}</div>
+        <div style="font-size:10px;color:var(--muted);">${escapeHtml(previousLog.logDate || previousLog.log_date || '')}</div>
+      </div>
+    `;
+  }
+
   const loggedReps = (existingLog && existingLog.reps) || [];
   const loggedWeight = (existingLog && (existingLog.weightKg || existingLog.weight_kg)) || '';
   const loggedRpe = (existingLog && existingLog.rpe) || [];
@@ -740,12 +781,13 @@ function renderExerciseCardHtml(ex, exIndex) {
   for (let s = 1; s <= setsCount; s++) {
     const repVal = loggedReps[s - 1] !== undefined ? loggedReps[s - 1] : '';
     const rpeVal = loggedRpe[s - 1] !== undefined ? loggedRpe[s - 1] : '';
+    const weightPlaceholder = prevWeightVal ? `قبل: ${faDigits(prevWeightVal)}` : 'وزنه (kg)';
 
     setsRowsHtml += `
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;padding:6px 0;border-top:1px solid var(--line);">
+      <div class="set-row-box" style="display:flex;align-items:center;justify-content:space-between;gap:6px;padding:6px 0;border-top:1px solid var(--line);">
         <span style="font-size:12px;font-weight:700;color:var(--muted);width:42px;">ست ${faDigits(s)}</span>
         <div style="display:flex;align-items:center;gap:6px;flex:1;">
-          <input type="text" inputmode="decimal" placeholder="وزنه (ک‌گ)" value="${s === 1 ? loggedWeight : ''}" 
+          <input type="text" inputmode="decimal" placeholder="${weightPlaceholder}" value="${s === 1 ? loggedWeight : ''}" 
             id="weight_${exIndex}_${s}" 
             oninput="debouncedAutoSaveSet(${exIndex})" 
             onchange="autoSaveSet(${exIndex})" 
@@ -820,6 +862,9 @@ function renderExerciseCardHtml(ex, exIndex) {
         </div>
       ` : ''}
 
+      <!-- رکورد جلسه قبلی (Ghost Record) برای اضافه بار آگاهانه -->
+      ${prevRecordHintHtml}
+
       <!-- جدول ثبت ست‌ها و رکوردها همراه با RPE -->
       <div style="margin-top:10px;">
         <div class="sets-table-header">
@@ -835,6 +880,23 @@ function renderExerciseCardHtml(ex, exIndex) {
           <span style="width:70px;text-align:center;">استراحت</span>
         </div>
         ${setsRowsHtml}
+      </div>
+
+      <!-- نوار اقدام سریع حرکت: تعویض هوشمند، مشاوره مربی، افزودن/کاهش ست و حذف -->
+      <div class="card-action-bar">
+        <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;">
+          <button type="button" class="action-chip-btn accent" onclick="openSwapExerciseModal(${exIndex}, ${ex.id || 'null'})" title="انتخاب حرکت جایگزین هم‌گروه">
+            🔄 تعویض حرکت
+          </button>
+          <button type="button" class="action-chip-btn" onclick="openSmartAdviceModal(${exIndex}, '${escapeHtml(ex.nameFa || ex.name)}')" title="مشاوره اضافه بار تدریجی مربی">
+            💡 مشاوره وزنه
+          </button>
+        </div>
+        <div style="display:flex;gap:4px;align-items:center;">
+          <button type="button" class="action-chip-btn" onclick="adjustExerciseSets(${exIndex}, 1)" title="افزودن ۱ ست به این حرکت">+ ست</button>
+          <button type="button" class="action-chip-btn" onclick="adjustExerciseSets(${exIndex}, -1)" title="کاهش ۱ ست">- ست</button>
+          <button type="button" class="action-chip-btn danger" onclick="deleteExerciseFromActiveDay(${exIndex})" title="حذف این حرکت از برنامه امروز">🗑️</button>
+        </div>
       </div>
     </div>
   `;
@@ -986,6 +1048,7 @@ function startRestTimer(seconds) {
       updateTimerDockDisplay();
       if (timerRemainingSeconds <= 0) {
         clearInterval(timerInterval);
+        playTimerBeep();
         showToast('⏱️ زمان استراحت به پایان رسید! ست بعدی را پرقدرت شروع کنید.', 'success');
         stopRestTimer();
       }
@@ -1264,3 +1327,285 @@ function escapeHtml(str) {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
 }
+
+/* ==========================================================================
+   SMART COACH & UX EXTENSIONS (Audio chime, Quick Swap, Smart Advice)
+   ========================================================================== */
+
+function playTimerBeep() {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (AudioCtx) {
+      const ctx = new AudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
+      osc.frequency.setValueAtTime(880, ctx.currentTime + 0.15); // A5
+      gain.gain.setValueAtTime(0.25, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.6);
+    }
+  } catch (e) {}
+  if (navigator.vibrate) {
+    try { navigator.vibrate([200, 100, 200]); } catch (e) {}
+  }
+}
+
+let activeSwapExerciseIndex = null;
+
+async function openSwapExerciseModal(exIndex, exerciseId) {
+  activeSwapExerciseIndex = exIndex;
+  const modal = document.getElementById('swapExerciseModal');
+  const container = document.getElementById('swapListContainer');
+  const title = document.getElementById('swapModalTitle');
+  const subtitle = document.getElementById('swapModalSubtitle');
+
+  if (!modal) return;
+  modal.style.display = 'flex';
+
+  const day = activeUserPlan?.days?.[currentSelectedDayIndex];
+  const currentEx = day?.exercises?.[exIndex];
+  const displayName = currentEx ? (currentEx.nameFa || currentEx.name) : 'حرکت جاری';
+
+  if (title) title.textContent = `🔄 انتخاب جایگزین برای: ${displayName}`;
+  if (subtitle) subtitle.textContent = currentEx?.category ? `حرکات استاندارد متناسب با گروه عضلانی «${displayName}»` : 'حرکات متناسب';
+  if (container) container.innerHTML = '<div style="text-align:center;padding:30px 10px;color:var(--muted);"><div class="ai-spinner"></div>در حال بارگذاری بهترین گزینه‌های جایگزین...</div>';
+
+  try {
+    const res = await apiFetch(`/api/plan/alternatives?exerciseId=${encodeURIComponent(exerciseId || currentEx?.id || 1)}`);
+    if (res.ok) {
+      const data = await parseResponseJson(res);
+      const alternatives = data.alternatives || [];
+      if (alternatives.length === 0) {
+        container.innerHTML = '<div style="text-align:center;padding:30px 10px;color:var(--muted);">حرکت جایگزین دیگری برای این حرکت یافت نشد.</div>';
+        return;
+      }
+
+      container.innerHTML = `
+        <div style="font-size:11.5px;color:var(--muted);margin-bottom:10px;">
+          گزینه‌های پیشنهادی بر اساس هماهنگی عضلانی و تجهیزات:
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          ${alternatives.map(alt => `
+            <div class="catalog-item-card">
+              <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">
+                ${getExerciseThumbnailSvg(alt.category)}
+                <div style="flex:1;min-width:0;">
+                  <div style="font-size:13px;font-weight:700;color:var(--text);">${escapeHtml(alt.nameFa)}</div>
+                  <div style="font-size:11px;color:var(--muted);direction:ltr;text-align:right;">${escapeHtml(alt.name)}</div>
+                  <div style="display:flex;gap:4px;margin-top:4px;flex-wrap:wrap;">
+                    <span class="tag-badge accent">${escapeHtml(alt.target || '')}</span>
+                    <span class="tag-badge">${escapeHtml(alt.equipment || '')}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div style="display:flex;align-items:center;gap:6px;">
+                <a href="${escapeHtml(alt.youtube || `https://www.youtube.com/results?search_query=${encodeURIComponent(alt.name + ' form')}`)}" target="_blank" rel="noopener noreferrer" class="youtube-action-btn" title="مشاهده ویدیو">
+                  🎬
+                </a>
+                <button type="button" class="primary" style="width:auto;margin:0;padding:6px 12px;font-size:11.5px;" onclick="executeSwapExercise(${exIndex}, ${alt.id})">
+                  🔄 جایگزینی
+                </button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+      return;
+    }
+  } catch (err) {
+    console.error('Error fetching alternatives:', err);
+  }
+
+  if (container) {
+    container.innerHTML = '<div style="text-align:center;padding:30px 10px;color:var(--danger);">خطا در دریافت لیست جایگزین‌ها.</div>';
+  }
+}
+
+function closeSwapExerciseModal() {
+  const modal = document.getElementById('swapExerciseModal');
+  if (modal) modal.style.display = 'none';
+  activeSwapExerciseIndex = null;
+}
+
+async function executeSwapExercise(exIndex, newExId) {
+  try {
+    const res = await apiFetch('/api/plan/swap-exercise', {
+      method: 'POST',
+      body: JSON.stringify({
+        dayIndex: currentSelectedDayIndex,
+        exerciseIndex: exIndex,
+        newExerciseId: newExId
+      })
+    });
+
+    if (res.ok) {
+      const data = await parseResponseJson(res);
+      if (data && data.success && data.days) {
+        activeUserPlan.days = data.days;
+        showToast(data.message || 'حرکت با موفقیت جایگزین شد! 🎉', 'success');
+        closeSwapExerciseModal();
+        renderActivePlan();
+        return;
+      }
+    }
+    const err = await parseResponseJson(res);
+    showToast(err.message || 'خطا در جایگزینی حرکت', 'error');
+  } catch (err) {
+    showToast('خطا در اتصال به سرور جهت جایگزینی حرکت', 'error');
+  }
+}
+
+async function adjustExerciseSets(exIndex, delta) {
+  try {
+    const res = await apiFetch('/api/plan/adjust-sets', {
+      method: 'POST',
+      body: JSON.stringify({
+        dayIndex: currentSelectedDayIndex,
+        exerciseIndex: exIndex,
+        delta: delta
+      })
+    });
+
+    if (res.ok) {
+      const data = await parseResponseJson(res);
+      if (data && data.success && data.days) {
+        activeUserPlan.days = data.days;
+        renderActivePlan();
+        showToast(`تعداد ست‌ها به ${faDigits(data.newSets)} تغییر یافت.`, 'success');
+        return;
+      }
+    }
+    showToast('خطا در تغییر ست‌ها', 'error');
+  } catch (e) {
+    showToast('خطا در اتصال به سرور', 'error');
+  }
+}
+
+async function deleteExerciseFromActiveDay(exIndex) {
+  const day = activeUserPlan?.days?.[currentSelectedDayIndex];
+  const ex = day?.exercises?.[exIndex];
+  const name = ex?.nameFa || ex?.name || 'این حرکت';
+
+  if (!confirm(`آیا مطمئن هستید که می‌خواهید «${name}» را از برنامه امروز حذف کنید؟`)) {
+    return;
+  }
+
+  try {
+    const res = await apiFetch('/api/plan/exercise', {
+      method: 'DELETE',
+      body: JSON.stringify({
+        dayIndex: currentSelectedDayIndex,
+        exerciseIndex: exIndex
+      })
+    });
+
+    if (res.ok) {
+      const data = await parseResponseJson(res);
+      if (data && data.success && data.days) {
+        activeUserPlan.days = data.days;
+        renderActivePlan();
+        showToast(data.message || 'حرکت حذف شد.', 'success');
+        return;
+      }
+    }
+    showToast('خطا در حذف حرکت', 'error');
+  } catch (e) {
+    showToast('خطا در اتصال به سرور', 'error');
+  }
+}
+
+async function openSmartAdviceModal(exIndex, exerciseName) {
+  const modal = document.getElementById('smartAdviceModal');
+  const content = document.getElementById('adviceModalContent');
+  const title = document.getElementById('adviceModalTitle');
+
+  if (!modal) return;
+  modal.style.display = 'flex';
+
+  if (title) title.textContent = `مشاوره هوشمند: ${exerciseName}`;
+  if (content) content.innerHTML = '<div style="text-align:center;padding:24px 0;color:var(--muted);"><div class="ai-spinner"></div>در حال تحلیل تاریخچه و شدت RPE...</div>';
+
+  try {
+    const res = await apiFetch(`/api/plan/smart-advice?exerciseName=${encodeURIComponent(exerciseName)}`);
+    if (res.ok) {
+      const data = await parseResponseJson(res);
+      const sug = data.suggestion || {};
+      const last = data.lastSession;
+
+      let badgeClass = 'amber';
+      if (sug.action === 'increase_weight') badgeClass = 'green';
+      else if (sug.action === 'deload_or_form') badgeClass = 'red';
+
+      let lastSessionHtml = '';
+      if (last) {
+        const repsText = Array.isArray(last.reps) ? last.reps.join('، ') : last.reps;
+        lastSessionHtml = `
+          <div style="background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:12px;">
+            <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">📊 عملکرد جلسه گذشته (${escapeHtml(last.date || '')}):</div>
+            <div style="font-size:13px;font-weight:700;color:var(--text);">
+              وزنه: ${faDigits(last.weightKg)} کیلوگرم | تکرارها: [${faDigits(repsText)}]
+            </div>
+            ${last.avgRpe ? `
+              <div style="margin-top:4px;font-size:11.5px;color:var(--accent);">
+                میانگین شدت ثبت‌شده: <b>RPE ${faDigits(last.avgRpe.toFixed(1))}</b>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }
+
+      content.innerHTML = `
+        ${lastSessionHtml}
+
+        <div class="advice-card-box">
+          <div class="advice-badge-chip ${badgeClass}">
+            ${escapeHtml(sug.badge || '💡 پیشنهاد مربی')}
+          </div>
+          <div style="font-size:12.5px;line-height:1.75;color:var(--text);margin-bottom:12px;">
+            ${escapeHtml(sug.text || data.message || '')}
+          </div>
+
+          ${last && (sug.action === 'increase_weight' || sug.action === 'maintain') ? `
+            <button type="button" class="primary" style="width:100%;font-size:12px;padding:7px 0;margin:0;" onclick="applyAdvisedWeight(${exIndex}, ${sug.action === 'increase_weight' ? (last.weightKg + 2.5) : last.weightKg})">
+              🚀 اعمال خودکار این وزنه در ست ۱ (${faDigits(sug.action === 'increase_weight' ? (last.weightKg + 2.5) : last.weightKg)} kg)
+            </button>
+          ` : ''}
+        </div>
+
+        <button type="button" class="btn" style="width:100%;margin-top:6px;font-size:12px;" onclick="closeSmartAdviceModal()">
+          بستن
+        </button>
+      `;
+      return;
+    }
+  } catch (err) {
+    console.error('Smart advice error:', err);
+  }
+
+  if (content) {
+    content.innerHTML = '<div style="text-align:center;padding:20px 0;color:var(--danger);">خطا در دریافت مشاوره هوشمند.</div>';
+  }
+}
+
+function closeSmartAdviceModal() {
+  const modal = document.getElementById('smartAdviceModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function applyAdvisedWeight(exIndex, weightVal) {
+  const input = document.getElementById(`weight_${exIndex}_1`);
+  if (input) {
+    input.value = weightVal;
+    input.focus();
+    autoSaveSet(exIndex);
+    showToast(`وزنه ${faDigits(weightVal)} کیلوگرم برای ست اول اعمال شد.`, 'success');
+    closeSmartAdviceModal();
+  }
+}
+

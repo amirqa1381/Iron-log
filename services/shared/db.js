@@ -778,8 +778,8 @@ function executeInMemoryQuery(text, params = []) {
   if (lower.startsWith('update user_plans set plan_data = $1')) {
     const planData = typeof params[0] === 'string' ? JSON.parse(params[0]) : params[0];
     const id = Number(params[1]);
-    const userId = Number(params[2]);
-    const plan = userPlans.find(p => Number(p.id) === id && Number(p.user_id) === userId);
+    const userId = params[2] !== undefined ? Number(params[2]) : null;
+    const plan = userPlans.find(p => Number(p.id) === id && (userId === null || Number(p.user_id) === userId));
     if (plan) {
       plan.plan_data = planData;
       plan.updated_at = new Date();

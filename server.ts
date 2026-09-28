@@ -49,7 +49,12 @@ import {
   generateAiPlan, 
   saveCustomPlan, 
   updateCurrentPlan, 
-  resetCurrentPlan 
+  resetCurrentPlan,
+  getExerciseAlternatives,
+  swapExerciseInPlan,
+  adjustPlanExerciseSets,
+  deleteExerciseFromPlan,
+  getSmartWorkoutAdvice
 } from './services/workout-service/src/controllers/plan.controller.js';
 import { initPostgresTables, getDatabaseStatus } from './services/shared/db.js';
 
@@ -136,6 +141,11 @@ app.post('/api/plan/generate-ai', requireAuth, generateAiPlan);
 app.post('/api/plan/save-custom', requireAuth, saveCustomPlan);
 app.put('/api/plan/current', requireAuth, updateCurrentPlan);
 app.delete('/api/plan/reset', requireAuth, resetCurrentPlan);
+app.get('/api/plan/alternatives', requireAuth, getExerciseAlternatives);
+app.post('/api/plan/swap-exercise', requireAuth, swapExerciseInPlan);
+app.post('/api/plan/adjust-sets', requireAuth, adjustPlanExerciseSets);
+app.delete('/api/plan/exercise', requireAuth, deleteExerciseFromPlan);
+app.get('/api/plan/smart-advice', requireAuth, getSmartWorkoutAdvice);
 
 app.get('/export', requireAuth, exportData);
 app.post('/import', requireAuth, importData);
