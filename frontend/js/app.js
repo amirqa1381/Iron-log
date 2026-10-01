@@ -209,9 +209,62 @@ async function loadUserPlan() {
    PLAN SETUP & ONBOARDING WIZARD
    ========================================================================== */
 
+/* ==========================================================================
+   PLAN SETUP & ONBOARDING WIZARD (AI & MANUAL REDESIGNED)
+   ========================================================================== */
+
+let manualPlanMeta = {
+  planName: 'برنامه تمرینی دست‌ساز من',
+  goal: 'hypertrophy',
+  location: 'gym',
+  experience: 'intermediate'
+};
+
+const MANUAL_SPLIT_PRESETS = [
+  {
+    id: 'push_pull_legs',
+    name: 'Push / Pull / Legs (۳ روز)',
+    days: [
+      { dayNumber: 1, dayName: 'روز ۱ — سینه، سرشانه و پشت‌بازو (Push)', tag: 'Push', focus: 'پرس سینه، سرشانه، پشت‌بازو', exercises: [] },
+      { dayNumber: 2, dayName: 'روز ۲ — زیربغل، پشت و جلوبازو (Pull)', tag: 'Pull', focus: 'بارفیکس، پارویی، جلوبازو', exercises: [] },
+      { dayNumber: 3, dayName: 'روز ۳ — پا، باسن و شکم (Legs & Core)', tag: 'Legs', focus: 'اسکات، همسترینگ، ساق و میان‌تنه', exercises: [] }
+    ]
+  },
+  {
+    id: 'upper_lower',
+    name: 'Upper / Lower (۴ روز)',
+    days: [
+      { dayNumber: 1, dayName: 'روز ۱ — بالاتنه قدرتی A', tag: 'بالاتنه A', focus: 'سینه، زیربغل، سرشانه با اضافه بار', exercises: [] },
+      { dayNumber: 2, dayName: 'روز ۲ — پایین‌تنه و شکم A', tag: 'پایین‌تنه A', focus: 'چهارسر، باسن، همسترینگ و شکم', exercises: [] },
+      { dayNumber: 3, dayName: 'روز ۳ — بالاتنه هایپرتروفی B', tag: 'بالاتنه B', focus: 'بالاسینه، زیربغل، بازوها', exercises: [] },
+      { dayNumber: 4, dayName: 'روز ۴ — پایین‌تنه و زنجیره پشتی B', tag: 'پایین‌تنه B', focus: 'ددلیفت، پشت پا، ساق و فیله', exercises: [] }
+    ]
+  },
+  {
+    id: 'full_body',
+    name: 'فول بادی جامع (۳ روز)',
+    days: [
+      { dayNumber: 1, dayName: 'روز ۱ — فول‌بادی تمرکز سینه و ران', tag: 'فول‌بادی A', focus: 'حرکات ترکیبی سینه و پا', exercises: [] },
+      { dayNumber: 2, dayName: 'روز ۲ — فول‌بادی تمرکز پشت و همسترینگ', tag: 'فول‌بادی B', focus: 'حرکات کششی و پشت پا', exercises: [] },
+      { dayNumber: 3, dayName: 'روز ۳ — فول‌بادی سرشانه و بازو', tag: 'فول‌بادی C', focus: 'سرشانه، بازوها و میان‌تنه', exercises: [] }
+    ]
+  },
+  {
+    id: 'bro_split',
+    name: 'تفکیکی کلاسیک (۵ روز)',
+    days: [
+      { dayNumber: 1, dayName: 'روز ۱ — عضلات سینه و شکم', tag: 'سینه', focus: 'پرس‌ها و قفسه سینه', exercises: [] },
+      { dayNumber: 2, dayName: 'روز ۲ — عضلات پشت و زیربغل', tag: 'پشت', focus: 'لت، بارفیکس و پارویی', exercises: [] },
+      { dayNumber: 3, dayName: 'روز ۳ — عضلات سرشانه و کول', tag: 'سرشانه', focus: 'نشرها و پرس سرشانه', exercises: [] },
+      { dayNumber: 4, dayName: 'روز ۴ — بازوها (جلوبازو و پشت‌بازو)', tag: 'بازو', focus: 'سوپرست‌های اختصاصی بازو', exercises: [] },
+      { dayNumber: 5, dayName: 'روز ۵ — عضلات پا و ساق', tag: 'پا', focus: 'اسکات، پرس پا و ساق', exercises: [] }
+    ]
+  }
+];
+
 function startPlanRebuild() {
   isRebuildingPlan = true;
-  renderPlanWizard('choice');
+  renderPlanWizard('ai');
 }
 
 function cancelPlanRebuild() {
@@ -225,7 +278,7 @@ function cancelPlanRebuild() {
  * Render Plan Setup Wizard
  * @param {'choice' | 'ai' | 'manual'} mode
  */
-function renderPlanWizard(mode = 'choice') {
+function renderPlanWizard(mode = 'ai') {
   const wizardSection = document.getElementById('planWizardSection');
   const activePlanSection = document.getElementById('activePlanSection');
   const topNav = document.getElementById('planTopNav');
@@ -237,57 +290,30 @@ function renderPlanWizard(mode = 'choice') {
   wizardSection.style.display = 'block';
 
   if (mode === 'choice') {
-    wizardSection.innerHTML = `
-      <div class="wizard-container">
-        <div class="wizard-hero-title">بیایید برنامه تمرینی اختصاصی شما را بسازیم 🏋️</div>
-        <div class="wizard-hero-subtitle">
-          دیگر برنامه‌های کلیشه‌ای و عمومی برای همه مناسب نیستند. سیستم هوشمند Iron Log متناسب با مکان شما (باشگاه یا خانه)، وسایل در دسترس و هدف‌تان، برنامه‌ای علمی و هدفمند طراحی می‌کند.
-        </div>
+    mode = 'ai'; // Default directly to intuitive tabbed interface
+  }
 
-        <div style="font-size:13px;font-weight:700;margin-bottom:12px;color:var(--text);text-align:center;">
-          نحوه طراحی برنامه خود را انتخاب کنید:
-        </div>
-
-        <div class="wizard-path-grid">
-          <!-- مسیر ۱: هوش مصنوعی -->
-          <div class="wizard-choice-box" onclick="renderPlanWizard('ai')">
-            <div class="wizard-choice-icon">✨</div>
-            <div class="wizard-choice-title">طراحی با هوش مصنوعی (AI)</div>
-            <div class="wizard-choice-desc">
-              پاسخ به چند سوال کوتاه؛ هوش مصنوعی برنامه چند روزه اختصاصی شما را با حرکات، ست‌ها، تکرارها و ویدیوی یوتیوب طراحی می‌کند.
-            </div>
-            <button type="button" class="primary" style="margin-top:14px;width:100%;font-size:12px;padding:8px 0;">
-              طراحی هوشمند برای من 🚀
-            </button>
-          </div>
-
-          <!-- مسیر ۲: طراحی دستی از بانک حرکات -->
-          <div class="wizard-choice-box" onclick="renderPlanWizard('manual')">
-            <div class="wizard-choice-icon">🛠️</div>
-            <div class="wizard-choice-title">طراحی دستی توسط خودم</div>
-            <div class="wizard-choice-desc">
-              جستجو در بانک ۲۲۰+ حرکت ورزشی با فیلتر باشگاه، خانه، دمبل، بدون وسیله و انتخاب دلخواه حرکات همراه با تصویر و یوتیوب.
-            </div>
-            <button type="button" class="btn" style="margin-top:14px;width:100%;font-size:12px;padding:8px 0;">
-              ورود به بانک حرکات و چینش دستی 📋
-            </button>
-          </div>
-        </div>
-
-        ${activeUserPlan ? `
-          <div style="text-align:center;margin-top:16px;">
-            <button type="button" class="btn" onclick="cancelPlanRebuild()" style="font-size:11.5px;padding:6px 14px;">
-              بازگشت به برنامه فعال فعلی
-            </button>
-          </div>
-        ` : ''}
-      </div>
-    `;
-  } else if (mode === 'ai') {
+  if (mode === 'ai') {
     renderAiQuestionnaire();
   } else if (mode === 'manual') {
     renderManualPlanBuilder();
   }
+}
+
+/**
+ * Render Top Switcher Tabs between AI and Manual
+ */
+function renderPlanMakerTabsHtml(currentMode) {
+  return `
+    <div class="plan-maker-tabs">
+      <button type="button" class="plan-maker-tab-btn ${currentMode === 'ai' ? 'active' : ''}" onclick="renderPlanWizard('ai')">
+        <span>✨ طراحی هوشمند با هوش مصنوعی</span>
+      </button>
+      <button type="button" class="plan-maker-tab-btn ${currentMode === 'manual' ? 'active' : ''}" onclick="renderPlanWizard('manual')">
+        <span>🛠️ طراحی دستی و سفارشی</span>
+      </button>
+    </div>
+  `;
 }
 
 /**
@@ -299,16 +325,20 @@ function renderAiQuestionnaire() {
 
   wizardSection.innerHTML = `
     <div class="wizard-container">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;border-bottom:1px solid var(--line);padding-bottom:10px;">
-        <div style="display:flex;align-items:center;gap:6px;">
-          <span style="font-size:20px;">✨</span>
-          <h3 style="margin:0;font-size:15px;color:var(--text);font-weight:700;">طراحی هوشمند برنامه با هوش مصنوعی</h3>
-        </div>
-        <button type="button" class="btn" onclick="renderPlanWizard('choice')" style="font-size:11px;padding:3px 8px;">✕ بازگشت</button>
-      </div>
+      ${renderPlanMakerTabsHtml('ai')}
 
-      <div style="font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.6;">
-        لطفاً به سوالات زیر پاسخ دهید تا هوش مصنوعی بر اساس شرایط بدنی و امکانات شما بهترین تقسیم‌بندی روزها و حرکات را بچیند:
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;border-bottom:1px solid var(--line);padding-bottom:10px;">
+        <div>
+          <h3 style="margin:0;font-size:15px;color:var(--text);font-weight:700;">طراحی هوشمند برنامه با هوش مصنوعی</h3>
+          <div style="font-size:11.5px;color:var(--muted);margin-top:2px;">
+            سیستم علمی CSCS بر اساس اهداف و امکانات شما بهترین تقسیم‌بندی روزها و حرکات را تنظیم می‌کند.
+          </div>
+        </div>
+        ${activeUserPlan ? `
+          <button type="button" class="btn" onclick="cancelPlanRebuild()" style="font-size:11px;padding:4px 10px;">
+            ✕ بازگشت به برنامه فعال
+          </button>
+        ` : ''}
       </div>
 
       <!-- سوال ۱: محل تمرین -->
@@ -335,19 +365,19 @@ function renderAiQuestionnaire() {
       <div class="wizard-q-label">۳. هدف اصلی شما از تمرین چیست؟</div>
       <div class="wizard-options-grid">
         <div class="wizard-option-card ${aiWizardData.goal === 'hypertrophy' ? 'active' : ''}" onclick="selectAiGoal('hypertrophy')">
-          🎯 عضله‌سازی و حجم
-        </div>
-        <div class="wizard-option-card ${aiWizardData.goal === 'fat_loss' ? 'active' : ''}" onclick="selectAiGoal('fat_loss')">
-          🔥 چربی‌سوزی و کات
+          🎯 عضله‌سازی و افزایش حجم
         </div>
         <div class="wizard-option-card ${aiWizardData.goal === 'strength' ? 'active' : ''}" onclick="selectAiGoal('strength')">
-          ⚡ افزایش قدرت
+          ⚡ افزایش قدرت و توان
         </div>
-        <div class="wizard-option-card ${aiWizardData.goal === 'general_fitness' ? 'active' : ''}" onclick="selectAiGoal('general_fitness')">
-          🏃 تناسب اندام عمومی
+        <div class="wizard-option-card ${aiWizardData.goal === 'fat_loss' ? 'active' : ''}" onclick="selectAiGoal('fat_loss')">
+          🔥 چربی‌سوزی و تفکیک (کات)
         </div>
         <div class="wizard-option-card ${aiWizardData.goal === 'calisthenics' ? 'active' : ''}" onclick="selectAiGoal('calisthenics')">
           🤸 کالیستنیکس و وزن بدن
+        </div>
+        <div class="wizard-option-card ${aiWizardData.goal === 'general_fitness' ? 'active' : ''}" onclick="selectAiGoal('general_fitness')">
+          🏃 تناسب اندام و سلامت عمومی
         </div>
       </div>
 
@@ -368,6 +398,9 @@ function renderAiQuestionnaire() {
       <!-- سوال ۵: تعداد روزها -->
       <div class="wizard-q-label">۵. چند روز در هفته مایل به تمرین هستید؟</div>
       <div class="wizard-options-grid">
+        <div class="wizard-option-card ${aiWizardData.daysPerWeek === 2 ? 'active' : ''}" onclick="selectAiDays(2)">
+          ۲ روز در هفته
+        </div>
         <div class="wizard-option-card ${aiWizardData.daysPerWeek === 3 ? 'active' : ''}" onclick="selectAiDays(3)">
           ۳ روز در هفته
         </div>
@@ -383,28 +416,41 @@ function renderAiQuestionnaire() {
       </div>
 
       <!-- سوال ۶: یادداشت خاص یا آسیب‌دیدگی -->
-      <div class="wizard-q-label">۶. یادداشت، محدودیت پزشکی یا آسیب‌دیدگی (اختیاری):</div>
+      <div class="wizard-q-label">۶. یادداشت، محدودیت پزشکی یا تمرکز عضلانی (اختیاری):</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+        <button type="button" class="quick-val-pill" onclick="setQuickInjury('بدون محدودیت')">بدون محدودیت</button>
+        <button type="button" class="quick-val-pill" onclick="setQuickInjury('کمردرد خفیف')">کمردرد خفیف</button>
+        <button type="button" class="quick-val-pill" onclick="setQuickInjury('زانودرد')">زانودرد</button>
+        <button type="button" class="quick-val-pill" onclick="setQuickInjury('درد شانه')">درد شانه</button>
+        <button type="button" class="quick-val-pill" onclick="setQuickInjury('تمرکز روی بازو و سرشانه')">تمرکز روی بازو و سرشانه</button>
+      </div>
       <input type="text" id="aiInjuriesInput" placeholder="مثلاً: درد زانو دارم، تمرکز بیشتر روی سرشانه و بازو باشد..." value="${escapeHtml(aiWizardData.injuriesNotes)}" oninput="aiWizardData.injuriesNotes = this.value" style="font-size:12.5px;padding:8px 10px;margin-bottom:16px;">
 
       <button type="button" class="primary" style="width:100%;font-size:14px;padding:12px 0;margin:0;" onclick="submitAiPlanGeneration()">
-        🚀 تولید برنامه اختصاصی من با هوش مصنوعی
+        🚀 ساخت و فعال‌سازی برنامه من با هوش مصنوعی
       </button>
     </div>
   `;
 }
 
+function setQuickInjury(val) {
+  aiWizardData.injuriesNotes = val;
+  const input = document.getElementById('aiInjuriesInput');
+  if (input) input.value = val;
+}
+
 function renderEquipmentOptionsHtml() {
   if (aiWizardData.location === 'gym') {
     return `
-      <div class="wizard-option-card active" style="grid-column: 1 / -1;">
-        ✅ کلیه تجهیزات کامل باشگاه (هالتر، دمبل، دستگاه‌ها، سیم‌کش)
+      <div class="wizard-option-card active" style="grid-column: 1 / -1;text-align:center;">
+        ✅ کلیه تجهیزات کامل باشگاه بدنسازی (هالتر، دمبل، دستگاه‌ها، سیم‌کش)
       </div>
     `;
   }
 
   const items = [
-    { id: 'bodyweight', name: '🤸 فقط وزن بدن (بدون وسیله)' },
     { id: 'dumbbell', name: '🏋️ دمبل' },
+    { id: 'bodyweight', name: '🤸 فقط وزن بدن (بدون وسیله)' },
     { id: 'resistance_band', name: '🎗️ کش تمرینی' },
     { id: 'pullup_bar', name: '🚪 میله بارفیکس' },
     { id: 'bench', name: '🪑 نیمکت تمرین' }
@@ -474,8 +520,8 @@ async function submitAiPlanGeneration() {
         <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:8px;">
           هوش مصنوعی در حال تحلیل شرایط و طراحی برنامه شماست...
         </div>
-        <div style="font-size:12px;color:var(--muted);line-height:1.7;max-width:360px;margin:0 auto;">
-          چینش بهینه حرکات بر اساس هایپرتروفی علمی، تنظیم استراحت، ست‌ها، دامنه‌های تکرار و اتصال مستقیم به ویدیوهای یوتیوب. لطفاً چند لحظه شکیبا باشید.
+        <div style="font-size:12px;color:var(--muted);line-height:1.7;max-width:400px;margin:0 auto;">
+          چینش بهینه حرکات چندمفصلی، تنظیم استراحت، ست‌ها، دامنه‌های تکرار علمی و اتصال مستقیم به ویدیوهای یوتیوب. لطفاً چند لحظه شکیبا باشید.
         </div>
       </div>
     </div>
@@ -510,82 +556,216 @@ async function submitAiPlanGeneration() {
 }
 
 /* ==========================================================================
-   MANUAL PLAN BUILDER
+   MANUAL PLAN BUILDER (REDESIGNED FROM BASE)
    ========================================================================== */
 
 function renderManualPlanBuilder() {
   const wizardSection = document.getElementById('planWizardSection');
   if (!wizardSection) return;
 
-  const currentDay = manualBuilderDays[manualBuilderSelectedDayIndex];
+  if (manualBuilderSelectedDayIndex >= manualBuilderDays.length) {
+    manualBuilderSelectedDayIndex = 0;
+  }
+
+  const currentDay = manualBuilderDays[manualBuilderSelectedDayIndex] || manualBuilderDays[0];
+  const totalExercises = manualBuilderDays.reduce((acc, d) => acc + (d.exercises ? d.exercises.length : 0), 0);
 
   wizardSection.innerHTML = `
     <div class="wizard-container">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;border-bottom:1px solid var(--line);padding-bottom:10px;">
-        <div style="display:flex;align-items:center;gap:6px;">
-          <span style="font-size:20px;">🛠️</span>
+      ${renderPlanMakerTabsHtml('manual')}
+
+      <!-- هدر و تنظیمات کلی برنامه دستی -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;border-bottom:1px solid var(--line);padding-bottom:10px;flex-wrap:wrap;gap:8px;">
+        <div>
           <h3 style="margin:0;font-size:15px;color:var(--text);font-weight:700;">طراحی دستی برنامه تمرینی</h3>
+          <div style="font-size:11.5px;color:var(--muted);margin-top:2px;">
+            نام برنامه، روزها و حرکات دلخواه را از بانک ۲۲۰+ حرکت انتخاب و به صورت کامل تنظیم کنید.
+          </div>
         </div>
-        <button type="button" class="btn" onclick="renderPlanWizard('choice')" style="font-size:11px;padding:3px 8px;">✕ انصراف</button>
+        ${activeUserPlan ? `
+          <button type="button" class="btn" onclick="cancelPlanRebuild()" style="font-size:11px;padding:4px 10px;">
+            ✕ بازگشت به برنامه فعال
+          </button>
+        ` : ''}
       </div>
 
-      <!-- تب‌های روزهای دستی -->
+      <!-- فیلد نام برنامه تمرینی -->
+      <div style="background:var(--surface-2);border-radius:8px;padding:12px;margin-bottom:14px;border:1px solid var(--line);">
+        <label style="font-size:11.5px;color:var(--muted);display:block;margin-bottom:4px;font-weight:600;">نام برنامه تمرینی شما:</label>
+        <input type="text" value="${escapeHtml(manualPlanMeta.planName)}" oninput="updateManualPlanName(this.value)" placeholder="مثلاً: برنامه ۴ روزه حجم بالاتنه / پایین‌تنه من" style="font-size:13px;font-weight:700;padding:8px 10px;margin:0;">
+      </div>
+
+      <!-- انتخاب الگوهای سریع اسپلیت -->
+      <div style="margin-bottom:10px;">
+        <div style="font-size:11.5px;color:var(--muted);margin-bottom:6px;font-weight:600;">الگوهای آماده تقسیم‌بندی روزها (اسپلیت):</div>
+        <div class="split-presets-row">
+          ${MANUAL_SPLIT_PRESETS.map(p => `
+            <button type="button" class="split-preset-chip" onclick="applySplitPreset('${p.id}')">
+              ⚡ ${p.name}
+            </button>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- تب‌های روزهای تمرینی دستی -->
       <div style="display:flex;gap:6px;overflow-x:auto;margin-bottom:12px;padding-bottom:4px;">
         ${manualBuilderDays.map((d, idx) => `
-          <button type="button" class="custom-day-chip ${idx === manualBuilderSelectedDayIndex ? 'active' : ''}" onclick="selectManualDay(${idx})">
-            ${d.dayName} (${faDigits(d.exercises.length)})
+          <button type="button" class="manual-day-chip ${idx === manualBuilderSelectedDayIndex ? 'active' : ''}" onclick="selectManualDay(${idx})">
+            <span>${escapeHtml(d.dayName || `روز ${idx + 1}`)}</span>
+            <span style="font-size:10px;background:var(--surface);padding:1px 6px;border-radius:10px;border:1px solid var(--line);">
+              ${faDigits((d.exercises || []).length)}
+            </span>
           </button>
         `).join('')}
-        <button type="button" class="plan-btn-mini" onclick="addManualDay()" style="font-size:11px;padding:6px 10px;">
+        <button type="button" class="plan-btn-mini" onclick="addManualDay()" style="font-size:11.5px;padding:6px 12px;white-space:nowrap;">
           + روز جدید
         </button>
       </div>
 
-      <div style="background:var(--surface-2);border-radius:8px;padding:10px 12px;margin-bottom:14px;">
-        <label style="font-size:11.5px;color:var(--muted);display:block;margin-bottom:4px;">عنوان و تمرکز این روز:</label>
-        <input type="text" value="${escapeHtml(currentDay.dayName)}" onchange="updateManualDayName(${manualBuilderSelectedDayIndex}, this.value)" style="font-size:12.5px;padding:6px 8px;margin-bottom:4px;">
+      <!-- تنظیمات روز انتخابی -->
+      <div style="background:var(--surface-2);border-radius:8px;padding:12px;margin-bottom:14px;border:1px solid var(--line);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px;">
+          <div style="font-size:12.5px;font-weight:700;color:var(--text);">
+            ویرایش روز ${faDigits(manualBuilderSelectedDayIndex + 1)} (${faDigits((currentDay.exercises || []).length)} حرکت)
+          </div>
+          ${manualBuilderDays.length > 1 ? `
+            <button type="button" onclick="removeManualDay(${manualBuilderSelectedDayIndex})" style="background:none;border:none;color:var(--danger);font-size:11.5px;cursor:pointer;padding:2px 6px;">
+              🗑️ حذف این روز
+            </button>
+          ` : ''}
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div>
+            <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px;">عنوان روز:</label>
+            <input type="text" value="${escapeHtml(currentDay.dayName)}" oninput="updateManualDayName(${manualBuilderSelectedDayIndex}, this.value)" style="font-size:12px;padding:6px 8px;margin:0;">
+          </div>
+          <div>
+            <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px;">عضلات هدف / تمرکز:</label>
+            <input type="text" value="${escapeHtml(currentDay.focus || '')}" oninput="updateManualDayFocus(${manualBuilderSelectedDayIndex}, this.value)" placeholder="سینه، سرشانه، زیربغل..." style="font-size:12px;padding:6px 8px;margin:0;">
+          </div>
+        </div>
       </div>
 
-      <!-- لیست حرکات اضافه شده به این روز -->
-      <div style="margin-bottom:14px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-          <span style="font-size:12.5px;font-weight:700;color:var(--text);">حرکات انتخاب‌شده برای این روز:</span>
-          <button type="button" class="primary" style="width:auto;margin:0;padding:5px 10px;font-size:11.5px;" onclick="openExerciseCatalogModal(false, true)">
+      <!-- لیست حرکات این روز -->
+      <div style="margin-bottom:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <span style="font-size:13px;font-weight:700;color:var(--text);">حرکات ورزشی این جلسه:</span>
+          <button type="button" class="primary" style="width:auto;margin:0;padding:6px 12px;font-size:12px;" onclick="openExerciseCatalogModal(false, true)">
             ➕ افزودن از بانک حرکات (۲۲۰+)
           </button>
         </div>
 
-        ${currentDay.exercises.length === 0 ? `
-          <div style="text-align:center;padding:24px 10px;border:1px dashed var(--line);border-radius:8px;color:var(--muted);font-size:12px;">
-            هنوز حرکتی به این روز اضافه نکرده‌اید. روی «افزودن از بانک حرکات» کلیک کنید تا از میان ۲۲۰+ حرکت ورزشی انتخاب کنید.
+        ${(!currentDay.exercises || currentDay.exercises.length === 0) ? `
+          <div style="text-align:center;padding:32px 14px;border:1px dashed var(--line);border-radius:10px;color:var(--muted);font-size:12.5px;background:var(--surface-2);">
+            <div>هنوز حرکتی برای این روز انتخاب نکرده‌اید.</div>
+            <button type="button" class="primary" style="width:auto;margin:12px auto 0;padding:7px 16px;font-size:12px;" onclick="openExerciseCatalogModal(false, true)">
+              ➕ باز کردن بانک حرکات و انتخاب حرکات
+            </button>
           </div>
         ` : `
-          <div style="display:flex;flex-direction:column;gap:8px;">
-            ${currentDay.exercises.map((ex, exIdx) => `
-              <div class="catalog-item-card">
-                <div style="display:flex;align-items:center;gap:10px;">
-                  ${getExerciseThumbnailSvg(ex.category)}
-                  <div>
-                    <div style="font-size:13px;font-weight:700;color:var(--text);">${escapeHtml(ex.nameFa)}</div>
-                    <div style="font-size:11px;color:var(--muted);direction:ltr;text-align:right;">${escapeHtml(ex.name)}</div>
-                  </div>
-                </div>
-                <div style="display:flex;align-items:center;gap:8px;">
-                  <span style="font-size:11px;color:var(--muted);">${faDigits(ex.sets || 3)} ست</span>
-                  <a href="${escapeHtml(ex.youtube)}" target="_blank" class="youtube-action-btn" title="مشاهده ویدیو">🎬</a>
-                  <button type="button" onclick="removeExerciseFromManualDay(${manualBuilderSelectedDayIndex}, ${exIdx})" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:15px;padding:2px 6px;">✕</button>
-                </div>
-              </div>
-            `).join('')}
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            ${currentDay.exercises.map((ex, exIdx) => renderManualExerciseRowHtml(ex, manualBuilderSelectedDayIndex, exIdx)).join('')}
           </div>
         `}
       </div>
 
-      <button type="button" class="primary" style="width:100%;font-size:13.5px;padding:12px 0;margin:0;" onclick="submitManualPlan()">
-        💾 ذخیره و شروع این برنامه تمرینی
-      </button>
+      <!-- دکمه نهایی ثبت برنامه -->
+      <div style="margin-top:16px;border-top:1px solid var(--line);padding-top:14px;">
+        <button type="button" class="primary" style="width:100%;font-size:14px;font-weight:700;padding:12px 0;margin:0;" onclick="submitManualPlan()">
+          💾 ذخیره و فعال‌سازی این برنامه تمرینی (${faDigits(totalExercises)} حرکت کل) 🚀
+        </button>
+      </div>
     </div>
   `;
+}
+
+function renderManualExerciseRowHtml(ex, dayIdx, exIdx) {
+  const sets = Number(ex.sets) || 3;
+  const reps = ex.reps || '۸ تا ۱۲';
+  const rest = ex.rest || '۹۰ ثانیه';
+  const rpe = ex.rpe || 8;
+  const youtubeUrl = ex.youtube || `https://www.youtube.com/results?search_query=${encodeURIComponent((ex.name || ex.nameFa) + ' form')}`;
+
+  return `
+    <div class="manual-ex-row">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          ${getExerciseThumbnailSvg(ex.category)}
+          <div>
+            <div style="font-size:13.5px;font-weight:700;color:var(--text);">${escapeHtml(ex.nameFa || ex.name)}</div>
+            <div style="font-size:11px;color:var(--muted);direction:ltr;text-align:right;">${escapeHtml(ex.name)}</div>
+            <div style="display:flex;gap:4px;margin-top:3px;">
+              <span class="tag-badge accent">${escapeHtml(ex.target || '')}</span>
+              <span class="tag-badge">${escapeHtml(ex.equipment || '')}</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:4px;">
+          <a href="${escapeHtml(youtubeUrl)}" target="_blank" rel="noopener noreferrer" class="youtube-action-btn" title="مشاهده ویدیو در یوتیوب">
+            🎬
+          </a>
+          <button type="button" onclick="moveManualExercise(${dayIdx}, ${exIdx}, -1)" class="manual-stepper-btn" title="انتقال به بالا">⬆️</button>
+          <button type="button" onclick="moveManualExercise(${dayIdx}, ${exIdx}, 1)" class="manual-stepper-btn" title="انتقال به پایین">⬇️</button>
+          <button type="button" onclick="removeExerciseFromManualDay(${dayIdx}, ${exIdx})" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:16px;padding:2px 6px;" title="حذف حرکت">✕</button>
+        </div>
+      </div>
+
+      <!-- کنترل‌های ست، تکرار، استراحت و RPE -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(110px, 1fr));gap:8px;background:var(--surface);padding:8px 10px;border-radius:8px;border:1px solid var(--line);">
+        <!-- تعداد ست -->
+        <div>
+          <label style="font-size:10.5px;color:var(--muted);display:block;margin-bottom:2px;">تعداد ست:</label>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <button type="button" class="manual-stepper-btn" onclick="updateManualExSets(${dayIdx}, ${exIdx}, -1)">−</button>
+            <span style="font-size:12px;font-weight:700;min-width:32px;text-align:center;">${faDigits(sets)} ست</span>
+            <button type="button" class="manual-stepper-btn" onclick="updateManualExSets(${dayIdx}, ${exIdx}, 1)">+</button>
+          </div>
+        </div>
+
+        <!-- دامنه تکرار -->
+        <div>
+          <label style="font-size:10.5px;color:var(--muted);display:block;margin-bottom:2px;">دامنه تکرار:</label>
+          <input type="text" value="${escapeHtml(reps)}" onchange="updateManualExReps(${dayIdx}, ${exIdx}, this.value)" style="font-size:11.5px;padding:4px 6px;margin:0;">
+        </div>
+
+        <!-- زمان استراحت -->
+        <div>
+          <label style="font-size:10.5px;color:var(--muted);display:block;margin-bottom:2px;">استراحت بین ست:</label>
+          <input type="text" value="${escapeHtml(rest)}" onchange="updateManualExRest(${dayIdx}, ${exIdx}, this.value)" style="font-size:11.5px;padding:4px 6px;margin:0;">
+        </div>
+
+        <!-- فشار تمرین (RPE) -->
+        <div>
+          <label style="font-size:10.5px;color:var(--muted);display:block;margin-bottom:2px;">شدت (RPE):</label>
+          <select onchange="updateManualExRpe(${dayIdx}, ${exIdx}, this.value)" style="font-size:11px;padding:4px 6px;margin:0;">
+            <option value="7" ${rpe == 7 ? 'selected' : ''}>RPE 7 (۳ تکرار تا ناتوانی)</option>
+            <option value="7.5" ${rpe == 7.5 ? 'selected' : ''}>RPE 7.5 (۲-۳ تکرار)</option>
+            <option value="8" ${rpe == 8 ? 'selected' : ''}>RPE 8 (۲ تکرار تا ناتوانی)</option>
+            <option value="8.5" ${rpe == 8.5 ? 'selected' : ''}>RPE 8.5 (۱-۲ تکرار)</option>
+            <option value="9" ${rpe == 9 ? 'selected' : ''}>RPE 9 (۱ تکرار تا ناتوانی)</option>
+            <option value="10" ${rpe == 10 ? 'selected' : ''}>RPE 10 (ناتوانی کامل)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function updateManualPlanName(val) {
+  manualPlanMeta.planName = val || 'برنامه تمرینی دست‌ساز من';
+}
+
+function applySplitPreset(presetId) {
+  const preset = MANUAL_SPLIT_PRESETS.find(p => p.id === presetId);
+  if (!preset) return;
+
+  manualBuilderDays = JSON.parse(JSON.stringify(preset.days));
+  manualBuilderSelectedDayIndex = 0;
+  manualPlanMeta.planName = `برنامه ${preset.name}`;
+  showToast(`الگوی ${preset.name} اعمال شد! اکنون حرکات را اضافه کنید.`, 'success');
+  renderManualPlanBuilder();
 }
 
 function selectManualDay(idx) {
@@ -594,6 +774,10 @@ function selectManualDay(idx) {
 }
 
 function addManualDay() {
+  if (manualBuilderDays.length >= 7) {
+    showToast('حداکثر ۷ روز تمرینی در هفته مجاز است.', 'error');
+    return;
+  }
   const nextNum = manualBuilderDays.length + 1;
   manualBuilderDays.push({
     dayNumber: nextNum,
@@ -606,10 +790,73 @@ function addManualDay() {
   renderManualPlanBuilder();
 }
 
+function removeManualDay(idx) {
+  if (manualBuilderDays.length <= 1) {
+    showToast('برنامه باید حداقل ۱ روز تمرینی داشته باشد.', 'error');
+    return;
+  }
+  manualBuilderDays.splice(idx, 1);
+  // Re-index days
+  manualBuilderDays.forEach((d, i) => {
+    d.dayNumber = i + 1;
+    if (d.dayName.startsWith('روز ')) {
+      const parts = d.dayName.split('—');
+      if (parts.length > 1) {
+        d.dayName = `روز ${i + 1} —${parts.slice(1).join('—')}`;
+      }
+    }
+  });
+  manualBuilderSelectedDayIndex = Math.max(0, idx - 1);
+  renderManualPlanBuilder();
+}
+
 function updateManualDayName(dayIdx, name) {
   if (manualBuilderDays[dayIdx]) {
     manualBuilderDays[dayIdx].dayName = name;
   }
+}
+
+function updateManualDayFocus(dayIdx, focus) {
+  if (manualBuilderDays[dayIdx]) {
+    manualBuilderDays[dayIdx].focus = focus;
+  }
+}
+
+function updateManualExSets(dayIdx, exIdx, delta) {
+  const day = manualBuilderDays[dayIdx];
+  if (!day || !day.exercises[exIdx]) return;
+  const current = Number(day.exercises[exIdx].sets) || 3;
+  day.exercises[exIdx].sets = Math.max(1, Math.min(10, current + delta));
+  renderManualPlanBuilder();
+}
+
+function updateManualExReps(dayIdx, exIdx, reps) {
+  const day = manualBuilderDays[dayIdx];
+  if (!day || !day.exercises[exIdx]) return;
+  day.exercises[exIdx].reps = reps;
+}
+
+function updateManualExRest(dayIdx, exIdx, rest) {
+  const day = manualBuilderDays[dayIdx];
+  if (!day || !day.exercises[exIdx]) return;
+  day.exercises[exIdx].rest = rest;
+}
+
+function updateManualExRpe(dayIdx, exIdx, rpe) {
+  const day = manualBuilderDays[dayIdx];
+  if (!day || !day.exercises[exIdx]) return;
+  day.exercises[exIdx].rpe = Number(rpe);
+}
+
+function moveManualExercise(dayIdx, exIdx, direction) {
+  const day = manualBuilderDays[dayIdx];
+  if (!day || !day.exercises) return;
+  const targetIdx = exIdx + direction;
+  if (targetIdx < 0 || targetIdx >= day.exercises.length) return;
+  const temp = day.exercises[exIdx];
+  day.exercises[exIdx] = day.exercises[targetIdx];
+  day.exercises[targetIdx] = temp;
+  renderManualPlanBuilder();
 }
 
 function removeExerciseFromManualDay(dayIdx, exIdx) {
@@ -620,9 +867,9 @@ function removeExerciseFromManualDay(dayIdx, exIdx) {
 }
 
 async function submitManualPlan() {
-  const totalEx = manualBuilderDays.reduce((acc, d) => acc + d.exercises.length, 0);
+  const totalEx = manualBuilderDays.reduce((acc, d) => acc + (d.exercises ? d.exercises.length : 0), 0);
   if (totalEx === 0) {
-    showToast('لطفاً حداقل چند حرکت ورزشی به روزهای برنامه اضافه کنید.', 'error');
+    showToast('لطفاً حداقل ۱ حرکت ورزشی به روزهای برنامه خود اضافه کنید.', 'error');
     return;
   }
 
@@ -630,17 +877,20 @@ async function submitManualPlan() {
     const res = await apiFetch('/api/plan/save-custom', {
       method: 'POST',
       body: JSON.stringify({
-        planName: 'برنامه دست‌ساز اختصاصی من',
+        planName: manualPlanMeta.planName || 'برنامه تمرینی دست‌ساز من',
         daysPerWeek: manualBuilderDays.length,
+        goal: manualPlanMeta.goal || 'hypertrophy',
+        location: manualPlanMeta.location || 'gym',
+        experience: manualPlanMeta.experience || 'intermediate',
         days: manualBuilderDays
       })
     });
 
     const data = await parseResponseJson(res);
-    if (res.ok && data && (data.success || data.plan)) {
+    if (res && res.ok && data && (data.success || data.plan)) {
       activeUserPlan = data.plan;
       isRebuildingPlan = false;
-      showToast('برنامه دست‌ساز شما با موفقیت ثبت شد!', 'success');
+      showToast('برنامه اختصاصی دست‌ساز شما با موفقیت ذخیره و فعال شد! 🎉', 'success');
       try {
         renderActivePlan();
       } catch (rErr) {
@@ -649,7 +899,8 @@ async function submitManualPlan() {
       return;
     }
 
-    showToast((data && data.message) || 'خطا در ثبت برنامه دست‌ساز', 'error');
+    const err = (data && data.message) || 'خطا در ثبت برنامه دست‌ساز';
+    showToast(err, 'error');
   } catch (err) {
     showToast(err.message || 'خطا در اتصال به سرور', 'error');
   }
@@ -1119,8 +1370,11 @@ function stopRestTimer() {
    EXERCISE CATALOG MODAL (220+ Exercises Browser)
    ========================================================================== */
 
+let catalogOpeningMode = 'active';
+
 async function openExerciseCatalogModal(forActive = false, forManual = false) {
-  catalogForActiveDay = Boolean(forActive);
+  catalogOpeningMode = forManual ? 'manual' : (forActive ? 'active' : (activeUserPlan ? 'active' : 'manual'));
+  catalogForActiveDay = (catalogOpeningMode === 'active');
   const modal = document.getElementById('exerciseCatalogModal');
   if (!modal) return;
 
@@ -1144,6 +1398,9 @@ async function openExerciseCatalogModal(forActive = false, forManual = false) {
 function closeExerciseCatalogModal() {
   const modal = document.getElementById('exerciseCatalogModal');
   if (modal) modal.style.display = 'none';
+  if (!catalogForActiveDay) {
+    renderManualPlanBuilder();
+  }
 }
 
 function setCatalogLocationFilter(loc) {
@@ -1194,9 +1451,18 @@ function filterCatalogExercises() {
     return;
   }
 
+  const currentManualDay = (!catalogForActiveDay && manualBuilderDays[manualBuilderSelectedDayIndex]) 
+    ? manualBuilderDays[manualBuilderSelectedDayIndex] 
+    : null;
+
   container.innerHTML = `
-    <div style="font-size:11.5px;color:var(--muted);margin-bottom:8px;">
-      نمایش ${faDigits(list.length)} حرکت ورزشی:
+    <div style="display:flex;justify-content:space-between;align-items:center;font-size:11.5px;color:var(--muted);margin-bottom:8px;">
+      <span>نمایش ${faDigits(list.length)} حرکت ورزشی:</span>
+      ${currentManualDay ? `
+        <span style="color:var(--accent);font-weight:700;">
+          انتخاب برای: ${escapeHtml(currentManualDay.dayName)} (${faDigits((currentManualDay.exercises || []).length)} حرکت افزوده شده)
+        </span>
+      ` : ''}
     </div>
     <div style="display:flex;flex-direction:column;gap:8px;">
       ${list.map(ex => `
@@ -1217,12 +1483,19 @@ function filterCatalogExercises() {
             <a href="${escapeHtml(ex.youtube)}" target="_blank" rel="noopener noreferrer" class="youtube-action-btn" title="مشاهده ویدیو در یوتیوب">
               🎬 یوتیوب
             </a>
-            <button type="button" class="primary" style="width:auto;margin:0;padding:5px 9px;font-size:11px;" onclick="addExerciseToPlan(${ex.id})">
+            <button type="button" class="primary" style="width:auto;margin:0;padding:5px 10px;font-size:11px;" onclick="addExerciseToPlan(${ex.id}, this)">
               + افزودن
             </button>
           </div>
         </div>
       `).join('')}
+    </div>
+
+    <!-- نوار چسبان پایین مودال برای اتمام انتخاب -->
+    <div style="position:sticky;bottom:0;background:var(--surface);padding:10px 0;margin-top:14px;border-top:1px solid var(--line);text-align:center;">
+      <button type="button" class="primary" style="width:100%;font-size:13px;padding:9px 0;" onclick="closeExerciseCatalogModal()">
+        ✓ تایید و بازگشت به برنامه
+      </button>
     </div>
   `;
 }
@@ -1230,30 +1503,33 @@ function filterCatalogExercises() {
 /**
  * Add chosen exercise to current active day or manual builder
  */
-async function addExerciseToPlan(exerciseId) {
+async function addExerciseToPlan(exerciseId, btn = null) {
   const ex = cachedCatalogExercises.find(e => e.id === Number(exerciseId));
   if (!ex) return;
+
+  const normalizedEx = {
+    id: ex.id,
+    name: ex.name,
+    nameFa: ex.nameFa,
+    category: ex.category || 'full_body',
+    equipment: ex.equipment || 'bodyweight',
+    target: ex.target || 'عضلات هدف',
+    sets: ex.defaultSets || 3,
+    reps: ex.defaultReps || '۸ تا ۱۲',
+    rpe: 8,
+    rir: 2,
+    rest: ex.defaultRest || '۹۰ ثانیه',
+    tech: ex.tech || '',
+    mistake: ex.mistake || '',
+    youtube: ex.youtube || `https://www.youtube.com/results?search_query=${encodeURIComponent((ex.name || ex.nameFa) + ' form exercise')}`
+  };
 
   if (catalogForActiveDay && activeUserPlan) {
     const day = activeUserPlan.days[currentSelectedDayIndex];
     if (!day) return;
 
     day.exercises = day.exercises || [];
-    day.exercises.push({
-      id: ex.id,
-      name: ex.name,
-      nameFa: ex.nameFa,
-      category: ex.category,
-      equipment: ex.equipment,
-      target: ex.target,
-      sets: ex.defaultSets || 3,
-      reps: ex.defaultReps || '۸ تا ۱۲',
-      rir: ex.defaultRir || 2,
-      rest: ex.defaultRest || '۹۰ ثانیه',
-      tech: ex.tech || '',
-      mistake: ex.mistake || '',
-      youtube: ex.youtube || `https://www.youtube.com/results?search_query=${encodeURIComponent(ex.name + ' form')}`
-    });
+    day.exercises.push(normalizedEx);
 
     try {
       await apiFetch('/api/plan/current', {
@@ -1263,7 +1539,7 @@ async function addExerciseToPlan(exerciseId) {
           days: activeUserPlan.days
         })
       });
-      showToast(`حرکت ${ex.nameFa} به برنامه اضافه شد`, 'success');
+      showToast(`حرکت ${ex.nameFa} به برنامه فعال اضافه شد!`, 'success');
       closeExerciseCatalogModal();
       renderActivePlan();
     } catch (e) {
@@ -1273,9 +1549,25 @@ async function addExerciseToPlan(exerciseId) {
     // Adding to manual builder
     const day = manualBuilderDays[manualBuilderSelectedDayIndex];
     if (day) {
-      day.exercises.push(ex);
-      showToast(`حرکت ${ex.nameFa} به روز ${day.dayNumber} اضافه شد`, 'success');
-      closeExerciseCatalogModal();
+      day.exercises = day.exercises || [];
+      day.exercises.push(normalizedEx);
+
+      if (btn) {
+        const origText = btn.textContent;
+        btn.textContent = '✅ افزوده شد';
+        btn.style.background = '#10b981';
+        btn.style.borderColor = '#10b981';
+        setTimeout(() => {
+          if (btn) {
+            btn.textContent = origText;
+            btn.style.background = '';
+            btn.style.borderColor = '';
+          }
+        }, 1200);
+      }
+
+      showToast(`حرکت ${ex.nameFa} به ${day.dayName} اضافه شد`, 'success');
+      filterCatalogExercises();
       renderManualPlanBuilder();
     }
   }
