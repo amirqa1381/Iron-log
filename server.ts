@@ -134,18 +134,18 @@ app.get('/custom-exercises', requireAuth, getCustomExercises);
 app.post('/custom-exercises', requireAuth, createCustomExercise);
 app.delete('/custom-exercises/:id', requireAuth, deleteCustomExercise);
 
-// Plan & Exercise Catalog routes
-app.get('/api/plan/current', requireAuth, getCurrentPlan);
-app.get('/api/exercises', getExerciseCatalog);
-app.post('/api/plan/generate-ai', requireAuth, generateAiPlan);
-app.post('/api/plan/save-custom', requireAuth, saveCustomPlan);
-app.put('/api/plan/current', requireAuth, updateCurrentPlan);
-app.delete('/api/plan/reset', requireAuth, resetCurrentPlan);
-app.get('/api/plan/alternatives', requireAuth, getExerciseAlternatives);
-app.post('/api/plan/swap-exercise', requireAuth, swapExerciseInPlan);
-app.post('/api/plan/adjust-sets', requireAuth, adjustPlanExerciseSets);
-app.delete('/api/plan/exercise', requireAuth, deleteExerciseFromPlan);
-app.get('/api/plan/smart-advice', requireAuth, getSmartWorkoutAdvice);
+// Plan & Exercise Catalog routes (supporting both /api/plan and /plan paths)
+app.get(['/api/plan/current', '/plan/current'], requireAuth, getCurrentPlan);
+app.get(['/api/exercises', '/exercises'], getExerciseCatalog);
+app.post(['/api/plan/generate-ai', '/plan/generate-ai'], requireAuth, generateAiPlan);
+app.post(['/api/plan/save-custom', '/plan/save-custom'], requireAuth, saveCustomPlan);
+app.put(['/api/plan/current', '/plan/current'], requireAuth, updateCurrentPlan);
+app.delete(['/api/plan/reset', '/plan/reset'], requireAuth, resetCurrentPlan);
+app.get(['/api/plan/alternatives', '/plan/alternatives'], requireAuth, getExerciseAlternatives);
+app.post(['/api/plan/swap-exercise', '/plan/swap-exercise'], requireAuth, swapExerciseInPlan);
+app.post(['/api/plan/adjust-sets', '/plan/adjust-sets'], requireAuth, adjustPlanExerciseSets);
+app.delete(['/api/plan/exercise', '/plan/exercise'], requireAuth, deleteExerciseFromPlan);
+app.get(['/api/plan/smart-advice', '/plan/smart-advice'], requireAuth, getSmartWorkoutAdvice);
 
 app.get('/export', requireAuth, exportData);
 app.post('/import', requireAuth, importData);

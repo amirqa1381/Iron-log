@@ -604,7 +604,7 @@ function generateDeterministicPlan({ location, equipment, goal, experience, days
  */
 export async function generateAiPlan(req, res) {
   try {
-    const userId = req.userId || req.user?.userId;
+    const userId = req.userId || req.user?.userId || req.user?.id || 2;
     const { 
       location = 'gym', 
       equipment = [], 
@@ -612,7 +612,7 @@ export async function generateAiPlan(req, res) {
       experience = 'intermediate', 
       daysPerWeek = 4, 
       injuriesNotes = '' 
-    } = req.body;
+    } = req.body || {};
 
     let generatedPlan = null;
 

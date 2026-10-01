@@ -64,6 +64,12 @@ async function parseResponseJson(res) {
     return JSON.parse(text);
   } catch (parseErr) {
     console.warn('[parseResponseJson] Non-JSON payload received:', text.slice(0, 200));
+    if (text.includes('<!DOCTYPE') || text.includes('<html') || text.includes('<pre>')) {
+      if (res.status === 401 || res.status === 403 || text.includes('login') || text.includes('ورود')) {
+        return { message: 'نشست کاربری شما منقضی شده است. لطفاً مجدداً وارد حساب کاربری شوید.' };
+      }
+      return { message: 'پاسخ دریافتی نامعتبر است. لطفاً دوباره امتحان کنید.' };
+    }
     if (res.status >= 500) {
       return { message: 'خطای موقت در سرور رخ داده است. لطفاً چند لحظه بعد مجدداً تلاش کنید.' };
     }
@@ -96,7 +102,7 @@ async function apiFetch(url, options = {}) {
       } catch (retryErr) {
         throw new Error('عدم برقراری ارتباط با سرور در تلاش مجدد.');
       }
-    } else if (res.status === 401) {
+    } else {
       window.location.href = '/login.html?switch=1';
       throw new Error('نشست شما منقضی شده است. لطفاً مجدداً وارد شوید.');
     }
